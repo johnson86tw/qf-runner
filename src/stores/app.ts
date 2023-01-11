@@ -22,6 +22,7 @@ import { storage } from '@/api/storage'
 import { getSecondsFromNow, hasDateElapsed } from '@/utils/dates'
 import { useRecipientStore } from './recipient'
 import { useUserStore } from './user'
+import { useRoundStore } from './round'
 
 export type AppState = {
 	cart: CartItem[]
@@ -250,6 +251,9 @@ export const useAppStore = defineStore('app', {
 			//TODO: update to take factory address as a parameter, default to env. variable
 			const round = await getRoundInfo(roundAddress)
 			this.currentRound = round
+
+			const roundStore = useRoundStore()
+			roundStore.setRoundLoaded(true)
 		},
 		selectRound(roundAddress: string) {
 			if (this.currentRoundAddress) {

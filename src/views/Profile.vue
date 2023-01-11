@@ -137,9 +137,18 @@ const { disconnect: disconnectWallet } = useWallet()
 
 onMounted(async () => {
 	isLoading.value = true
-	await loadProjects()
+	try {
+		await loadProjects()
+	} catch (err: any) {
+		console.error(err)
+	}
+
 	if (showBrightIdWidget.value) {
-		await userStore.loadBrightID()
+		try {
+			await userStore.loadBrightID()
+		} catch (err: any) {
+			console.error(err)
+		}
 	}
 	isLoading.value = false
 })
@@ -156,7 +165,7 @@ const displayAddress = computed(() => {
 
 async function loadProjects(): Promise<void> {
 	const _projects: Project[] = await getProjects(
-		recipientRegistryAddress.value!,
+		recipientRegistryAddress.value || '',
 		currentRound.value?.startTime.toSeconds(),
 		currentRound.value?.votingDeadline.toSeconds(),
 	)

@@ -19,7 +19,8 @@ app.use(metaManager)
 app.use(FloatingVue)
 app.use(i18n)
 app.use(VueDapp, {
-	autoConnect: false,
+	autoConnect: true,
+	dumb: false,
 	networks: {
 		80001: {
 			chainId: ethers.utils.hexValue(80001),
@@ -40,6 +41,17 @@ app.use(VueDapp, {
 			nativeCurrency: {
 				name: 'Arbitrum',
 				symbol: 'ETH',
+				decimals: 18,
+			},
+		},
+		421613: {
+			chainId: ethers.utils.hexValue(421613),
+			blockExplorerUrls: ['https://goerli.arbiscan.io/'],
+			chainName: 'Arbitrum Goerli',
+			rpcUrls: ['https://goerli-rollup.arbitrum.io/rpc'],
+			nativeCurrency: {
+				name: 'Arbitrum Goerli',
+				symbol: 'AETH',
 				decimals: 18,
 			},
 		},

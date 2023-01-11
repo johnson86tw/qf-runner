@@ -23,7 +23,12 @@
 		<mobile-tabs v-if="isMobileTabsShown" />
 	</div>
 	<!-- vue-dapp -->
-	<vd-board :connectors="connectors" dark />
+	<vd-board
+		:connectors="connectors"
+		dark
+		:autoConnectErrorHandler="autoConnectErrorHandler"
+		:connectErrorHandler="connectErrorHandler"
+	/>
 	<!-- vue-final-modal -->
 	<modals-container></modals-container>
 </template>
@@ -44,8 +49,10 @@ import { useAppStore, useUserStore } from '@/stores'
 import { sha256 } from '@/utils/crypto'
 import { storeToRefs } from 'pinia'
 import { useRoute } from 'vue-router'
-import { useEthersHooks, useWallet } from 'vue-dapp'
+import { useEthersHooks, useWallet, useEthers } from 'vue-dapp'
 import { useMeta } from 'vue-meta'
+import { BigNumber, Contract } from 'ethers'
+import { ERC20 } from '@/api/abi'
 
 const route = useRoute()
 const appStore = useAppStore()
@@ -56,6 +63,13 @@ const { currentUser } = storeToRefs(userStore)
 
 const { wallet } = useWallet()
 const { onActivated } = useEthersHooks()
+
+function connectErrorHandler(err: any) {
+	console.error('ConnectError', err)
+}
+function autoConnectErrorHandler(err: any) {
+	console.error('AutoConnectError', err)
+}
 
 // https://stackoverflow.com/questions/71785473/how-to-use-vue-meta-with-vue3
 // https://www.npmjs.com/package/vue-meta/v/3.0.0-alpha.7
@@ -129,9 +143,13 @@ watch(theme, () => {
 const appReady = ref(false)
 
 onMounted(async () => {
-	// to check provider works
+	// Check network
+	const { availableNetworks } = useEthers()
+	console.log('availableNetworks', JSON.parse(JSON.stringify(availableNetworks.value)))
+
+	let network
 	try {
-		const network = await Promise.race([
+		network = await Promise.race([
 			provider.getNetwork(),
 			new Promise<void>((_, reject) =>
 				setTimeout(() => {
@@ -139,39 +157,46 @@ onMounted(async () => {
 				}, 3000),
 			),
 		])
-
-		console.log(network)
+		console.log('Network: ', network)
+		// if (!Object.keys(availableNetworks.value).includes(network.chainId.toString())) {
+		// 	throw new Error('Network unavailable')
+		// }
 	} catch (err) {
-		console.warn('Failed to detect network:', err)
+		console.error('Failed to detect network:', err)
+		return
 	}
 
+	// Get round address
+	let roundAddress
 	try {
-		const roundAddress = appStore.currentRoundAddress || (await getCurrentRound())
-
-		if (roundAddress) {
-			appStore.selectRound(roundAddress)
-		} else {
-			throw new Error('Failed to get round address')
+		roundAddress = appStore.currentRoundAddress
+		if (!roundAddress) {
+			roundAddress = await getCurrentRound()
+			if (!roundAddress) throw new Error('Failed to get round address')
 		}
-		console.log('roundAddress', roundAddress)
+
+		appStore.selectRound(roundAddress)
 	} catch (err) {
-		console.warn('Failed to get current round:', err)
+		console.error('Failed to get current round:', err)
+		return
 	}
+	console.log('roundAddress', roundAddress)
 
 	appReady.value = true
 
-	// await appStore.loadUserInfo()
+	// Load round info
 	try {
 		await appStore.loadRoundInfo()
 	} catch (err) {
 		console.error(err)
 	}
+	console.log('App mounted!')
 	// await appStore.loadFactoryInfo()
 	// await appStore.loadMACIFactoryInfo()
 	// await appStore.loadRecipientRegistryInfo()
 })
 
-onActivated(async ({ address, provider }) => {
+onActivated(async ({ address, provider, balance, signer }) => {
 	console.log('onActivated')
 	// let signature
 	// if (!wallet.connector) throw new Error('Failed to activate wallet')
@@ -191,7 +216,8 @@ onActivated(async ({ address, provider }) => {
 	const user: User = {
 		isRegistered: false,
 		encryptionKey: sha256('signature'),
-		balance: null,
+		balance: BigNumber.from(0),
+		etherBalance: BigNumber.from(balance),
 		contribution: null,
 		walletProvider: provider,
 		walletAddress: address,
@@ -200,11 +226,19 @@ onActivated(async ({ address, provider }) => {
 	try {
 		await userStore.loginUser(address, user.encryptionKey)
 	} catch (err) {
+		console.error('Failed to login user')
 		console.error(err)
 		return
 	}
+
 	userStore.setCurrentUser(user)
-	userStore.loadUserInfo()
+
+	try {
+		await userStore.loadUserInfo()
+	} catch (err: any) {
+		console.error('Failed to load user info.', '\n\t', err)
+	}
+
 	userStore.loadBrightID()
 })
 

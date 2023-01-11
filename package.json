@@ -10,7 +10,8 @@
 		"format": "prettier --ignore-path .gitignore --write \"**/*.+(html|vue|ts|js|json|cjs)\"",
 		"type-check": "yarn vue-tsc --noEmit",
 		"build-map": "NODE_OPTIONS=--max-old-space-size=4096 vite build --sourcemap",
-		"test:lint-i18n": "vue-i18n-extract report --vueFiles 'src/**/*.?(vue)' --languageFiles 'src/locales/*.?(json)' --exclude dynamic"
+		"test:lint-i18n": "vue-i18n-extract report --vueFiles 'src/**/*.?(vue)' --languageFiles 'src/locales/*.?(json)' --exclude dynamic",
+		"gun": "gun --host localhost"
 	},
 	"lint-staged": {
 		"**/*.{js,ts,json,scss,css,vue}": [
@@ -69,6 +70,7 @@
 		"eslint": "^8.28.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-vue": "^9.8.0",
+		"gun-cli": "^1.7.1",
 		"jsdom": "^20.0.3",
 		"postcss": "^8.4.19",
 		"prettier": "^2.8.0",

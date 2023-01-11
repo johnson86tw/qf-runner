@@ -5,12 +5,12 @@
 		<p class="message" @click="onNavigate">
 			<links
 				v-if="chain.isLayer2"
-				:to="`{
+				:to="{
 					name: 'about-layer-2',
 					params: {
 						section: 'bridge',
 					},
-				}`"
+				}"
 			>
 				Get help bridging {{ singleTokenNeeded }} to Layer 2
 			</links>

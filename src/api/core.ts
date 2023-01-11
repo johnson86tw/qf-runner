@@ -8,6 +8,7 @@ export const rpcUrl = import.meta.env.VITE_ETHEREUM_API_URL
 if (!rpcUrl) {
 	throw new Error('Please provide ethereum rpc url for connecting to blockchain')
 }
+console.log('rpcUrl: ', rpcUrl)
 
 export const mainnetProvider = new ethers.providers.StaticJsonRpcProvider(import.meta.env.VITE_ETHEREUM_MAINNET_API_URL)
 export const provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)

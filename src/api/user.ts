@@ -1,7 +1,6 @@
 import makeBlockie from 'ethereum-blockies-base64'
 import { BigNumber, Contract } from 'ethers'
 import type { Web3Provider } from '@ethersproject/providers'
-
 import { UserRegistry, ERC20 } from './abi'
 import { factory, ipfsGatewayUrl, provider, operator } from './core'
 import type { BrightId } from './bright-id'
@@ -41,6 +40,14 @@ export async function getProfileImageUrl(walletAddress: string): Promise<string 
 }
 
 export async function isVerifiedUser(userRegistryAddress: string, walletAddress: string): Promise<boolean> {
+	if (userRegistryAddress === '' || walletAddress === '') {
+		throw new Error(
+			`Invalid address: ${JSON.stringify({
+				userRegistryAddress,
+				walletAddress,
+			})}`,
+		)
+	}
 	const registry = new Contract(userRegistryAddress, UserRegistry, provider)
 	return await registry.isVerifiedUser(walletAddress)
 }

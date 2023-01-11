@@ -34,6 +34,7 @@ export const useUserStore = defineStore('user', {
 			appStore.contributor = null
 			appStore.cart = []
 		},
+		// @note redesign this function
 		async loadUserInfo() {
 			const appStore = useAppStore()
 
@@ -45,26 +46,42 @@ export const useUserStore = defineStore('user', {
 			let userRegistryAddress = ''
 			let balance: BigNumber | null = null
 
-			if (appStore.factory) {
-				nativeTokenAddress = appStore.factory.nativeTokenAddress
-				userRegistryAddress = appStore.factory.userRegistryAddress
+			if (!appStore.factory) {
+				try {
+					await appStore.loadFactoryInfo()
+				} catch (err: any) {
+					throw new Error(err)
+				}
 			}
+			nativeTokenAddress = appStore.factory!.nativeTokenAddress
+			userRegistryAddress = appStore.factory!.userRegistryAddress
 
 			if (appStore.currentRound) {
+				console.log('currentRound', appStore.currentRound)
+
 				nativeTokenAddress = appStore.currentRound.nativeTokenAddress
 				userRegistryAddress = appStore.currentRound.userRegistryAddress
 
 				let contribution = appStore.contribution
 				if (!contribution || contribution.isZero()) {
-					contribution = await getContributionAmount(
-						appStore.currentRound.fundingRoundAddress,
-						this.currentUser.walletAddress,
-					)
+					try {
+						contribution = await getContributionAmount(
+							appStore.currentRound.fundingRoundAddress,
+							this.currentUser.walletAddress,
+						)
+					} catch (err: any) {
+						throw new Error(err)
+					}
 
-					const hasVoted = await hasContributorVoted(
-						appStore.currentRound.fundingRoundAddress,
-						this.currentUser.walletAddress,
-					)
+					let hasVoted
+					try {
+						hasVoted = await hasContributorVoted(
+							appStore.currentRound.fundingRoundAddress,
+							this.currentUser.walletAddress,
+						)
+					} catch (err: any) {
+						throw new Error(err)
+					}
 
 					appStore.contribution = contribution
 					appStore.hasVoted = hasVoted
@@ -72,15 +89,35 @@ export const useUserStore = defineStore('user', {
 			}
 
 			// Check if this user is in our user registry
-			const isRegistered = await isVerifiedUser(userRegistryAddress, this.currentUser.walletAddress)
-
-			if (nativeTokenAddress) {
-				balance = await getTokenBalance(nativeTokenAddress, this.currentUser.walletAddress)
+			let isRegistered
+			try {
+				isRegistered = await isVerifiedUser(userRegistryAddress, this.currentUser.walletAddress)
+			} catch (err: any) {
+				throw new Error(err)
 			}
 
-			const etherBalance = await getEtherBalance(this.currentUser.walletAddress)
+			if (nativeTokenAddress) {
+				try {
+					balance = await getTokenBalance(nativeTokenAddress, this.currentUser.walletAddress)
+				} catch (err: any) {
+					throw new Error(err)
+				}
+			}
+
+			let etherBalance
+			try {
+				etherBalance = await getEtherBalance(this.currentUser.walletAddress)
+			} catch (err: any) {
+				throw new Error(err)
+			}
+
 			let ensName: string | null | undefined = this.currentUser.ensName
-			ensName = await ensLookup(this.currentUser.walletAddress)
+
+			try {
+				ensName = await ensLookup(this.currentUser.walletAddress)
+			} catch (err: any) {
+				throw new Error(err)
+			}
 
 			this.currentUser = {
 				...this.currentUser,
