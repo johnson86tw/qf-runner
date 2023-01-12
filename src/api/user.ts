@@ -4,6 +4,7 @@ import type { Web3Provider } from '@ethersproject/providers'
 import { UserRegistry, ERC20 } from './abi'
 import { factory, ipfsGatewayUrl, provider, operator } from './core'
 import type { BrightId } from './bright-id'
+import { noEmptyAddress } from '@/utils/addresses'
 
 //TODO: update anywhere this is called to take factory address as a parameter, default to env. variable
 export const LOGIN_MESSAGE = `Welcome to ${operator}!
@@ -40,16 +41,19 @@ export async function getProfileImageUrl(walletAddress: string): Promise<string 
 }
 
 export async function isVerifiedUser(userRegistryAddress: string, walletAddress: string): Promise<boolean> {
-	if (userRegistryAddress === '' || walletAddress === '') {
-		throw new Error(
-			`Invalid address: ${JSON.stringify({
-				userRegistryAddress,
-				walletAddress,
-			})}`,
-		)
+	noEmptyAddress({
+		userRegistryAddress,
+		walletAddress,
+	})
+
+	let isVerified
+	try {
+		const registry = new Contract(userRegistryAddress, UserRegistry, provider)
+		isVerified = await registry.isVerifiedUser(walletAddress)
+	} catch (err: any) {
+		throw new Error(err)
 	}
-	const registry = new Contract(userRegistryAddress, UserRegistry, provider)
-	return await registry.isVerifiedUser(walletAddress)
+	return isVerified
 }
 
 export async function getTokenBalance(tokenAddress: string, walletAddress: string): Promise<BigNumber> {

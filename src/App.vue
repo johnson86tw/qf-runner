@@ -62,7 +62,7 @@ const userStore = useUserStore()
 const { currentUser } = storeToRefs(userStore)
 
 const { wallet } = useWallet()
-const { onActivated } = useEthersHooks()
+const { onActivated, onChanged } = useEthersHooks()
 
 function connectErrorHandler(err: any) {
 	console.error('ConnectError', err)
@@ -196,8 +196,19 @@ onMounted(async () => {
 	// await appStore.loadRecipientRegistryInfo()
 })
 
-onActivated(async ({ address, provider, balance, signer }) => {
+onActivated(async ({ address, provider, balance }) => {
 	console.log('onActivated')
+
+	await createUser(address, provider, balance)
+})
+
+onChanged(async ({ address, provider, balance }) => {
+	console.log('onChanged')
+
+	await createUser(address, provider, balance)
+})
+
+async function createUser(address, provider, balance) {
 	// let signature
 	// if (!wallet.connector) throw new Error('Failed to activate wallet')
 	// if (wallet.connector.name === 'metaMask') {
@@ -240,7 +251,7 @@ onActivated(async ({ address, provider, balance, signer }) => {
 	}
 
 	userStore.loadBrightID()
-})
+}
 
 // watch(isUserAndRoundLoaded, () => {
 // 	if (!isUserAndRoundLoaded.value) {

@@ -107,7 +107,7 @@ import FundsNeededWarning from '@/components/FundsNeededWarning.vue'
 
 import { userRegistryType, UserRegistryType, chain } from '@/api/core'
 import { type Project, getProjects } from '@/api/projects'
-import { isSameAddress } from '@/utils/accounts'
+import { isSameAddress } from '@/utils/addresses'
 import { getTokenLogo } from '@/utils/tokens'
 import { useAppStore, useUserStore, useRecipientStore } from '@/stores'
 import { storeToRefs } from 'pinia'

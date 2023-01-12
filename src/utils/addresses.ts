@@ -26,6 +26,15 @@ export async function isValidEthAddress(address: string): Promise<boolean> {
 	return !!resolved
 }
 
+export function noEmptyAddress(addressObj: { [key: string]: string }): boolean {
+	for (const [key, address] of Object.entries(addressObj)) {
+		if (address === '' || /^0x0+$/.test(address)) {
+			throw new Error(`Empty address: no ${key}`)
+		}
+	}
+	return true
+}
+
 export function renderAddressOrHash(address: string, digitsToShow?: number): string {
 	if (digitsToShow) {
 		const beginDigits: number = Math.ceil(digitsToShow / 2)

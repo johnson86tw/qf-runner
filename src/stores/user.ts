@@ -4,7 +4,7 @@ import { loginUser, logoutUser } from '@/api/gun'
 import { useAppStore } from './app'
 import { getContributionAmount, hasContributorVoted } from '@/api/contributions'
 import type { BigNumber } from 'ethers'
-import { ensLookup } from '@/utils/accounts'
+import { ensLookup } from '@/utils/addresses'
 import { UserRegistryType, userRegistryType } from '@/api/core'
 import { getBrightId, type BrightId } from '@/api/bright-id'
 
@@ -89,12 +89,7 @@ export const useUserStore = defineStore('user', {
 			}
 
 			// Check if this user is in our user registry
-			let isRegistered
-			try {
-				isRegistered = await isVerifiedUser(userRegistryAddress, this.currentUser.walletAddress)
-			} catch (err: any) {
-				throw new Error(err)
-			}
+			const isRegistered = await isVerifiedUser(userRegistryAddress, this.currentUser.walletAddress)
 
 			if (nativeTokenAddress) {
 				try {

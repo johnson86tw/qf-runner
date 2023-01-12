@@ -686,7 +686,7 @@ import { DateTime } from 'luxon'
 import { useRecipientStore, useAppStore, useUserStore } from '@/stores'
 import { waitForTransaction } from '@/utils/contracts'
 import { addRecipient as _addRecipient } from '@/api/recipient-registry-optimistic'
-import { isValidEthAddress, resolveEns } from '@/utils/accounts'
+import { isValidEthAddress, resolveEns } from '@/utils/addresses'
 import * as isIPFS from 'is-ipfs'
 import { toReactive } from '@vueuse/core'
 

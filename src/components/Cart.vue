@@ -481,7 +481,9 @@ function submitCart(event: any) {
 		bind: { votes, 'click-to-close': contribution.value.isZero() || !hasUserVoted.value },
 		on: {
 			close(closeModal) {
-				closeModal()
+				if (closeModal) {
+					closeModal()
+				}
 			},
 		},
 	})

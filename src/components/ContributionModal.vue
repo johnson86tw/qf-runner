@@ -175,7 +175,7 @@ async function sendVotes() {
 		)
 		appStore.setHasVote(true)
 		appStore.saveCommittedCartDispatch()
-		// TODO: how to execute this?
+		// @todo how to execute this?
 		emit('close')
 		router.push({
 			name: `transaction-success`,
@@ -184,7 +184,7 @@ async function sendVotes() {
 				hash: contributionTxHash.value,
 			},
 		})
-	} catch (error) {
+	} catch (error: any) {
 		voteTxError.value = error.message
 		return
 	}

@@ -1,7 +1,7 @@
 import { getRegistryInfo, type RecipientApplicationData, type RegistryInfo } from '@/api/recipient-registry-optimistic'
 import { getRecipientRegistryAddress } from '@/api/projects'
 import { useAppStore } from './app'
-import { isSameAddress } from '@/utils/accounts'
+import { isSameAddress } from '@/utils/addresses'
 import { useUserStore } from './user'
 
 export type RecipientState = {

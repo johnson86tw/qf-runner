@@ -7,7 +7,7 @@ import { provider, factory } from './core'
 import { getTotalContributed } from './contributions'
 import { getRounds } from './rounds'
 
-import { isSameAddress } from '@/utils/accounts'
+import { isSameAddress } from '@/utils/addresses'
 
 export interface RoundInfo {
 	fundingRoundAddress: string
