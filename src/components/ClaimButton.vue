@@ -75,7 +75,8 @@ async function checkAllocation() {
 
 	isLoading.value = true
 	if (!tally.value) {
-		await loadTally()
+		// @todo add timeout
+		await appStore.loadTally()
 	}
 
 	allocatedAmount.value = await getAllocatedAmount(
@@ -86,10 +87,6 @@ async function checkAllocation() {
 	)
 	claimed.value = await isFundsClaimed(currentRound.value.fundingRoundAddress, props.project.address)
 	isLoading.value = false
-}
-
-async function loadTally() {
-	await appStore.loadTally()
 }
 
 function hasClaimBtn(): boolean {
@@ -123,6 +120,11 @@ function claim() {
 			claimed: () => {
 				// Optimistically update the claimed state
 				claimed.value = true
+			},
+		},
+		on: {
+			close(closeModal) {
+				closeModal()
 			},
 		},
 	})

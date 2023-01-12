@@ -1,4 +1,4 @@
-import type { BigNumber } from 'ethers'
+import type { BigNumber, BigNumberish } from 'ethers'
 import { genRandomSalt, IncrementalQuinTree } from 'maci-crypto'
 import { Keypair, PubKey, Command, Message } from 'maci-domainobjs'
 
@@ -65,7 +65,13 @@ export interface Tally {
 	}
 }
 
-export function getRecipientClaimData(recipientIndex: number, recipientTreeDepth: number, tally: Tally): any[] {
+export type RecipientClaimData = [BigNumberish, BigNumberish, BigNumberish[][], BigNumberish]
+
+export function getRecipientClaimData(
+	recipientIndex: number,
+	recipientTreeDepth: number,
+	tally: Tally,
+): RecipientClaimData {
 	// Create proof for total amount of spent voice credits
 	const spent = tally.totalVoiceCreditsPerVoteOption.tally[recipientIndex]
 	const spentSalt = tally.totalVoiceCreditsPerVoteOption.salt

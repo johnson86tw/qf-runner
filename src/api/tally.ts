@@ -11,6 +11,7 @@ export { Tally }
 export async function getTally(fundingRoundAddress: string): Promise<Tally> {
 	const fundingRound = new Contract(fundingRoundAddress, FundingRound, provider)
 	const tallyHash = await fundingRound.tallyHash()
-	const response = await fetch(`${ipfsGatewayUrl}/ipfs/${tallyHash}`)
-	return await response.json()
+	// @todo enable tally file input
+	const tally = await import('../tally.json')
+	return tally
 }

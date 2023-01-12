@@ -33,8 +33,8 @@ export default {
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { Contract, BigNumber, Signer } from 'ethers'
-import { FundingRound } from '@/api/abi'
+import { BigNumber } from 'ethers'
+import { FundingRound__factory } from '@clrfund/contracts/build/types'
 import type { Project } from '@/api/projects'
 import Transaction from '@/components/Transaction.vue'
 // @ts-ignore
@@ -73,10 +73,11 @@ onMounted(() => {
 })
 
 async function claim() {
-	const signer: Signer = currentUser.value!.walletProvider.getSigner()
+	const signer = currentUser.value!.walletProvider.getSigner()
 	const { fundingRoundAddress, recipientTreeDepth } = currentRound.value!
-	const fundingRound = new Contract(fundingRoundAddress, FundingRound, signer)
+	const fundingRound = new FundingRound__factory(signer).attach(fundingRoundAddress)
 	const recipientClaimData = getRecipientClaimData(props.project.index, recipientTreeDepth, tally.value!)
+
 	let claimTxReceipt
 	try {
 		claimTxReceipt = await waitForTransaction(
@@ -85,6 +86,7 @@ async function claim() {
 		)
 	} catch (error: any) {
 		claimTxError.value = error.message
+		console.error(error)
 		return
 	}
 	amount.value = getEventArg(claimTxReceipt, fundingRound, 'FundsClaimed', '_amount')

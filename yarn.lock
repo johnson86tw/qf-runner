@@ -100,10 +100,10 @@
   resolved "https://registry.yarnpkg.com/@chainsafe/is-ip/-/is-ip-2.0.1.tgz#62cb285669d91f88fd9fa285048dde3882f0993b"
   integrity sha512-nqSJ8u2a1Rv9FYbyI8qpDhTYujaKEyLknNrTejLYoSWmdeg+2WB7R6BZqPZYfrJzDxVi3rl6ZQuoaEvpKRZWgQ==
 
-"@clrfund/contracts@^2.1.0":
-  version "2.1.0"
-  resolved "https://registry.yarnpkg.com/@clrfund/contracts/-/contracts-2.1.0.tgz#ba2a193342e403963cfcb439d4a9fdef88efa3df"
-  integrity sha512-DtM+ufFTHKywvpk6e94LXB3jOE4ECGGuzBWPDI/aK87aFzOYNjtuJJhfN5mymqjxXknNlPEss5cRc3roiotFiA==
+"@clrfund/contracts@^2.2.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@clrfund/contracts/-/contracts-2.2.0.tgz#fec10f8a643c6386ea6b12c5501451a3a02980b1"
+  integrity sha512-KMVS1iEU99OAPOBN91tDsr3/C6HzG2bHW2JrIS9YINcRy2O6oNLcUSxyjQQ4BJWRLCPeKPPzw3uQe6LygezUrQ==
   dependencies:
     "@openzeppelin/contracts" "3.2.0"
     dotenv "^8.2.0"

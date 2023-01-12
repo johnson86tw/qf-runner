@@ -19,7 +19,7 @@
 		]
 	},
 	"dependencies": {
-		"@clrfund/contracts": "^2.1.0",
+		"@clrfund/contracts": "^2.2.0",
 		"@coinbase/wallet-sdk": "^3.6.3",
 		"@kleros/gtcr-encoder": "1.4.0",
 		"@openfonts/inter_all": "^1.0.2",
