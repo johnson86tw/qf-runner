@@ -1,5 +1,0 @@
-query GetRounds {
-  fundingRounds(orderBy: startTime, orderDirection: asc) {
-    id
-  }
-}

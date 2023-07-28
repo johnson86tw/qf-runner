@@ -1,17 +1,24 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import { createMetaManager } from 'vue-meta'
+import { createVfm } from 'vue-final-modal'
+import 'vue-final-modal/style.css'
+import FloatingVue from 'floating-vue'
+import 'floating-vue/dist/style.css'
+
 import router from '@/router'
 import App from '@/App.vue'
 import { VueDapp } from 'vue-dapp'
-import { ethers } from 'ethers'
-import { createMetaManager } from 'vue-meta'
-import FloatingVue from 'floating-vue'
-import 'floating-vue/dist/style.css'
+
 import i18n from '@/plugins/i18n'
+import { ethers } from 'ethers'
 
 const pinia = createPinia()
 const app = createApp(App)
 const metaManager = createMetaManager()
+
+const vfm = createVfm()
+app.use(vfm)
 
 app.use(pinia)
 app.use(router)
