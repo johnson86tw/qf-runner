@@ -1,6 +1,6 @@
 {
-	"name": "@clrfund/vue3-app",
-	"version": "0.0.0",
+	"name": "my-clr-fun",
+	"version": "0.0.1",
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
@@ -10,8 +10,7 @@
 		"format": "prettier --ignore-path .gitignore --write \"**/*.+(html|vue|ts|js|json|cjs)\"",
 		"type-check": "yarn vue-tsc --noEmit",
 		"build-map": "NODE_OPTIONS=--max-old-space-size=4096 vite build --sourcemap",
-		"test:lint-i18n": "vue-i18n-extract report --vueFiles 'src/**/*.?(vue)' --languageFiles 'src/locales/*.?(json)' --exclude dynamic",
-		"gun": "gun --host localhost"
+		"test:lint-i18n": "vue-i18n-extract report --vueFiles 'src/**/*.?(vue)' --languageFiles 'src/locales/*.?(json)' --exclude dynamic"
 	},
 	"lint-staged": {
 		"**/*.{js,ts,json,scss,css,vue}": [
@@ -19,14 +18,15 @@
 		]
 	},
 	"dependencies": {
-		"@clrfund/contracts": "^2.2.0",
 		"@coinbase/wallet-sdk": "^3.6.3",
 		"@kleros/gtcr-encoder": "1.4.0",
 		"@openfonts/inter_all": "^1.0.2",
 		"@vuelidate/core": "^2.0.0",
 		"@vuelidate/validators": "^2.0.0",
-		"@vueuse/core": "^9.6.0",
+		"@vueuse/core": "^10.2.1",
 		"@walletconnect/web3-provider": "^1.8.0",
+		"clrfund-contracts": "^4.2.3-beta.0",
+		"clrfund-maci-utils": "^0.0.1",
 		"crypto-js": "^4.1.1",
 		"ethereum-blockies-base64": "^1.0.2",
 		"ethers": "^5.7.2",
@@ -39,6 +39,7 @@
 		"node-stdlib-browser": "^1.2.0",
 		"pinia": "^2.1.6",
 		"qrcode": "^1.5.1",
+		"viem": "^1.4.2",
 		"vue": "^3.3.4",
 		"vue-dapp": "^0.7.1",
 		"vue-final-modal": "^4.4.5",
@@ -64,7 +65,6 @@
 		"eslint": "^8.28.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-vue": "^9.8.0",
-		"gun-cli": "^1.7.1",
 		"jsdom": "^20.0.3",
 		"postcss": "^8.4.19",
 		"prettier": "^2.8.0",
