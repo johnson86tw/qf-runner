@@ -1,6 +1,5 @@
 import { ethers } from 'ethers'
 
-import { FundingRoundFactory } from './abi'
 import { CHAIN_INFO } from '@/plugins/Web3/constants/chains'
 import { CoinbaseWalletConnector, MetaMaskConnector, WalletConnectConnector } from 'vue-dapp'
 
@@ -10,13 +9,17 @@ if (!rpcUrl) {
 }
 console.log('rpcUrl: ', rpcUrl)
 
-export const mainnetProvider = new ethers.providers.StaticJsonRpcProvider(import.meta.env.VITE_ETHEREUM_MAINNET_API_URL)
+export const mainnetProvider = new ethers.providers.StaticJsonRpcProvider(
+	import.meta.env.VITE_ETHEREUM_MAINNET_API_URL,
+)
 export const provider = new ethers.providers.StaticJsonRpcProvider(rpcUrl)
 export const chainId = Number(import.meta.env.VITE_ETHEREUM_API_CHAINID)
 export const chain = CHAIN_INFO[chainId]
 if (!chain) throw new Error('invalid chain id')
 export const ipfsGatewayUrl = import.meta.env.VITE_IPFS_GATEWAY_URL
-export const gunPeers: string[] = import.meta.env.VITE_GUN_PEERS ? import.meta.env.VITE_GUN_PEERS.split(',') : []
+export const gunPeers: string[] = import.meta.env.VITE_GUN_PEERS
+	? import.meta.env.VITE_GUN_PEERS.split(',')
+	: []
 
 export const ipfsPinningUrl = import.meta.env.VITE_IPFS_PINNING_URL
 if (!ipfsPinningUrl) throw new Error('invalid ipfs pinning url')
@@ -42,7 +45,11 @@ export enum UserRegistryType {
 	BRIGHT_ID = 'brightid',
 	SIMPLE = 'simple',
 }
-if (![UserRegistryType.BRIGHT_ID, UserRegistryType.SIMPLE].includes(userRegistryType as UserRegistryType)) {
+if (
+	![UserRegistryType.BRIGHT_ID, UserRegistryType.SIMPLE].includes(
+		userRegistryType as UserRegistryType,
+	)
+) {
 	throw new Error('invalid user registry type')
 }
 export const recipientRegistryType = import.meta.env.VITE_RECIPIENT_REGISTRY_TYPE
