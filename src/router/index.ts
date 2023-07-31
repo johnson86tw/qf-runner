@@ -8,6 +8,11 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('@/views/Home.vue'),
 	},
 	{
+		path: '/claim',
+		name: 'claim',
+		component: () => import('@/views/Claim.vue'),
+	},
+	{
 		path: '/viem-ethers',
 		name: 'viem-ethers',
 		component: () => import('@/views/ViemEthers.vue'),

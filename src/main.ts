@@ -1,21 +1,35 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { createMetaManager } from 'vue-meta'
+import i18n from '@/plugins/i18n'
+import { ethers } from 'ethers'
+
+// modal
 import { createVfm } from 'vue-final-modal'
 import 'vue-final-modal/style.css'
+
+// floating-vue
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 
-import router from '@/router'
-import App from '@/App.vue'
+// vue-dapp
 import { VueDapp } from 'vue-dapp'
 
-import i18n from '@/plugins/i18n'
-import { ethers } from 'ethers'
+// vue3-select
+import VueSelect from 'vue3-select'
+import 'vue3-select/dist/vue3-select.css'
+
+// app
+import '@/styles/index.scss'
+
+import router from '@/router'
+import App from '@/App.vue'
 
 const pinia = createPinia()
 const app = createApp(App)
 const metaManager = createMetaManager()
+
+app.component('VSelect', VueSelect)
 
 const vfm = createVfm()
 app.use(vfm)

@@ -2,9 +2,6 @@
 import { FundingRound__factory } from 'clrfund-contracts/build/typechain'
 import { ethers } from 'ethers'
 import { CURRENT_ROUND_ADDRESS } from '@/constants'
-import { createPublicClient, http, getAddress } from 'viem'
-import type { Abi } from 'viem'
-import { arbitrum } from 'viem/chains'
 
 const rpcUrl = 'https://arb1.arbitrum.io/rpc'
 
@@ -14,39 +11,16 @@ async function getNativeTokenByEthers() {
 	eth.value = await fundingRound.nativeToken()
 }
 
-async function getNativeTokenByViem() {
-	const client = createPublicClient({
-		chain: arbitrum,
-		transport: http(),
-	})
-
-	const results = await client.multicall({
-		contracts: [
-			{
-				address: getAddress(CURRENT_ROUND_ADDRESS),
-				abi: FundingRound__factory.abi as Abi,
-				functionName: 'nativeToken',
-				args: [],
-			},
-		],
-	})
-
-	viem.value = results[0].result as unknown as string
-}
-
 const eth = ref('')
-const viem = ref('')
 
 onMounted(() => {
 	getNativeTokenByEthers()
-	getNativeTokenByViem()
 })
 </script>
 
 <template>
 	<div>
 		<div>ethers: {{ eth }}</div>
-		<div>viem: {{ viem }}</div>
 	</div>
 </template>
 
