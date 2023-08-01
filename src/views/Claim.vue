@@ -1,44 +1,21 @@
 <script setup lang="ts">
 import { FundingRound__factory } from 'clrfund-contracts/build/typechain'
 import { ethers } from 'ethers'
-import { CURRENT_ROUND_ADDRESS } from '@/constants'
+import { CURRENT_ROUND_ADDRESS_HAR } from '@/constants'
 import { useBoard, useEthers, useWallet, displayEther, shortenAddress } from 'vue-dapp'
 import { getRecipientClaimData } from 'clrfund-maci-utils'
 import type { Tally } from 'clrfund-maci-utils'
 import tally from '@/mocks/tally'
 import { waitForTransaction, getEventArg } from '@/utils/contracts'
+import useDapp from '@/composables/useDapp'
 
-// async function getNativeTokenByEthers() {
-// 	const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
-// 	const fundingRound = FundingRound__factory.connect(CURRENT_ROUND_ADDRESS, provider)
-// 	eth.value = await fundingRound.nativeToken()
-// }
-const networkOptions = [
-	{
-		name: 'arbitrum',
-		rpcUrl: 'https://arb1.arbitrum.io/rpc',
-	},
-	{
-		name: 'clrfund-hardhat',
-		rpcUrl: 'http://localhost:18545',
-	},
-]
-
-const selectedNetwork = ref(networkOptions[0])
-const rpcUrl = computed(() => selectedNetwork.value.rpcUrl)
-
-const { signer } = useEthers()
-
-function getSigner() {
-	if (!signer.value) throw new Error('No signer')
-	return signer.value
-}
+const { getSigner, rpcUrl, selectedNetwork, networkOptions, getNativeTokenContract } = useDapp()
 
 const claimTxHash = ref('')
 const claimTxError = ref('')
 
 async function claim() {
-	const fundingRound = FundingRound__factory.connect(CURRENT_ROUND_ADDRESS, getSigner())
+	const fundingRound = FundingRound__factory.connect(CURRENT_ROUND_ADDRESS_HAR, getSigner())
 	const projectIndex = 1
 	const recipientTreeDepth = 32
 
