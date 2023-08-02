@@ -24,7 +24,11 @@ export default function useDapp() {
 	const { onActivated } = useEthersHooks()
 
 	function getSigner() {
-		if (!signer.value) throw new Error(noConnectError)
+		if (!signer.value) {
+			console.warn('No wallect connected, using hardhat account #12 as signer')
+			const hardhat12 = '0xa267530f49f8280200edf313ee7af6b827f2a8bce2897751d06a843f644967b1'
+			return new ethers.Wallet(hardhat12).connect(getProvider())
+		}
 		return signer.value
 	}
 
@@ -39,6 +43,11 @@ export default function useDapp() {
 		return provider
 	}
 
+	function getRandomSigner() {
+		const defaultSigner = ethers.Wallet.createRandom().connect(getProvider())
+		return defaultSigner
+	}
+
 	return {
 		CURRENT_ROUND_ADDRESS_HAR,
 		networkOptions,
@@ -48,6 +57,7 @@ export default function useDapp() {
 		getSigner,
 		getProvider,
 		getUserAddress,
+		getRandomSigner,
 		onActivated,
 	}
 }

@@ -18,6 +18,11 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('@/views/Claim.vue'),
 	},
 	{
+		path: '/Maci',
+		name: 'Maci',
+		component: () => import('@/views/MACI.vue'),
+	},
+	{
 		path: '/viem-ethers',
 		name: 'viem-ethers',
 		component: () => import('@/views/ViemEthers.vue'),

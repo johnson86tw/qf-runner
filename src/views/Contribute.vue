@@ -1,198 +1,76 @@
 <script setup lang="ts">
-import { FundingRound__factory, MACI__factory } from 'clrfund-contracts/build/typechain'
-import { Contract } from 'ethers'
-import { BigNumber } from 'ethers'
-import { CURRENT_ROUND_ADDRESS_HAR } from '@/constants'
-import { Keypair, PubKey, Message, createMessage } from 'clrfund-maci-utils'
-import { waitForTransaction, getEventArg } from '@/utils/contracts'
 import useDapp from '@/composables/useDapp'
-import { useRoundStore, noRoundInfoError } from '@/stores/useRound'
-import { sha256 } from '@/utils/crypto'
+import { useRoundStore } from '@/stores/useRound'
+import { watchImmediate } from '@vueuse/core'
+import { BigNumber } from 'ethers'
 
-const { getSigner, signer, selectedNetwork, networkOptions } = useDapp()
+const { getSigner, getProvider, selectedNetwork, networkOptions } = useDapp()
 
-type Vote = [number, BigNumber]
-type Votes = Vote[]
-
-const votes = ref<Votes>([[1, BigNumber.from(20)]])
-
+const provider = getProvider()
+const signer = getSigner()
 const roundStore = useRoundStore()
-const { round } = storeToRefs(roundStore)
-
-const total = computed(() => {
-	const { voiceCreditFactor } = round.value
-	return votes.value.reduce((total: BigNumber, [, voiceCredits]) => {
-		return total.add(voiceCredits.mul(voiceCreditFactor))
-	}, BigNumber.from(0))
-})
 
 const step = ref(0)
-const approvalTxHash = ref('')
-const approvalTxError = ref('')
-const contributionTxHash = ref('')
-const contributionTxError = ref('')
-const voteTxHash = ref('')
-const voteTxError = ref('')
+const votesInput = ref('[[2, 40], [3, 60]]')
+const isVotesError = ref(false)
+
+watchImmediate(votesInput, () => {
+	let votes
+	try {
+		const arr = JSON.parse(votesInput.value)
+		votes = arr.map(vote => {
+			return [vote[0], BigNumber.from(vote[1])]
+		})
+	} catch (err: any) {
+		isVotesError.value = true
+		return
+	}
+	isVotesError.value = false
+	roundStore.setVotes(votes)
+	console.log(roundStore.votes)
+})
 
 onMounted(async () => {
-	await roundStore.updateRound()
-
+	await roundStore.updateRound(provider)
 	// await contribute()
 })
 
-let encryptionKey: string | undefined = ''
-
 async function contribute() {
-	if (!round.value.contract) throw new Error(noRoundInfoError)
-	if (!round.value.maciContract) throw new Error(noRoundInfoError)
+	const encryptionKey = await roundStore.getEncryptionKey(signer, generateRandomString(50))
 
-	function generateRandomString(length) {
-		const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
-		let result = ''
-
-		for (let i = 0; i < length; i++) {
-			const randomIndex = Math.floor(Math.random() * characters.length)
-			result += characters.charAt(randomIndex)
-		}
-
-		return result
-	}
-	const signature = (await signer.value?.signMessage(generateRandomString(50))) as string
-	encryptionKey = sha256(signature)
+	console.log('votes: ', roundStore.votes)
 
 	try {
 		step.value += 1
-		const token = await roundStore.getNativeTokenContract()
-		const allowance = await token.allowance(
-			await getSigner().getAddress(),
-			CURRENT_ROUND_ADDRESS_HAR,
-		)
-
-		console.log('allowance', allowance)
-		console.log('total', total.value)
-
-		// Approve transfer (step 1)
-		if (allowance < total.value) {
-			try {
-				await waitForTransaction(
-					token.approve(round.value.address, total.value),
-					hash => (approvalTxHash.value = hash),
-				)
-			} catch (err: any) {
-				approvalTxError.value = err.message
-				return
-			}
-		}
+		await roundStore.approveToken(signer)
+		console.log('token approved')
 
 		step.value += 1
+		const contributor = await roundStore.contribute(encryptionKey, signer)
+		console.log('contributed')
 
-		// Contribute (step 2)
-
-		// const encryptionKey = currentUser.value?.encryptionKey || ''
-		if (!encryptionKey) {
-			throw new Error('Missing encryption key')
-		}
-		const contributorKeypair = Keypair.createFromSeed(encryptionKey)
-
-		let contributionTxReceipt
-		try {
-			const fundingRound = FundingRound__factory.connect(round.value.address, getSigner())
-			contributionTxReceipt = await waitForTransaction(
-				fundingRound.contribute(contributorKeypair.pubKey.asContractParam(), total.value),
-				hash => (contributionTxHash.value = hash),
-			)
-		} catch (error: any) {
-			contributionTxError.value = error.message
-			console.error(error)
-			return
-		}
-		// Get state index
-		const maci = new Contract(round.value.maciAddress, MACI__factory.abi, getSigner())
-		const stateIndex = getEventArg(contributionTxReceipt, maci, 'SignUp', '_stateIndex')
-		const contributor = {
-			keypair: contributorKeypair,
-			stateIndex: stateIndex.toNumber(),
-		}
-
-		console.log('contributor', contributor)
-
-		roundStore.updateRound()
+		await roundStore.updateRound(provider)
+		console.log('round updated')
 
 		step.value += 1
-
-		// Vote (step 3)
-		await sendVotes(contributor)
+		await roundStore.sendVotes(contributor, signer)
+		console.log('Successfully contributed')
 	} catch (err: any) {
 		console.error('contribute:', err)
 	}
 }
 
-interface Contributor {
-	keypair: Keypair
-	stateIndex: number
-}
+function generateRandomString(length) {
+	const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+	let result = ''
 
-async function sendVotes(contributor: Contributor) {
-	const messages: Message[] = []
-	const encPubKeys: PubKey[] = []
-	let nonce = 1
-	for (const [recipientIndex, voiceCredits] of votes.value) {
-		const [message, encPubKey] = createMessage(
-			contributor!.stateIndex,
-			contributor!.keypair,
-			null,
-			round.value.coordinatorPubKey!,
-			recipientIndex,
-			voiceCredits,
-			nonce,
-		)
-		messages.push(message)
-		encPubKeys.push(encPubKey)
-		nonce += 1
+	for (let i = 0; i < length; i++) {
+		const randomIndex = Math.floor(Math.random() * characters.length)
+		result += characters.charAt(randomIndex)
 	}
 
-	const fundingRound = FundingRound__factory.connect(round.value.address, getSigner())
-
-	try {
-		await waitForTransaction(
-			fundingRound.submitMessageBatch(
-				// @ts-ignore
-				messages.reverse().map(msg => msg.asContractParam()),
-				encPubKeys.reverse().map(key => key.asContractParam()),
-			),
-			hash => (voteTxHash.value = hash),
-		)
-
-		console.log('Successfully voted!')
-		// appStore.setHasVote(true)
-		// appStore.saveCommittedCart()
-		// // TODO: how to execute this?
-		// emit('close')
-		// router.push({
-		// 	name: `transaction-success`,
-		// 	params: {
-		// 		type: 'contribution',
-		// 		hash: contributionTxHash.value,
-		// 	},
-		// })
-	} catch (error: any) {
-		voteTxError.value = error.message
-		return
-	}
-	step.value += 1
+	return result
 }
-
-// watch(
-// 	signer,
-// 	() => {
-// 		if (signer.value) {
-// 			contribute()
-// 		}
-// 	},
-// 	{
-// 		immediate: true,
-// 	},
-// )
 </script>
 
 <template>
@@ -211,27 +89,17 @@ async function sendVotes(contributor: Contributor) {
 		</div>
 
 		<div class="flex flex-col items-center gap-y-4 pb-4">
-			<div class="w-64">
-				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">
-					MACI Key
+			<div class="w-[500px]">
+				<label class="block text-gray-700 text-center text-sm font-bold mb-2" for="votes">
+					Votes
 				</label>
 				<input
+					v-model="votesInput"
 					class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-					id="a"
+					:class="isVotesError ? 'border-red-500' : 'border-green-500'"
+					id="votes"
 					type="text"
-					placeholder=""
-				/>
-			</div>
-
-			<div class="w-64">
-				<label class="block text-gray-700 text-sm font-bold mb-2" for="username">
-					MACI Key
-				</label>
-				<input
-					class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-					id="b"
-					type="text"
-					placeholder=""
+					placeholder="[[stateIndex, amount], [...]] ex. [[1, 20], [2, 40]]"
 				/>
 			</div>
 		</div>
