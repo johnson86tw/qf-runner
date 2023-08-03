@@ -19,7 +19,6 @@
 		"importsNotUsedAsValues": "error", // Enforce using `import type` instead of `import` for types
 		"forceConsistentCasingInFileNames": true,
 		"skipLibCheck": true, // See <https://github.com/vuejs/vue-cli/pull/5688>
-
 		"paths": {
 			"@/*": ["./src/*"]
 		}

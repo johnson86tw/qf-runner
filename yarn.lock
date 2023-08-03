@@ -893,14 +893,14 @@
   resolved "https://registry.yarnpkg.com/@openzeppelin/contracts/-/contracts-3.2.0.tgz#3e6b3a7662d8ed64271ade96ef42655db983fd9d"
   integrity sha512-bUOmkSoPkjnUyMiKo6RYnb0VHBk5D9KKDAgNLzF41aqAM3TeE0yGdFF5dVRcV60pZdJLlyFT/jjXIZCWyyEzAQ==
 
-"@rollup/plugin-inject@^5.0.2":
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/@rollup/plugin-inject/-/plugin-inject-5.0.3.tgz#0783711efd93a9547d52971db73b2fb6140a67b1"
-  integrity sha512-411QlbL+z2yXpRWFXSmw/teQRMkXcAAC8aYTemc15gwJRpvEVDQwoe+N/HTFD8RFG8+88Bme9DK2V9CVm7hJdA==
+"@rollup/plugin-inject@5.0.2":
+  version "5.0.2"
+  resolved "https://registry.yarnpkg.com/@rollup/plugin-inject/-/plugin-inject-5.0.2.tgz#b26c0e6e73f39c118ffc1cf07cfbfd93459b93a6"
+  integrity sha512-zRthPC/sZ2OaQwPh2LvFn0A+3SyMAZR1Vqsp89mWkIuGXKswT8ty1JWj1pf7xdZvft4gHZaCuhdopuiCwjclWg==
   dependencies:
     "@rollup/pluginutils" "^5.0.1"
     estree-walker "^2.0.2"
-    magic-string "^0.27.0"
+    magic-string "^0.26.4"
 
 "@rollup/pluginutils@^4.2.0":
   version "4.2.1"
@@ -1131,6 +1131,13 @@
   version "7.4.7"
   resolved "https://registry.yarnpkg.com/@types/ws/-/ws-7.4.7.tgz#f7c390a36f7a0679aa69de2d501319f4f8d9b702"
   integrity sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==
+  dependencies:
+    "@types/node" "*"
+
+"@types/ws@^8.5.4":
+  version "8.5.5"
+  resolved "https://registry.yarnpkg.com/@types/ws/-/ws-8.5.5.tgz#af587964aa06682702ee6dcbc7be41a80e4b28eb"
+  integrity sha512-lwhs8hktwxSjf9UaZ9tG5M03PGogvFaH8gUgLNbN9HKIg0dvv6q+gkSuJ8HN4/VbyxkuLzCjlN7GquQ0gUJfIg==
   dependencies:
     "@types/node" "*"
 
@@ -5363,7 +5370,7 @@ magic-string@^0.25.7:
   dependencies:
     sourcemap-codec "^1.4.8"
 
-magic-string@^0.26.7:
+magic-string@^0.26.4, magic-string@^0.26.7:
   version "0.26.7"
   resolved "https://registry.yarnpkg.com/magic-string/-/magic-string-0.26.7.tgz#caf7daf61b34e9982f8228c4527474dac8981d6f"
   integrity sha512-hX9XH3ziStPoPhJxLq1syWuZMxbDvGNbVchfrdCtanC7D13888bMFow61x8axrx+GfHLtVeAx2kxL7tTGRl+Ow==
@@ -7605,16 +7612,17 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-viem@^1.4.2:
-  version "1.4.2"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-1.4.2.tgz#81aaff0d8ee0d39bb2994ffa6c89bf7ee4fbcde6"
-  integrity sha512-125E7HoOr5PrL+Iwt8853dQexwRoiPpLwPsrRvlDX94su2xoe7AYqrdfR6N9nmy6vd6mt8eQy8+LWiP3A+1dqw==
+viem@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-1.5.2.tgz#b8b9b464c4fb211c1daec6253b3e2559b69607b7"
+  integrity sha512-hPs4TJ9ONZw44K8lh24I5+Qntu62DEP85yhPsGqSSyr2d9yROY/9AisLLTlrlsudhg+A+BnLQGAuqvj/X+i8Ow==
   dependencies:
     "@adraffy/ens-normalize" "1.9.0"
     "@noble/curves" "1.0.0"
     "@noble/hashes" "1.3.0"
     "@scure/bip32" "1.3.0"
     "@scure/bip39" "1.2.0"
+    "@types/ws" "^8.5.4"
     "@wagmi/chains" "1.6.0"
     abitype "0.9.3"
     isomorphic-ws "5.0.0"
