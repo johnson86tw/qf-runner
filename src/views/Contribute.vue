@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import useDapp from '@/composables/useDapp'
-import { useRoundStore } from '@/stores/useRound'
+import { useRoundStore } from '@/stores/useRoundStore'
 import { watchImmediate } from '@vueuse/core'
 import { BigNumber } from 'ethers'
 
@@ -90,12 +90,10 @@ function generateRandomString(length) {
 
 		<div class="flex flex-col items-center gap-y-4 pb-4">
 			<div class="w-[500px]">
-				<label class="block text-gray-700 text-center text-sm font-bold mb-2" for="votes">
-					Votes
-				</label>
+				<label class="label" for="votes"> Votes </label>
 				<input
 					v-model="votesInput"
-					class="appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+					class="input"
 					:class="isVotesError ? 'border-red-500' : 'border-green-500'"
 					id="votes"
 					type="text"

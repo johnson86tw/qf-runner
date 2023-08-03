@@ -1,29 +1,25 @@
 <script setup lang="ts">
-import { FundingRound__factory } from 'clrfund-contracts/build/typechain'
-import { ethers } from 'ethers'
-import { CURRENT_ROUND_ADDRESS_HAR, CURRENT_ROUND_ADDRESS_ARB } from '@/constants'
-import useDapp from '@/composables/useDapp'
+const router = useRouter()
 
-const { rpcUrl } = useDapp()
-
-console.log(CURRENT_ROUND_ADDRESS_HAR)
-
-async function getNativeTokenByEthers() {
-	const provider = new ethers.providers.JsonRpcProvider(rpcUrl.value)
-	const fundingRound = FundingRound__factory.connect(CURRENT_ROUND_ADDRESS_HAR, provider)
-	eth.value = await fundingRound.nativeToken()
-}
-
-const eth = ref('')
-
-onMounted(() => {
-	getNativeTokenByEthers()
+const childRoutes = computed(() => {
+	return router.options.routes.filter(r => r.path !== '/')
 })
 </script>
 
 <template>
 	<div>
-		<div>ethers: {{ eth }}</div>
+		<p class="text-center text-3xl">Clrfund Mini UI</p>
+		<div class="mt-5 flex flex-col items-center justify-center gap-y-4">
+			<div class="flex flex-col items-center" v-for="route in childRoutes" :key="route.name">
+				<router-link :to="route.path" class="text-lg">
+					{{ route.path }}
+				</router-link>
+
+				<p>
+					{{ route.meta?.description }}
+				</p>
+			</div>
+		</div>
 	</div>
 </template>
 

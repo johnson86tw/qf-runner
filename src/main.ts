@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 import { createMetaManager } from 'vue-meta'
 import i18n from '@/plugins/i18n'
 import { ethers } from 'ethers'
@@ -27,7 +28,10 @@ import '@/styles/index.scss'
 const app = createApp(App)
 app.component('VSelect', VueSelect)
 
-app.use(createPinia())
+const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
+app.use(pinia)
+
 app.use(createMetaManager())
 app.use(createVfm())
 app.use(router)
