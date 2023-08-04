@@ -18,7 +18,7 @@ const link = computed(() => {
 
 		<div>
 			<a target="_blank" :href="link">
-				<img class="w-4 h-4 cursor-pointer" src="../assets/link.svg" alt="" />
+				<i-ic-baseline-open-in-new />
 			</a>
 		</div>
 	</div>

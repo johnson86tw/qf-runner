@@ -38,8 +38,12 @@ const contractAddress = computed(() => props.useContractOptions.address)
 			</div>
 
 			<div class="ml-4">
-				<div v-if="!collapsed">open</div>
-				<div v-else>close</div>
+				<div v-if="!collapsed">
+					<i-ic-baseline-keyboard-arrow-down />
+				</div>
+				<div v-else>
+					<i-ic-baseline-keyboard-arrow-up />
+				</div>
 			</div>
 		</div>
 

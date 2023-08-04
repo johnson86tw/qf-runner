@@ -81,9 +81,6 @@ const informations = computed(() => {
 </template>
 
 <style>
-a {
-	@apply text-blue-700;
-}
 .title {
 	@apply text-xl text-center mb-2;
 }

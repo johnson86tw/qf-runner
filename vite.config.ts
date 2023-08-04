@@ -6,6 +6,8 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import inject from '@rollup/plugin-inject'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
+import Icons from 'unplugin-icons/vite'
+import IconsResolver from 'unplugin-icons/resolver'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -22,7 +24,9 @@ export default defineConfig({
 		// https://github.com/antfu/unplugin-vue-components#configuration
 		Components({
 			dts: 'src/components.d.ts',
+			resolvers: [IconsResolver()],
 		}),
+		Icons(),
 		VueI18nPlugin({}),
 	],
 	resolve: {
