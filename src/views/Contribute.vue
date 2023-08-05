@@ -1,14 +1,12 @@
 <script setup lang="ts">
-import useDapp from '@/composables/useDapp'
+import { useDappStore } from '@/stores/useDappStore'
 import { useRoundStore } from '@/stores/useRoundStore'
 import { watchImmediate } from '@vueuse/core'
 import { BigNumber } from 'ethers'
 
-const { getSigner, getProvider, selectedNetwork, networkOptions } = useDapp()
-
-const provider = getProvider()
-const signer = getSigner()
+const dappStore = useDappStore()
 const roundStore = useRoundStore()
+const { isRoundLoaded } = storeToRefs(roundStore)
 
 const step = ref(0)
 const votesInput = ref('[[2, 40], [3, 60]]')
@@ -27,36 +25,60 @@ watchImmediate(votesInput, () => {
 	}
 	isVotesError.value = false
 	roundStore.setVotes(votes)
-	console.log(roundStore.votes)
 })
 
-onMounted(async () => {
-	await roundStore.updateRound(provider)
-	// await contribute()
+const stateText = computed(() => {
+	switch (step.value) {
+		case 0:
+			return ''
+		case 1:
+			return 'approving tokens...'
+		case 2:
+			return 'contributing...'
+		case 3:
+			return 'sending votes...'
+		case 4:
+			return 'Successfully contributed'
+		default:
+			return ''
+	}
 })
+const loading = ref(false)
+const error = ref(null)
 
-async function contribute() {
-	const encryptionKey = await roundStore.getEncryptionKey(signer, generateRandomString(50))
+async function onContribute() {
+	loading.value = true
+	error.value = null
+
+	const encryptionKey = await roundStore.getEncryptionKey(
+		dappStore.signer,
+		generateRandomString(50),
+	)
 
 	console.log('votes: ', roundStore.votes)
 
 	try {
 		step.value += 1
-		await roundStore.approveToken(signer)
+		await roundStore.approveToken(dappStore.signer)
 		console.log('token approved')
 
 		step.value += 1
-		const contributor = await roundStore.contribute(encryptionKey, signer)
+		const contributor = await roundStore.contribute(encryptionKey, dappStore.signer)
 		console.log('contributed')
 
-		await roundStore.updateRound(provider)
+		await roundStore.updateRound(dappStore.provider)
 		console.log('round updated')
 
 		step.value += 1
-		await roundStore.sendVotes(contributor, signer)
+		await roundStore.sendVotes(contributor, dappStore.signer)
+		step.value += 1
 		console.log('Successfully contributed')
 	} catch (err: any) {
+		step.value = 0
+		error.value = err
 		console.error('contribute:', err)
+	} finally {
+		loading.value = false
 	}
 }
 
@@ -75,17 +97,8 @@ function generateRandomString(length) {
 
 <template>
 	<div>
-		<div class="flex justify-between py-4 px-10">
+		<div class="flex justify-center py-4 px-10">
 			<p>Contribute</p>
-			<div class="w-40">
-				<v-select
-					:clearable="false"
-					:searchable="false"
-					v-model="selectedNetwork"
-					:options="networkOptions"
-					label="name"
-				/>
-			</div>
 		</div>
 
 		<div class="flex flex-col items-center gap-y-4 pb-4">
@@ -101,9 +114,15 @@ function generateRandomString(length) {
 				/>
 			</div>
 		</div>
-
-		<div class="flex justify-center">
-			<button class="btn" @click="contribute">Contribute</button>
+		<div class="flex flex-col items-center gap-y-2 justify-center">
+			<BaseButton
+				:loading="loading"
+				:disabled="!isRoundLoaded || isVotesError"
+				text="Contribute"
+				@click="onContribute"
+			/>
+			<p>{{ stateText }}</p>
+			<p class="w-full break-words">{{ error }}</p>
 		</div>
 	</div>
 </template>

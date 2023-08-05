@@ -9,6 +9,7 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Address: typeof import('./components/Address.vue')['default']
     ApplyContract: typeof import('./components/ApplyContract.vue')['default']
+    BaseButton: typeof import('./components/BaseButton.vue')['default']
     Contract: typeof import('./components/Contract.vue')['default']
     ContractUI: typeof import('./components/ContractUI.vue')['default']
     Header: typeof import('./components/Header.vue')['default']
@@ -21,6 +22,7 @@ declare module '@vue/runtime-core' {
     IIcBaseLineOpenInNew: typeof import('~icons/ic/base-line-open-in-new')['default']
     IIcClose: typeof import('~icons/ic/close')['default']
     IIcDown: typeof import('~icons/ic/down')['default']
+    'ISvgSpinners:3DotsFade': typeof import('~icons/svg-spinners/3-dots-fade')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }

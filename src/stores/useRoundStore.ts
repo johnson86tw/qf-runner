@@ -1,6 +1,6 @@
 import { BigNumber, Contract, Signer, providers } from 'ethers'
 import { defineStore } from 'pinia'
-import { CURRENT_ROUND_ADDRESS_HAR } from '@/constants'
+import { ROUND_ADDRESSES } from '@/constants'
 import {
 	ERC20__factory,
 	FundingRoundFactory__factory,
@@ -49,19 +49,6 @@ export type RoundState = {
 	votes: Votes
 }
 
-const defaultRoundAddresses = [
-	{
-		name: 'Clrfund round 9',
-		networkName: 'arbitrum',
-		address: '0x806F08B7DD31fE0267e8c70C4bF8C4BfbBddE760',
-	},
-	{
-		name: 'Clr Hardhat network',
-		networkName: 'clr-hardhat',
-		address: '0x61c36a8d610163660E21a8b7359e1Cac0C9133e1',
-	},
-]
-
 export const useRoundStore = defineStore('round', {
 	state: (): RoundState => ({
 		isRoundLoaded: false,
@@ -85,7 +72,7 @@ export const useRoundStore = defineStore('round', {
 	getters: {
 		defaultRoundAddress() {
 			const dappStore = useDappStore()
-			const found = defaultRoundAddresses.find(e => e.networkName === dappStore.network.name)
+			const found = ROUND_ADDRESSES.find(e => e.network === dappStore.network)
 			return found?.address
 		},
 		hasRoundAddress(state) {
@@ -97,14 +84,6 @@ export const useRoundStore = defineStore('round', {
 			return state.votes.reduce((total: BigNumber, [, voiceCredits]) => {
 				return total.add(voiceCredits.mul(factor))
 			}, BigNumber.from(0))
-		},
-		roundAddressUnmatched(state) {
-			if (state.isRoundLoaded && state.roundAddress !== state.round.address) {
-				console.warn('Round Address Unmatched')
-				return true
-			} else {
-				return false
-			}
 		},
 	},
 	actions: {
@@ -182,7 +161,7 @@ export const useRoundStore = defineStore('round', {
 			const token = this.getNativeTokenContract(signer)
 			const allowance = await token.allowance(
 				await signer.getAddress(), // perf improvement
-				CURRENT_ROUND_ADDRESS_HAR,
+				this.roundAddress,
 			)
 
 			if (allowance < this.total) {

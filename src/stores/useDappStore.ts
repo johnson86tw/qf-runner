@@ -3,36 +3,24 @@ import { defineStore } from 'pinia'
 import invariant from 'tiny-invariant'
 import { arbitrum, arbitrumGoerli } from 'viem/chains'
 import { createPublicClient, type Chain, http, type PublicClient } from 'viem'
-import { CLR_HARDHAT_MULTICALL3_ADDRESS, MULTICALL3_ADDRESS } from '@/constants'
+import {
+	CLR_HARDHAT_CHAIN,
+	CLR_HARDHAT_MULTICALL3_ADDRESS,
+	HARDHAT_PRIV_KEY,
+	MULTICALL3_ADDRESS,
+} from '@/constants'
 
 export type DappState = {
 	user: User
-	network: SimpleNetwork
+	network: AppNetwork
 }
 export type User = {
 	signer: Signer | null
 	address: string
 }
-export type SimpleNetwork = {
-	name: string
-	rpcUrl: string
-}
+export type AppNetwork = 'arbitrum' | 'arbitrum-goerli' | 'clr-hardhat'
 
-const clrHardhat = {
-	id: 31337,
-	name: 'CLR Hardhat',
-	network: 'clr-hardhat',
-	nativeCurrency: {
-		decimals: 18,
-		name: 'AETH',
-		symbol: 'AETH',
-	},
-	rpcUrls: {
-		public: { http: ['http://0.0.0.0:18545/'] },
-		default: { http: ['http://0.0.0.0:18545/'] },
-	},
-} as const satisfies Chain
-
+// @todo 改成 Map: AppNetwork => Chain
 export const viemChains = [
 	{
 		name: 'arbitrum',
@@ -44,40 +32,11 @@ export const viemChains = [
 	},
 	{
 		name: 'clr-hardhat',
-		chain: clrHardhat,
+		chain: CLR_HARDHAT_CHAIN,
 	},
 ]
 
-export const networkOptions = [
-	{
-		name: 'arbitrum',
-		rpcUrl: 'https://arb1.arbitrum.io/rpc',
-	},
-	{
-		name: 'arbitrum-goerli',
-		rpcUrl: 'https://goerli-rollup.arbitrum.io/rpc',
-	},
-	{
-		name: 'clr-hardhat',
-		rpcUrl: 'http://0.0.0.0:18545/',
-	},
-]
-
-export const defaultPrivKey = [
-	'', // #0
-	'', // #1
-	'',
-	'',
-	'',
-	'', // #5
-	'',
-	'',
-	'',
-	'',
-	'', // #10,
-	'',
-	'0xa267530f49f8280200edf313ee7af6b827f2a8bce2897751d06a843f644967b1',
-]
+export const networkOptions = ['arbitrum', 'arbitrum-goerli', 'clr-hardhat']
 
 export const useDappStore = defineStore('dapp', {
 	state: (): DappState => ({
@@ -85,14 +44,14 @@ export const useDappStore = defineStore('dapp', {
 			address: '',
 			signer: null,
 		},
-		network: {
-			name: 'arbitrum',
-			rpcUrl: 'https://arb1.arbitrum.io/rpc',
-		},
+		network: 'arbitrum',
 	}),
 	getters: {
-		rpcUrl(state) {
-			return state.network.rpcUrl
+		rpcUrl(): string {
+			return this.chain.rpcUrls.default.http[0]
+		},
+		explorerUrl(): string {
+			return this.chain.blockExplorers?.default.url || ''
 		},
 		provider(): ethers.providers.JsonRpcProvider {
 			invariant(this.rpcUrl, 'rpcUrl')
@@ -104,10 +63,10 @@ export const useDappStore = defineStore('dapp', {
 			}
 			return true
 		},
-		getSigner(): Signer {
+		signer(): Signer {
 			if (!this.isConnected) {
 				console.warn('No wallect connected, using hardhat account #12 as signer')
-				return new ethers.Wallet(defaultPrivKey[12]).connect(this.provider)
+				return new ethers.Wallet(HARDHAT_PRIV_KEY[12]).connect(this.provider)
 			}
 			invariant(this.user.signer, 'user.signer')
 			return this.user.signer
@@ -118,15 +77,15 @@ export const useDappStore = defineStore('dapp', {
 				transport: http(),
 			})
 		},
-		chain(state) {
+		chain(state): Chain {
 			const found = viemChains.find(chain => {
-				return chain.name === state.network.name
+				return chain.name === state.network
 			})
 			invariant(found, 'useDappStore.chain')
 			return found.chain
 		},
 		multicallAddress(state) {
-			if (state.network.name === 'clr-hardhat') {
+			if (state.network === 'clr-hardhat') {
 				return CLR_HARDHAT_MULTICALL3_ADDRESS
 			}
 			return MULTICALL3_ADDRESS
@@ -136,7 +95,7 @@ export const useDappStore = defineStore('dapp', {
 		setUser(user: User) {
 			this.user = user
 		},
-		clearUser() {
+		resetUser() {
 			this.user.address = ''
 			this.user.signer = null
 		},

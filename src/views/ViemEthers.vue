@@ -1,11 +1,5 @@
 <script setup lang="ts">
 import { FundingRound__factory } from 'clrfund-contracts/build/typechain'
-import { ethers } from 'ethers'
-import {
-	CLR_HARDHAT_MULTICALL3_ADDRESS,
-	CURRENT_ROUND_ADDRESS_ARB,
-	CURRENT_ROUND_ADDRESS_HAR,
-} from '@/constants'
 import { createPublicClient, http, getAddress } from 'viem'
 import type { Abi } from 'viem'
 import { useRoundStore } from '@/stores/useRoundStore'

@@ -1,13 +1,10 @@
-import { onMounted, reactive, computed } from 'vue'
-import type { Address, PublicClient } from 'viem'
+import { reactive, computed } from 'vue'
 import { getAddress } from 'viem'
 import type { Info } from '@/types'
 import { useDappStore } from '@/stores/useDappStore'
 
 export type UseContractOptions = {
-	address: Address
 	abi: any
-	fetch?: boolean
 }
 
 /**
@@ -15,11 +12,6 @@ export type UseContractOptions = {
  * - 需要能夠從 abi 取得所有 pure 的 name
  */
 export function useContract(options: UseContractOptions) {
-	let isFetch = true
-	if (options.fetch === false) {
-		isFetch = false
-	}
-
 	const pureFns = options.abi.filter((abi: any) => {
 		return abi.stateMutability === 'view' && abi.type === 'function' && !abi.inputs.length
 	})
@@ -57,25 +49,22 @@ export function useContract(options: UseContractOptions) {
 		}, {}),
 	)
 
-	const contractConfig = {
-		address: getAddress(options.address),
-		abi: options.abi,
-	} as const
-
-	async function fetchPureState() {
+	async function fetchPureState(address: string) {
 		const dappStore = useDappStore()
 
-		console.log('fetching pure state...')
+		console.log('fetching pure state...', address)
 
 		const results = await dappStore.client.multicall({
 			contracts: pureFnNames.map(name => ({
-				...contractConfig,
+				address: getAddress(address),
+				abi: options.abi,
 				functionName: name,
 			})),
 			multicallAddress: dappStore.multicallAddress,
 		})
 
 		results.forEach((res, i) => {
+			// @ts-ignore
 			state[pureFnNames[i]] = res.result
 		})
 		console.log('Pure state fetched')

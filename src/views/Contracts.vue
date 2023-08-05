@@ -31,39 +31,43 @@ watch(
 	},
 )
 
-const fundingRoundOptions = computed(() => {
+const fundingRoundProps = computed(() => {
 	if (!roundStore.round.address) return null
 
 	return {
+		title: 'FundingRound.sol',
 		address: getAddress(roundStore.round.address),
-		abi: FundingRound__factory.abi,
+		useContractOptions: { abi: FundingRound__factory.abi },
 	}
 })
 
-const fundingRoundFactoryOptions = computed(() => {
+const fundingRoundFactoryProps = computed(() => {
 	if (!roundStore.round.fundingRoundFactoryAddress) return null
 
 	return {
+		title: 'FundingRoundFactory.sol',
 		address: getAddress(roundStore.round.fundingRoundFactoryAddress),
-		abi: FundingRoundFactory__factory.abi,
+		useContractOptions: { abi: FundingRoundFactory__factory.abi },
 	}
 })
 
-const maciOptions = computed(() => {
+const maciProps = computed(() => {
 	if (!roundStore.round.maciAddress) return null
 
 	return {
+		title: 'MACI.sol',
 		address: getAddress(roundStore.round.maciAddress),
-		abi: MACI__factory.abi,
+		useContractOptions: { abi: MACI__factory.abi },
 	}
 })
 
-const maciFactoryOptions = computed(() => {
+const maciFactoryProps = computed(() => {
 	if (!roundStore.round.maciFactoryAddress) return null
 
 	return {
+		title: 'MACIFactory.sol',
 		address: getAddress(roundStore.round.maciFactoryAddress),
-		abi: MACIFactory__factory.abi,
+		useContractOptions: { abi: MACIFactory__factory.abi },
 	}
 })
 
@@ -147,22 +151,10 @@ onMounted(async () => {
 				</p> -->
 			</div>
 
-			<ContractUI
-				v-if="fundingRoundOptions"
-				title="FundingRound.sol"
-				:use-contract-options="fundingRoundOptions"
-			/>
-			<ContractUI
-				v-if="fundingRoundFactoryOptions"
-				title="FundingRoundFactory.sol"
-				:use-contract-options="fundingRoundFactoryOptions"
-			/>
-			<ContractUI v-if="maciOptions" title="MACI.sol" :use-contract-options="maciOptions" />
-			<ContractUI
-				v-if="maciFactoryOptions"
-				title="MACIFactory.sol"
-				:use-contract-options="maciFactoryOptions"
-			/>
+			<ContractUI v-if="fundingRoundProps" v-bind="fundingRoundProps" />
+			<ContractUI v-if="fundingRoundFactoryProps" v-bind="fundingRoundFactoryProps" />
+			<ContractUI v-if="maciProps" v-bind="maciProps" />
+			<ContractUI v-if="maciFactoryProps" v-bind="maciFactoryProps" />
 		</div>
 	</div>
 </template>

@@ -1,31 +1,12 @@
 <script setup lang="ts">
 import { networkOptions, useDappStore } from '@/stores/useDappStore'
-import {
-	useBoard,
-	useEthers,
-	useWallet,
-	displayEther,
-	shortenAddress,
-	useEthersHooks,
-} from 'vue-dapp'
+import { useBoard, useEthers, useWallet, displayEther, shortenAddress } from 'vue-dapp'
 
 const { open } = useBoard()
 const { address, balance, isActivated } = useEthers()
 const { disconnect, wallet } = useWallet()
-const { onActivated, onDeactivated } = useEthersHooks()
 
 const dappStore = useDappStore()
-
-onActivated(({ signer, address }) => {
-	dappStore.setUser({
-		address,
-		signer,
-	})
-})
-
-onDeactivated(() => {
-	dappStore.clearUser()
-})
 </script>
 
 <template>
@@ -45,7 +26,6 @@ onDeactivated(() => {
 								:searchable="false"
 								v-model="dappStore.network"
 								:options="networkOptions"
-								label="name"
 							/>
 						</div>
 

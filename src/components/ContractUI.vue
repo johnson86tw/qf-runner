@@ -6,9 +6,11 @@ import Contract from '@/components/Contract.vue'
 import { computed } from 'vue'
 import Address from '@/components/Address.vue'
 import { watchImmediate } from '@vueuse/core'
+import { getAddress } from 'viem'
 
 type Props = {
 	title: string
+	address: string
 	useContractOptions: UseContractOptions
 	open?: boolean
 }
@@ -18,9 +20,9 @@ const props = withDefaults(defineProps<Props>(), { open: false })
 const { data, events, execFns, viewFns, fetchPureState } = useContract(props.useContractOptions)
 
 watchImmediate(
-	() => props.useContractOptions,
+	() => props.address,
 	() => {
-		fetchPureState()
+		fetchPureState(props.address)
 	},
 )
 
@@ -34,7 +36,6 @@ const contractProps = computed(() => ({
 }))
 
 const collapsed = ref(props.open)
-const contractAddress = computed(() => props.useContractOptions.address)
 </script>
 
 <template>
@@ -44,7 +45,7 @@ const contractAddress = computed(() => props.useContractOptions.address)
 				<div class="sm:text-xl cursor-pointer" @click="collapsed = !collapsed">
 					{{ title }}
 				</div>
-				<Address :address="contractAddress" />
+				<Address :address="getAddress(address)" />
 			</div>
 
 			<div class="ml-4 cursor-pointer" @click="collapsed = !collapsed">

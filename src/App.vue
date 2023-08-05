@@ -1,10 +1,26 @@
 <script setup lang="ts">
 import { ModalsContainer } from 'vue-final-modal'
-import { MetaMaskConnector } from 'vue-dapp'
+import { MetaMaskConnector, useEthersHooks } from 'vue-dapp'
 import { useDappStore } from './stores/useDappStore'
 import { useRoundStore } from './stores/useRoundStore'
 import { watchImmediate } from '@vueuse/core'
 import { isAddress } from 'viem'
+
+const { onActivated, onDeactivated } = useEthersHooks()
+
+const dappStore = useDappStore()
+const { isConnected, user } = storeToRefs(dappStore)
+
+onActivated(({ signer, address }) => {
+	dappStore.setUser({
+		address,
+		signer,
+	})
+})
+
+onDeactivated(() => {
+	dappStore.resetUser()
+})
 
 const connectors = [new MetaMaskConnector()]
 
@@ -16,9 +32,13 @@ function autoConnectErrorHandler(err: any) {
 }
 
 const roundStore = useRoundStore()
-const dappStore = useDappStore()
-const { isConnected, user } = storeToRefs(dappStore)
 const { isRoundLoading } = storeToRefs(roundStore)
+
+watchEffect(() => {
+	if (roundStore.isRoundLoaded && roundStore.roundAddress !== roundStore.round.address) {
+		console.warn('Round Address Unmatched')
+	}
+})
 
 watchImmediate(
 	() => dappStore.network,
