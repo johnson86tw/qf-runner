@@ -1,36 +1,41 @@
 <script setup lang="ts">
 import { FundingRound__factory } from 'clrfund-contracts/build/typechain'
 import { ethers } from 'ethers'
-import { CURRENT_ROUND_ADDRESS_ARB, CURRENT_ROUND_ADDRESS_HAR } from '@/constants'
+import {
+	CLR_HARDHAT_MULTICALL3_ADDRESS,
+	CURRENT_ROUND_ADDRESS_ARB,
+	CURRENT_ROUND_ADDRESS_HAR,
+} from '@/constants'
 import { createPublicClient, http, getAddress } from 'viem'
 import type { Abi } from 'viem'
-import { arbitrum } from 'viem/chains'
+import { useRoundStore } from '@/stores/useRoundStore'
+import { useDappStore } from '@/stores/useDappStore'
+import { watchImmediate } from '@vueuse/core'
 
-const rpcUrl = 'https://arb1.arbitrum.io/rpc'
-
-const roundAddress = CURRENT_ROUND_ADDRESS_ARB
+const roundStore = useRoundStore()
+const dappStore = useDappStore()
 
 async function getNativeTokenByEthers() {
-	const provider = new ethers.providers.JsonRpcProvider(rpcUrl)
-	const fundingRound = FundingRound__factory.connect(roundAddress, provider)
+	const fundingRound = FundingRound__factory.connect(roundStore.roundAddress, dappStore.provider)
 	eth.value = await fundingRound.nativeToken()
 }
 
 async function getNativeTokenByViem() {
 	const client = createPublicClient({
-		chain: arbitrum,
+		chain: dappStore.chain,
 		transport: http(),
 	})
 
 	const results = await client.multicall({
 		contracts: [
 			{
-				address: getAddress(roundAddress),
+				address: getAddress(roundStore.roundAddress),
 				abi: FundingRound__factory.abi as Abi,
 				functionName: 'nativeToken',
 				args: [],
 			},
 		],
+		multicallAddress: dappStore.multicallAddress,
 	})
 
 	viem.value = results[0].result as unknown as string
@@ -39,10 +44,13 @@ async function getNativeTokenByViem() {
 const eth = ref('')
 const viem = ref('')
 
-onMounted(() => {
-	getNativeTokenByEthers()
-	getNativeTokenByViem()
-})
+watchImmediate(
+	() => dappStore.network,
+	() => {
+		getNativeTokenByEthers()
+		getNativeTokenByViem()
+	},
+)
 </script>
 
 <template>

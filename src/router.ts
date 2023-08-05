@@ -9,12 +9,12 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('@/views/Home.vue'),
 	},
 	{
-		path: '/contracts',
-		name: 'contracts',
+		path: '/round',
+		name: 'round',
 		meta: {
 			description: 'Retrieve contract data for a specific funding round.',
 		},
-		component: () => import('@/views/Contracts.vue'),
+		component: () => import('@/views/Round.vue'),
 	},
 	{
 		path: '/contribute',

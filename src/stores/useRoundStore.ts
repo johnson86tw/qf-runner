@@ -12,6 +12,7 @@ import { getEventArg, waitForTransaction } from '@/utils/contracts'
 import { sha256 } from '@/utils/crypto'
 import invariant from 'tiny-invariant'
 import { isAddress } from 'ethers/lib/utils'
+import { useDappStore } from './useDappStore'
 
 export type Contributor = {
 	keypair: Keypair
@@ -23,9 +24,9 @@ export type Votes = Vote[]
 
 export type RoundState = {
 	isRoundLoading: boolean
+	roundAddress: string
 	round: {
 		contract: FundingRound | null
-		address: string
 		voiceCreditFactor: BigNumber
 		nativeTokenAddress: string
 		maciContract: MACI | null
@@ -51,9 +52,9 @@ const defaultRoundAddresses = [
 export const useRoundStore = defineStore('round', {
 	state: (): RoundState => ({
 		isRoundLoading: false,
+		roundAddress: '',
 		round: {
 			contract: null,
-			address: defaultRoundAddresses[0].address,
 			voiceCreditFactor: BigNumber.from(0),
 			nativeTokenAddress: '',
 			maciContract: null,
@@ -67,7 +68,6 @@ export const useRoundStore = defineStore('round', {
 			const round = state.round
 			if (
 				!round.contract ||
-				!round.address ||
 				!round.nativeTokenAddress ||
 				!round.maciContract ||
 				!round.maciAddress ||
@@ -77,11 +77,13 @@ export const useRoundStore = defineStore('round', {
 			}
 			return true
 		},
-		roundAddress(state) {
-			return state.round.address
+		defaultRoundAddress(state) {
+			const dappStore = useDappStore()
+			const found = defaultRoundAddresses.find(e => e.networkName === dappStore.network.name)
+			return found?.address
 		},
 		hasRoundAddress(state) {
-			return isAddress(state.round.address)
+			return isAddress(state.roundAddress)
 		},
 		total(state) {
 			return state.votes.reduce((total: BigNumber, [, voiceCredits]) => {
@@ -91,14 +93,14 @@ export const useRoundStore = defineStore('round', {
 	},
 	actions: {
 		setRoundAddress(address: string) {
-			this.round.address = address
+			this.roundAddress = address
 		},
 		async updateRound(provider: providers.JsonRpcProvider | Signer) {
 			this.isRoundLoading = true
 
 			try {
 				invariant(this.hasRoundAddress, 'hasRoundAddress')
-				const fundingRound = FundingRound__factory.connect(this.round.address, provider)
+				const fundingRound = FundingRound__factory.connect(this.roundAddress, provider)
 
 				this.round.contract = fundingRound
 				this.round.nativeTokenAddress = await fundingRound.nativeToken()
@@ -139,7 +141,7 @@ export const useRoundStore = defineStore('round', {
 			)
 
 			if (allowance < this.total) {
-				await waitForTransaction(token.approve(this.round.address, this.total))
+				await waitForTransaction(token.approve(this.roundAddress, this.total))
 			}
 		},
 		async contribute(encryptionKey: string, signer: Signer) {
@@ -151,7 +153,7 @@ export const useRoundStore = defineStore('round', {
 
 			const contributorKeypair = Keypair.createFromSeed(encryptionKey)
 
-			const fundingRound = FundingRound__factory.connect(this.round.address, signer)
+			const fundingRound = FundingRound__factory.connect(this.roundAddress, signer)
 			const contributionTxReceipt = await waitForTransaction(
 				fundingRound.contribute(contributorKeypair.pubKey.asContractParam(), this.total),
 			)
@@ -186,7 +188,7 @@ export const useRoundStore = defineStore('round', {
 				nonce += 1
 			}
 
-			const fundingRound = FundingRound__factory.connect(this.round.address, signer)
+			const fundingRound = FundingRound__factory.connect(this.roundAddress, signer)
 
 			await waitForTransaction(
 				fundingRound.submitMessageBatch(

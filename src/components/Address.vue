@@ -2,6 +2,7 @@
 import { EXPLORER_URL } from '@/constants'
 import type { Address } from 'viem'
 import { computed } from 'vue'
+import { shortenAddress } from 'vue-dapp'
 
 const props = defineProps<{
 	address: Address
@@ -14,7 +15,7 @@ const link = computed(() => {
 
 <template>
 	<div class="text-blue-400 flex items-center gap-2">
-		<p>{{ address }}</p>
+		<p>{{ shortenAddress(address) }}</p>
 
 		<div>
 			<a target="_blank" :href="link">

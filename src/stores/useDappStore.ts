@@ -1,6 +1,9 @@
 import { ethers, type Signer } from 'ethers'
 import { defineStore } from 'pinia'
 import invariant from 'tiny-invariant'
+import { arbitrum, arbitrumGoerli } from 'viem/chains'
+import type { Chain } from 'viem'
+import { CLR_HARDHAT_MULTICALL3_ADDRESS } from '@/constants'
 
 export type DappState = {
 	user: User
@@ -14,6 +17,36 @@ export type SimpleNetwork = {
 	name: string
 	rpcUrl: string
 }
+
+const clrHardhat = {
+	id: 31337,
+	name: 'CLR Hardhat',
+	network: 'clr-hardhat',
+	nativeCurrency: {
+		decimals: 18,
+		name: 'AETH',
+		symbol: 'AETH',
+	},
+	rpcUrls: {
+		public: { http: ['http://0.0.0.0:18545/'] },
+		default: { http: ['http://0.0.0.0:18545/'] },
+	},
+} as const satisfies Chain
+
+export const viemChains = [
+	{
+		name: 'arbitrum',
+		chain: arbitrum,
+	},
+	{
+		name: 'arbitrum-goerli',
+		chain: arbitrumGoerli,
+	},
+	{
+		name: 'clr-hardhat',
+		chain: clrHardhat,
+	},
+]
 
 export const networkOptions = [
 	{
@@ -79,6 +112,19 @@ export const useDappStore = defineStore('dapp', {
 			}
 			invariant(this.user.signer, 'user.signer')
 			return this.user.signer
+		},
+		chain(state) {
+			const found = viemChains.find(chain => {
+				return chain.name === state.network.name
+			})
+			invariant(found, 'useDappStore.chain')
+			return found.chain
+		},
+		multicallAddress(state) {
+			if (state.network.name === 'clr-hardhat') {
+				return CLR_HARDHAT_MULTICALL3_ADDRESS
+			}
+			return '0xcA11bde05977b3631167028862bE2a173976CA11'
 		},
 	},
 	actions: {

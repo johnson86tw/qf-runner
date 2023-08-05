@@ -8,56 +8,16 @@ import {
 	MACIFactory__factory,
 	MACI__factory,
 } from 'clrfund-contracts/build/typechain'
-import { arbitrum, arbitrumGoerli } from 'viem/chains'
-import type { Chain } from 'viem'
+
 import { useDappStore } from '@/stores/useDappStore'
-import invariant from 'tiny-invariant'
 import { useRoundStore } from '@/stores/useRoundStore'
 import { watchImmediate } from '@vueuse/core'
 
-const clrHardhat = {
-	id: 31337,
-	name: 'CLR Hardhat',
-	network: 'clr-hardhat',
-	nativeCurrency: {
-		decimals: 18,
-		name: 'AETH',
-		symbol: 'AETH',
-	},
-	rpcUrls: {
-		public: { http: ['http://0.0.0.0:18545/'] },
-		default: { http: ['http://0.0.0.0:18545/'] },
-	},
-} as const satisfies Chain
-
-const viemChains = [
-	{
-		name: 'arbitrum',
-		chain: arbitrum,
-	},
-	{
-		name: 'arbitrum-goerli',
-		chain: arbitrumGoerli,
-	},
-	{
-		name: 'clr-hardhat',
-		chain: clrHardhat,
-	},
-]
-
 const dappStore = useDappStore()
-
-const selectedViemChain = computed(() => {
-	const found = viemChains.find(chain => {
-		return chain.name === dappStore.network.name
-	})
-	invariant(found, 'selectedViemChain')
-	return found.chain
-})
 
 const client = ref(
 	createPublicClient({
-		chain: selectedViemChain.value,
+		chain: dappStore.chain,
 		transport: http(),
 	}),
 )
@@ -173,7 +133,7 @@ onMounted(async () => {
 
 			<div class="grid grid-cols-3 p-4 my-4 w-full border rounded">
 				<p>
-					Network: <span class="text-blue-400">{{ selectedViemChain.name }}</span>
+					Network: <span class="text-blue-400">{{ dappStore.chain.name }}</span>
 				</p>
 				<p class="col-span-2">
 					Block Number: <span class="text-blue-400">{{ blockNumber }}</span>

@@ -32,8 +32,8 @@ const contractAddress = computed(() => props.useContractOptions.address)
 <template>
 	<div class="my-2 w-full">
 		<div class="flex cursor-pointer flex-row justify-between" @click="collapsed = !collapsed">
-			<div class="flex flex-col mb-2">
-				<div class="text-xl">{{ title }}</div>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-x-2 mb-2">
+				<div class="sm:text-xl">{{ title }}</div>
 				<Address :address="contractAddress" />
 			</div>
 

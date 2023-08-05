@@ -2,6 +2,7 @@ import { onMounted, reactive, computed } from 'vue'
 import type { Address, PublicClient } from 'viem'
 import { getAddress } from 'viem'
 import type { Info } from '@/types'
+import { useDappStore } from '@/stores/useDappStore'
 
 export type UseContractOptions = {
 	client: PublicClient
@@ -67,11 +68,14 @@ export function useContract(options: UseContractOptions) {
 	onMounted(async () => {
 		if (!isFetch) return
 
+		const dappStore = useDappStore()
+
 		const results = await client.multicall({
 			contracts: pureFnNames.map(name => ({
 				...contractConfig,
 				functionName: name,
 			})),
+			multicallAddress: dappStore.multicallAddress,
 		})
 
 		results.forEach((res, i) => {

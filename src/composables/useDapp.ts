@@ -1,6 +1,5 @@
 import { useEthers, useEthersHooks } from 'vue-dapp'
 import { ethers } from 'ethers'
-import { ERC20__factory, FundingRound__factory } from 'clrfund-contracts/build/typechain'
 import { CURRENT_ROUND_ADDRESS_HAR } from '@/constants'
 
 export default function useDapp() {
@@ -20,7 +19,7 @@ export default function useDapp() {
 	const selectedNetwork = ref(networkOptions[1])
 	const rpcUrl = computed(() => selectedNetwork.value.rpcUrl)
 
-	const { signer, address, network } = useEthers()
+	const { signer, address } = useEthers()
 	const { onActivated } = useEthersHooks()
 
 	function getSigner() {

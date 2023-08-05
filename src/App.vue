@@ -3,6 +3,7 @@ import { ModalsContainer } from 'vue-final-modal'
 import { MetaMaskConnector } from 'vue-dapp'
 import { useDappStore } from './stores/useDappStore'
 import { useRoundStore } from './stores/useRoundStore'
+import { watchImmediate } from '@vueuse/core'
 
 const connectors = [new MetaMaskConnector()]
 
@@ -13,8 +14,17 @@ function autoConnectErrorHandler(err: any) {
 	console.error('AutoConnectError', err)
 }
 
-const { isConnected, user } = storeToRefs(useDappStore())
-const { isRoundLoading } = storeToRefs(useRoundStore())
+const roundStore = useRoundStore()
+const dappStore = useDappStore()
+const { isConnected, user } = storeToRefs(dappStore)
+const { isRoundLoading } = storeToRefs(roundStore)
+
+watchImmediate(
+	() => dappStore.network,
+	() => {
+		roundStore.setRoundAddress(roundStore.defaultRoundAddress!)
+	},
+)
 
 watch(isConnected, () => {
 	if (isConnected.value) {
