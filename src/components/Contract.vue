@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import type { AbiEvents, Info } from '@/types'
 import Address from '@/components/Address.vue'
+import { isAddress } from 'viem'
 
 type Props = {
 	title: string
@@ -66,8 +67,10 @@ const informations = computed(() => {
 					<p>{{ info.name }}:</p>
 					<div class="info-value">
 						<div v-if="!Array.isArray(info.value)">
-							<Address :address="info.value" />
+							<Address v-if="isAddress(info.value)" :address="info.value" />
+							<div v-else>{{ info.value }}</div>
 						</div>
+
 						<div v-else class="flex flex-col">
 							<div v-for="inf in info.value" :key="inf">
 								<div>{{ inf }}</div>

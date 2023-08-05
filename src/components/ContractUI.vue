@@ -5,6 +5,7 @@ import type { UseContractOptions } from '@/composables/useContract'
 import Contract from '@/components/Contract.vue'
 import { computed } from 'vue'
 import Address from '@/components/Address.vue'
+import { watchImmediate } from '@vueuse/core'
 
 type Props = {
 	title: string
@@ -14,7 +15,14 @@ type Props = {
 
 const props = withDefaults(defineProps<Props>(), { open: false })
 
-const { data, events, execFns, viewFns } = useContract(props.useContractOptions)
+const { data, events, execFns, viewFns, fetchPureState } = useContract(props.useContractOptions)
+
+watchImmediate(
+	() => props.useContractOptions,
+	() => {
+		fetchPureState()
+	},
+)
 
 const contractProps = computed(() => ({
 	title: props.title,
@@ -31,13 +39,15 @@ const contractAddress = computed(() => props.useContractOptions.address)
 
 <template>
 	<div class="my-2 w-full">
-		<div class="flex cursor-pointer flex-row justify-between" @click="collapsed = !collapsed">
+		<div class="flex flex-row justify-between">
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-x-2 mb-2">
-				<div class="sm:text-xl">{{ title }}</div>
+				<div class="sm:text-xl cursor-pointer" @click="collapsed = !collapsed">
+					{{ title }}
+				</div>
 				<Address :address="contractAddress" />
 			</div>
 
-			<div class="ml-4">
+			<div class="ml-4 cursor-pointer" @click="collapsed = !collapsed">
 				<div v-if="!collapsed">
 					<i-ic-baseline-keyboard-arrow-down />
 				</div>

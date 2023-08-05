@@ -5,7 +5,6 @@ import type { Info } from '@/types'
 import { useDappStore } from '@/stores/useDappStore'
 
 export type UseContractOptions = {
-	client: PublicClient
 	address: Address
 	abi: any
 	fetch?: boolean
@@ -16,34 +15,32 @@ export type UseContractOptions = {
  * - 需要能夠從 abi 取得所有 pure 的 name
  */
 export function useContract(options: UseContractOptions) {
-	const { client, address, abi, fetch } = options
-
 	let isFetch = true
-	if (fetch === false) {
+	if (options.fetch === false) {
 		isFetch = false
 	}
 
-	const pureFns = abi.filter((abi: any) => {
+	const pureFns = options.abi.filter((abi: any) => {
 		return abi.stateMutability === 'view' && abi.type === 'function' && !abi.inputs.length
 	})
 
-	const viewFns = abi.filter((abi: any) => {
+	const viewFns = options.abi.filter((abi: any) => {
 		return abi.stateMutability === 'view' && abi.type === 'function' && abi.inputs.length
 	})
 
-	const execFns = abi.filter((abi: any) => {
+	const execFns = options.abi.filter((abi: any) => {
 		return abi.stateMutability !== 'view' && abi.type === 'function'
 	})
 
-	const fns = abi.filter((abi: any) => {
+	const fns = options.abi.filter((abi: any) => {
 		return abi.type === 'function'
 	})
 
-	const events = abi.filter((abi: any) => {
+	const events = options.abi.filter((abi: any) => {
 		return abi.type === 'event'
 	})
 
-	const constructor = abi.filter((abi: any) => {
+	const constructor = options.abi.filter((abi: any) => {
 		return abi.type === 'constructor'
 	})
 
@@ -61,16 +58,16 @@ export function useContract(options: UseContractOptions) {
 	)
 
 	const contractConfig = {
-		address: getAddress(address),
-		abi: abi,
+		address: getAddress(options.address),
+		abi: options.abi,
 	} as const
 
-	onMounted(async () => {
-		if (!isFetch) return
-
+	async function fetchPureState() {
 		const dappStore = useDappStore()
 
-		const results = await client.multicall({
+		console.log('fetching pure state...')
+
+		const results = await dappStore.client.multicall({
 			contracts: pureFnNames.map(name => ({
 				...contractConfig,
 				functionName: name,
@@ -81,7 +78,8 @@ export function useContract(options: UseContractOptions) {
 		results.forEach((res, i) => {
 			state[pureFnNames[i]] = res.result
 		})
-	})
+		console.log('Pure state fetched')
+	}
 
 	const data = computed<Info[]>(() => {
 		const res: Info[] = []
@@ -106,5 +104,7 @@ export function useContract(options: UseContractOptions) {
 		execFns,
 		events,
 		constructor,
+
+		fetchPureState,
 	}
 }

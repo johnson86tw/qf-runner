@@ -39,7 +39,7 @@ onDeactivated(() => {
 
 					<div class="flex items-center gap-x-5">
 						<!-- network -->
-						<div class="w-[180px]">
+						<div class="w-[160px]">
 							<v-select
 								:clearable="false"
 								:searchable="false"

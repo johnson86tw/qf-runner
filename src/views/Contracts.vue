@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import { createPublicClient, http, getAddress, isAddress } from 'viem'
-import ApplyContract from '@/components/ApplyContract.vue'
+import { getAddress, isAddress } from 'viem'
+import ContractUI from '@/components/ContractUI.vue'
 import {
 	FundingRoundFactory__factory,
 	FundingRound__factory,
@@ -11,16 +11,8 @@ import {
 
 import { useDappStore } from '@/stores/useDappStore'
 import { useRoundStore } from '@/stores/useRoundStore'
-import { watchImmediate } from '@vueuse/core'
 
 const dappStore = useDappStore()
-
-const client = ref(
-	createPublicClient({
-		chain: dappStore.chain,
-		transport: http(),
-	}),
-)
 
 const roundStore = useRoundStore()
 const { roundAddress } = storeToRefs(roundStore)
@@ -32,45 +24,50 @@ watch(roundAddressInput, () => {
 	}
 })
 
-watchImmediate([roundAddress, () => dappStore.network], () => {
-	roundStore.updateRound(dappStore.provider)
-})
+watch(
+	() => roundStore.roundAddress,
+	() => {
+		roundAddressInput.value = roundStore.round.address
+	},
+)
 
-// @todo 僅能透過 explorer 的 api 取得
-const fundingRoundFactoryAddress = ref('0xc06349D95C30551Ea510bD5F35CfA2151499D60a')
-
-const fundingRound = computed(() => ({
-	client: client.value,
-	address: getAddress(roundAddress.value),
-	abi: FundingRound__factory.abi,
-}))
-
-const fundingRoundFactory = {
-	client: client.value,
-	address: getAddress(fundingRoundFactoryAddress.value),
-	abi: FundingRoundFactory__factory.abi,
-}
-
-const maci = computed(() => {
-	const maciAddress = roundStore.round.maciAddress
-	if (!isAddress(maciAddress)) {
-		return null
-	}
+const fundingRoundOptions = computed(() => {
+	if (!roundStore.round.address) return null
 
 	return {
-		client: client.value,
-		address: maciAddress,
+		address: getAddress(roundStore.round.address),
+		abi: FundingRound__factory.abi,
+	}
+})
+
+const fundingRoundFactoryOptions = computed(() => {
+	if (!roundStore.round.fundingRoundFactoryAddress) return null
+
+	return {
+		address: getAddress(roundStore.round.fundingRoundFactoryAddress),
+		abi: FundingRoundFactory__factory.abi,
+	}
+})
+
+const maciOptions = computed(() => {
+	if (!roundStore.round.maciAddress) return null
+
+	return {
+		address: getAddress(roundStore.round.maciAddress),
 		abi: MACI__factory.abi,
 	}
 })
 
-const maciFactory = {
-	client: client.value,
-	address: getAddress('0xc483F5B3B2DA383C31ba039D9a2ee3AcB210452C'),
-	abi: MACIFactory__factory.abi,
-}
+const maciFactoryOptions = computed(() => {
+	if (!roundStore.round.maciFactoryAddress) return null
 
-// const { state } = useContract({ ...maci.value, fetch: false })
+	return {
+		address: getAddress(roundStore.round.maciFactoryAddress),
+		abi: MACIFactory__factory.abi,
+	}
+})
+
+// const { state } = useContract({ ...maci.value })
 
 // const startTime = computed(() => {
 // 	if (!state.signUpTimestamp) return ''
@@ -95,7 +92,7 @@ const maciFactory = {
 const blockNumber = ref<bigint>(0n)
 
 onMounted(async () => {
-	blockNumber.value = await client.value.getBlockNumber()
+	blockNumber.value = await dappStore.client.getBlockNumber()
 })
 
 // const { events } = useContract({
@@ -150,13 +147,22 @@ onMounted(async () => {
 				</p> -->
 			</div>
 
-			<ApplyContract title="FundingRound.sol" :use-contract-options="fundingRound" />
-			<ApplyContract
-				title="FundingRoundFactory.sol"
-				:use-contract-options="fundingRoundFactory"
+			<ContractUI
+				v-if="fundingRoundOptions"
+				title="FundingRound.sol"
+				:use-contract-options="fundingRoundOptions"
 			/>
-			<ApplyContract v-if="maci" title="MACI.sol" :use-contract-options="maci" />
-			<ApplyContract title="MACIFactory.sol" :use-contract-options="maciFactory" />
+			<ContractUI
+				v-if="fundingRoundFactoryOptions"
+				title="FundingRoundFactory.sol"
+				:use-contract-options="fundingRoundFactoryOptions"
+			/>
+			<ContractUI v-if="maciOptions" title="MACI.sol" :use-contract-options="maciOptions" />
+			<ContractUI
+				v-if="maciFactoryOptions"
+				title="MACIFactory.sol"
+				:use-contract-options="maciFactoryOptions"
+			/>
 		</div>
 	</div>
 </template>

@@ -4,6 +4,7 @@ import { MetaMaskConnector } from 'vue-dapp'
 import { useDappStore } from './stores/useDappStore'
 import { useRoundStore } from './stores/useRoundStore'
 import { watchImmediate } from '@vueuse/core'
+import { isAddress } from 'viem'
 
 const connectors = [new MetaMaskConnector()]
 
@@ -26,6 +27,24 @@ watchImmediate(
 	},
 )
 
+watchImmediate(
+	() => roundStore.roundAddress,
+	() => {
+		if (isAddress(roundStore.roundAddress)) {
+			roundStore.updateRound(dappStore.provider)
+		} else {
+			roundStore.resetRound()
+		}
+	},
+)
+
+watch(
+	() => dappStore.network,
+	() => {
+		console.log('Network changed')
+	},
+)
+
 watch(isConnected, () => {
 	if (isConnected.value) {
 		console.log('Wallet connected', user.value)
@@ -34,11 +53,11 @@ watch(isConnected, () => {
 	}
 })
 
-watch(isRoundLoading, () => {
+watchImmediate(isRoundLoading, (newVal, oldVal) => {
 	if (isRoundLoading.value) {
 		console.log('Round loading...')
-	} else {
-		console.log('Round loaded.')
+	} else if (oldVal && !newVal) {
+		console.log('Round loaded.', roundStore.round)
 	}
 })
 </script>
