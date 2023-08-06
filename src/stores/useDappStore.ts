@@ -47,6 +47,7 @@ export const useDappStore = defineStore('dapp', {
 			return this.chain.id
 		},
 		isNetworkUnmatched(state): boolean {
+			if (!this.isConnected) return false
 			return state.user.chainId !== this.chainId
 		},
 		rpcUrl(): string {

@@ -8,7 +8,7 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Address: typeof import('./components/Address.vue')['default']
-    BaseButton: typeof import('./components/BaseButton.vue')['default']
+    BaseButton: typeof import('./components/button/BaseButton.vue')['default']
     Contract: typeof import('./components/Contract.vue')['default']
     ContractUI: typeof import('./components/ContractUI.vue')['default']
     Header: typeof import('./components/Header.vue')['default']
@@ -23,7 +23,7 @@ declare module '@vue/runtime-core' {
     NetworkStatus: typeof import('./components/NetworkStatus.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    TxButton: typeof import('./components/TxButton.vue')['default']
+    TxButton: typeof import('./components/button/TxButton.vue')['default']
     UserStatus: typeof import('./components/UserStatus.vue')['default']
   }
 }
