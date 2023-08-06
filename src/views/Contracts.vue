@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { getAddress, isAddress } from 'viem'
 import ContractUI from '@/components/ContractUI.vue'
 import {
@@ -11,25 +11,97 @@ import {
 
 import { useDappStore } from '@/stores/useDappStore'
 import { useRoundStore } from '@/stores/useRoundStore'
+import { DateTime } from 'luxon'
+import { watchImmediate } from '@vueuse/core'
 
 const dappStore = useDappStore()
-
 const roundStore = useRoundStore()
 const { roundAddress } = storeToRefs(roundStore)
 
 const roundAddressInput = ref(roundAddress.value)
+
+// only set address to store if the address is valid
 watch(roundAddressInput, () => {
 	if (isAddress(roundAddressInput.value)) {
 		roundStore.setRoundAddress(roundAddressInput.value)
 	}
 })
 
-watch(
-	() => roundStore.roundAddress,
-	() => {
-		roundAddressInput.value = roundStore.roundAddress
+// update input when the expected round address exists
+watch(roundAddress, () => {
+	roundAddressInput.value = roundAddress.value
+})
+
+const blockNumber = ref(0n)
+const signUpTimestamp = ref(0n)
+const signUpDurationSeconds = ref(0n)
+const votingDurationSeconds = ref(0n)
+
+// update info when the network is changed
+watchImmediate(
+	() => dappStore.network,
+	async () => {
+		resetPageState()
+		blockNumber.value = await dappStore.client.getBlockNumber()
 	},
 )
+
+function resetPageState() {
+	blockNumber.value = 0n
+	signUpTimestamp.value = 0n
+	signUpDurationSeconds.value = 0n
+	votingDurationSeconds.value = 0n
+}
+
+const startTime = computed(() => {
+	if (!signUpTimestamp.value) return ''
+	return DateTime.fromSeconds(Number(signUpTimestamp.value)).toLocaleString()
+})
+
+const signUpDeadline = computed(() => {
+	if (!signUpTimestamp.value || !signUpDurationSeconds.value) return ''
+	return DateTime.fromSeconds(
+		Number(signUpTimestamp.value + signUpDurationSeconds.value),
+	).toLocaleString()
+})
+
+const votingDeadline = computed(() => {
+	if (!signUpTimestamp.value || !signUpDurationSeconds.value || !votingDurationSeconds.value)
+		return ''
+	return DateTime.fromSeconds(
+		Number(signUpTimestamp.value + signUpDurationSeconds.value + votingDurationSeconds.value),
+	).toLocaleString()
+})
+
+// update info when the round is loaded
+watchImmediate(
+	() => roundStore.isRoundLoaded,
+	async () => {
+		if (!roundStore.isRoundLoaded) return
+		const results = await dappStore.multicall(
+			['signUpTimestamp', 'signUpDurationSeconds', 'votingDurationSeconds'],
+			roundStore.round.maciAddress,
+			MACI__factory.abi,
+		)
+		signUpTimestamp.value = results[0].result as bigint
+		signUpDurationSeconds.value = results[1].result as bigint
+		votingDurationSeconds.value = results[2].result as bigint
+	},
+)
+
+// const { events } = useContract({
+// 	...fundingRound,
+// 	fetch: false,
+// })
+
+// client.value.watchContractEvent({
+// 	...fundingRound,
+// 	eventName: events[0].name,
+// 	onLogs: logs => {
+// 		console.log(logs)
+// 	},
+// })
+// console.log('watching event:', events[0].name)
 
 const fundingRoundProps = computed(() => {
 	if (!roundStore.round.address) return null
@@ -70,48 +142,6 @@ const maciFactoryProps = computed(() => {
 		useContractOptions: { abi: MACIFactory__factory.abi },
 	}
 })
-
-// const { state } = useContract({ ...maci.value })
-
-// const startTime = computed(() => {
-// 	if (!state.signUpTimestamp) return ''
-// 	return DateTime.fromSeconds(Number(state.signUpTimestamp)).toLocaleString()
-// })
-
-// const signUpDeadline = computed(() => {
-// 	if (!state.signUpTimestamp || !state.signUpDurationSeconds) return ''
-// 	return DateTime.fromSeconds(
-// 		Number(state.signUpTimestamp + state.signUpDurationSeconds),
-// 	).toLocaleString()
-// })
-
-// const votingDeadline = computed(() => {
-// 	if (!state.signUpTimestamp || !state.signUpDurationSeconds || !state.votingDurationSeconds)
-// 		return ''
-// 	return DateTime.fromSeconds(
-// 		Number(state.signUpTimestamp + state.signUpDurationSeconds + state.votingDurationSeconds),
-// 	).toLocaleString()
-// })
-
-const blockNumber = ref<bigint>(0n)
-
-onMounted(async () => {
-	blockNumber.value = await dappStore.client.getBlockNumber()
-})
-
-// const { events } = useContract({
-// 	...fundingRound,
-// 	fetch: false,
-// })
-
-// client.value.watchContractEvent({
-// 	...fundingRound,
-// 	eventName: events[0].name,
-// 	onLogs: logs => {
-// 		console.log(logs)
-// 	},
-// })
-// console.log('watching event:', events[0].name)
 </script>
 
 <template>
@@ -132,23 +162,19 @@ onMounted(async () => {
 				</div>
 			</div>
 
-			<div class="grid grid-cols-3 p-4 my-4 w-full border rounded">
+			<div class="grid grid-cols-2 lg:grid-cols-3 p-4 my-4 w-full border rounded">
 				<p>
-					Network: <span class="text-blue-400">{{ dappStore.chain.name }}</span>
-				</p>
-				<p class="col-span-2">
-					Block Number: <span class="text-blue-400">{{ blockNumber }}</span>
-				</p>
-
-				<!-- <p>
-					Start Time: <span class="text-blue-400">{{ startTime }}</span>
+					Block Number: <span class="round-info">{{ blockNumber }}</span>
 				</p>
 				<p>
-					SignUp Deadline: <span class="text-blue-400">{{ signUpDeadline }}</span>
+					Start Time: <span class="round-info">{{ startTime }}</span>
 				</p>
 				<p>
-					Voting Deadline: <span class="text-blue-400">{{ votingDeadline }}</span>
-				</p> -->
+					SignUp Deadline: <span class="round-info">{{ signUpDeadline }}</span>
+				</p>
+				<p>
+					Voting Deadline: <span class="round-info">{{ votingDeadline }}</span>
+				</p>
 			</div>
 
 			<ContractUI v-if="fundingRoundProps" v-bind="fundingRoundProps" />
@@ -159,4 +185,8 @@ onMounted(async () => {
 	</div>
 </template>
 
-<style></style>
+<style scoped>
+.round-info {
+	@apply text-gray-500;
+}
+</style>

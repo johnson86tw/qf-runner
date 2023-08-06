@@ -17,14 +17,11 @@ const link = computed(() => {
 </script>
 
 <template>
-	<div class="text-blue-400 flex items-center gap-2">
+	<div class="flex items-center gap-2">
 		<p>{{ shortenAddress(address) }}</p>
 
 		<div class="flex gap-2">
-			<i-ic-baseline-content-copy
-				class="cursor-pointer hover:text-blue-500"
-				@click="copy(address)"
-			/>
+			<i-ic-baseline-content-copy class="clickable" @click="copy(address)" />
 			<a v-if="link" target="_blank" :href="link">
 				<i-ic-baseline-open-in-new />
 			</a>

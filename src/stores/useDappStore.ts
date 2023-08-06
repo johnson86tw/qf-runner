@@ -2,7 +2,7 @@ import { ethers, type Signer } from 'ethers'
 import { defineStore } from 'pinia'
 import invariant from 'tiny-invariant'
 import { arbitrum, arbitrumGoerli } from 'viem/chains'
-import { createPublicClient, type Chain, http, type PublicClient } from 'viem'
+import { createPublicClient, type Chain, http, type PublicClient, type Abi, getAddress } from 'viem'
 import {
 	CLR_HARDHAT_CHAIN,
 	CLR_HARDHAT_MULTICALL3_ADDRESS,
@@ -46,7 +46,7 @@ export const useDappStore = defineStore('dapp', {
 		chainId(): number {
 			return this.chain.id
 		},
-		networkUnmatched(state): boolean {
+		isNetworkUnmatched(state): boolean {
 			return state.user.chainId !== this.chainId
 		},
 		rpcUrl(): string {
@@ -95,6 +95,18 @@ export const useDappStore = defineStore('dapp', {
 			this.user.address = ''
 			this.user.signer = null
 			this.user.chainId = -1
+		},
+		multicall(functionNames: string[], address: string, abi: any) {
+			return this.client.multicall({
+				contracts: functionNames.map(functionName => {
+					return {
+						address: getAddress(address),
+						abi: abi as Abi,
+						functionName,
+					}
+				}),
+				multicallAddress: this.multicallAddress,
+			})
 		},
 	},
 	persist: {

@@ -8,7 +8,7 @@ const { address, isActivated } = useEthers()
 const { disconnect, wallet } = useWallet()
 
 const dappStore = useDappStore()
-const { networkUnmatched } = storeToRefs(dappStore)
+const { isNetworkUnmatched } = storeToRefs(dappStore)
 
 async function onSwitchChain() {
 	try {
@@ -26,27 +26,24 @@ async function onSwitchChain() {
 		<div v-if="isActivated" class="flex items-center flex-col">
 			<div
 				class="h-[36px] px-4 rounded-3xl sm:inline-flex items-center gap-x-2 bg-gray-100"
-				:class="networkUnmatched ? 'border border-red-500' : ''"
+				:class="isNetworkUnmatched ? 'border border-red-500' : ''"
 			>
-				<p v-if="networkUnmatched">Network Unmatched</p>
+				<p v-if="isNetworkUnmatched">Network Unmatched</p>
 				<i-ic:baseline-switch-access-shortcut
-					v-if="networkUnmatched"
-					class="cursor-pointer hover:text-blue-500"
+					v-if="isNetworkUnmatched"
+					class="clickable"
 					@click="onSwitchChain"
 				/>
 
 				<p v-else>{{ shortenAddress(address) }}</p>
 
 				<i-ic-baseline-content-copy
-					v-if="!networkUnmatched"
-					class="cursor-pointer hover:text-blue-500"
+					v-if="!isNetworkUnmatched"
+					class="clickable"
 					@click="copy(address)"
 				/>
 
-				<i-ic:baseline-logout
-					class="cursor-pointer hover:text-blue-500"
-					@click="disconnect"
-				/>
+				<i-ic:baseline-logout class="clickable" @click="disconnect" />
 			</div>
 		</div>
 

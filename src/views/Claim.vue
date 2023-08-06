@@ -5,18 +5,27 @@ import { useRoundStore } from '@/stores/useRoundStore'
 import { getRecipientClaimData } from 'clrfund-maci-utils'
 import tally from '@/mocks/tally'
 import { waitForTransaction, getEventArg } from '@/utils/contracts'
+import { whenever } from '@vueuse/core'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
-const { isRoundLoaded } = storeToRefs(roundStore)
 
 const claimTxHash = ref('')
 
 const loading = ref(false)
 const error = ref(null)
 
+// network change 要清除 error
+whenever(
+	() => roundStore.isRoundLoading,
+	() => {
+		error.value = null
+	},
+)
+
 async function onClaim() {
 	loading.value = true
+	error.value = null
 
 	try {
 		const fundingRound = FundingRound__factory.connect(
@@ -26,12 +35,7 @@ async function onClaim() {
 		const projectIndex = 1
 		const recipientTreeDepth = 32
 
-		let recipientClaimData
-		try {
-			recipientClaimData = getRecipientClaimData(projectIndex, recipientTreeDepth, tally)
-		} catch (err: any) {
-			throw new Error(err)
-		}
+		const recipientClaimData = getRecipientClaimData(projectIndex, recipientTreeDepth, tally)
 
 		console.log('recipientClaimData', recipientClaimData)
 
@@ -42,7 +46,7 @@ async function onClaim() {
 				hash => (claimTxHash.value = hash),
 			)
 		} catch (error: any) {
-			error.value = error.message
+			error.value = error
 			return
 		}
 
@@ -57,6 +61,7 @@ async function onClaim() {
 		console.log('amount', amount)
 		console.log('recipientAddress', recipientAddress)
 	} catch (err: any) {
+		error.value = err
 		console.error(err)
 	} finally {
 		loading.value = false
@@ -71,13 +76,8 @@ async function onClaim() {
 		</div>
 
 		<div class="flex flex-col items-center gap-y-2 justify-center">
-			<BaseButton
-				:loading="loading"
-				:disabled="!isRoundLoaded"
-				text="Claim"
-				@click="onClaim"
-			/>
-			<p class="w-full break-words">{{ error }}</p>
+			<TxButton :loading="loading" @click="onClaim" text="Claim" />
+			<p class="w-full break-words text-center">{{ error }}</p>
 		</div>
 	</div>
 </template>

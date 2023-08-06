@@ -26,7 +26,7 @@ async function onSignMessage() {
 		<p>MACI</p>
 
 		<BaseButton @click="onSignMessage">Sign Message</BaseButton>
-		<div>
+		<div class="text-center">
 			<p>PubKey: {{ pubKey }}</p>
 			<p>PrivKey: {{ privKey }}</p>
 		</div>

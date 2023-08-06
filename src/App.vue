@@ -43,32 +43,30 @@ function autoConnectErrorHandler(err: any) {
 const roundStore = useRoundStore()
 const { isRoundLoading } = storeToRefs(roundStore)
 
-watchEffect(() => {
-	if (roundStore.isRoundLoaded && roundStore.roundAddress !== roundStore.round.address) {
-		console.warn('Round Address Unmatched')
-	}
-})
+// watchEffect(() => {
+// 	if (roundStore.isRoundLoaded && roundStore.roundAddress !== roundStore.round.address) {
+// 		console.warn('Round Address Unmatched')
+// 	}
+// })
 
 const router = useRouter()
+const route = useRoute()
 
-watch(
-	() => roundStore.round.address,
-	() => {
-		if (roundStore.round.address) {
-			router.replace({
-				query: {
-					round: roundStore.round.address,
-				},
-			})
-		} else {
-			router.replace({
-				query: {
-					round: undefined,
-				},
-			})
-		}
-	},
-)
+watch([() => roundStore.round.address, () => route.path], () => {
+	if (roundStore.round.address) {
+		router.replace({
+			query: {
+				round: roundStore.round.address,
+			},
+		})
+	} else {
+		router.replace({
+			query: {
+				round: undefined,
+			},
+		})
+	}
+})
 
 watchImmediate(
 	() => dappStore.network,

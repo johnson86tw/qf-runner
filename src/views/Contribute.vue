@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useDappStore } from '@/stores/useDappStore'
 import { useRoundStore } from '@/stores/useRoundStore'
-import { watchImmediate } from '@vueuse/core'
+import { watchImmediate, whenever } from '@vueuse/core'
 import { BigNumber } from 'ethers'
+import { getTxReason } from '@/utils/error'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
@@ -44,7 +45,15 @@ const stateText = computed(() => {
 	}
 })
 const loading = ref(false)
-const error = ref(null)
+const error = ref<string | null>()
+
+// network change 要清除 error
+whenever(
+	() => roundStore.isRoundLoading,
+	() => {
+		error.value = null
+	},
+)
 
 async function onContribute() {
 	loading.value = true
@@ -75,7 +84,8 @@ async function onContribute() {
 		console.log('Successfully contributed')
 	} catch (err: any) {
 		step.value = 0
-		error.value = err
+		error.value = getTxReason(err.message)
+
 		console.error('contribute:', err)
 	} finally {
 		loading.value = false
@@ -115,14 +125,14 @@ function generateRandomString(length) {
 			</div>
 		</div>
 		<div class="flex flex-col items-center gap-y-2 justify-center">
-			<BaseButton
-				:loading="loading"
-				:disabled="!isRoundLoaded || isVotesError"
+			<TxButton
 				text="Contribute"
+				:loading="loading"
+				:disabled="isVotesError"
 				@click="onContribute"
 			/>
 			<p>{{ stateText }}</p>
-			<p class="w-full break-words">{{ error }}</p>
+			<p class="w-full break-words text-center">{{ error }}</p>
 		</div>
 	</div>
 </template>
