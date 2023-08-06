@@ -49,6 +49,27 @@ watchEffect(() => {
 	}
 })
 
+const router = useRouter()
+
+watch(
+	() => roundStore.round.address,
+	() => {
+		if (roundStore.round.address) {
+			router.replace({
+				query: {
+					round: roundStore.round.address,
+				},
+			})
+		} else {
+			router.replace({
+				query: {
+					round: undefined,
+				},
+			})
+		}
+	},
+)
+
 watchImmediate(
 	() => dappStore.network,
 	() => {
@@ -59,10 +80,9 @@ watchImmediate(
 watchImmediate(
 	() => roundStore.roundAddress,
 	() => {
+		roundStore.resetRound()
 		if (isAddress(roundStore.roundAddress)) {
 			roundStore.updateRound(dappStore.provider)
-		} else {
-			roundStore.resetRound()
 		}
 	},
 )

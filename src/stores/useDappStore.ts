@@ -41,16 +41,12 @@ export const useDappStore = defineStore('dapp', {
 		chain(state): Chain {
 			const chain = networkMap.get(state.network)
 			invariant(chain, 'useDappStore.chain')
-
 			return chain
 		},
 		chainId(): number {
-			console.log('chainId', this.chain.id)
 			return this.chain.id
 		},
 		networkUnmatched(state): boolean {
-			console.log('user.chainId', state.user.chainId)
-
 			return state.user.chainId !== this.chainId
 		},
 		rpcUrl(): string {

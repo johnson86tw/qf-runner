@@ -32,9 +32,9 @@ export type Votes = Vote[]
 export type RoundState = {
 	isRoundLoaded: boolean
 	isRoundLoading: boolean
-	roundAddress: string
+	roundAddress: string // expected round address
 	round: {
-		address: string
+		address: string // real round address
 		contract: FundingRound | null
 		voiceCreditFactor: BigNumber | null
 		nativeTokenAddress: string
@@ -92,7 +92,7 @@ export const useRoundStore = defineStore('round', {
 		},
 		resetRound() {
 			this.isRoundLoaded = false
-			this.round = {
+			const defaultRound: RoundState['round'] = {
 				address: '',
 				contract: null,
 				voiceCreditFactor: null,
@@ -105,38 +105,55 @@ export const useRoundStore = defineStore('round', {
 				maciFactoryAddress: '',
 				maciFactoryContract: null,
 			}
+			this.round = defaultRound
 		},
 		async updateRound(provider: providers.JsonRpcProvider | Signer) {
 			this.resetRound()
 			this.isRoundLoading = true
 
+			const newRound: RoundState['round'] = {
+				address: '',
+				contract: null,
+				voiceCreditFactor: null,
+				nativeTokenAddress: '',
+				maciAddress: '',
+				maciContract: null,
+				coordinatorPubKey: null,
+				fundingRoundFactoryAddress: '',
+				fundingRoundFactoryContract: null,
+				maciFactoryAddress: '',
+				maciFactoryContract: null,
+			}
+
 			try {
 				invariant(this.hasRoundAddress, 'hasRoundAddress')
 				const fundingRound = FundingRound__factory.connect(this.roundAddress, provider)
 
-				this.round.address = this.roundAddress
-				this.round.contract = fundingRound
-				this.round.nativeTokenAddress = await fundingRound.nativeToken()
-				this.round.voiceCreditFactor = await fundingRound.voiceCreditFactor()
-				this.round.maciAddress = await fundingRound.maci()
-				this.round.maciContract = MACI__factory.connect(this.round.maciAddress, provider)
-				const coordinatorPubKeyRaw = await this.round.maciContract.coordinatorPubKey()
-				this.round.coordinatorPubKey = new PubKey([
+				newRound.address = this.roundAddress
+				newRound.contract = fundingRound
+				newRound.nativeTokenAddress = await fundingRound.nativeToken()
+				newRound.voiceCreditFactor = await fundingRound.voiceCreditFactor()
+				newRound.maciAddress = await fundingRound.maci()
+				newRound.maciContract = MACI__factory.connect(newRound.maciAddress, provider)
+				const coordinatorPubKeyRaw = await newRound.maciContract.coordinatorPubKey()
+				newRound.coordinatorPubKey = new PubKey([
 					coordinatorPubKeyRaw.x.toBigInt(),
 					coordinatorPubKeyRaw.y.toBigInt(),
 				])
 				// the owner of fundingRound is fundingRoundFactory
-				this.round.fundingRoundFactoryAddress = await fundingRound.owner()
-				this.round.fundingRoundFactoryContract = FundingRoundFactory__factory.connect(
-					this.round.fundingRoundFactoryAddress,
+				newRound.fundingRoundFactoryAddress = await fundingRound.owner()
+				newRound.fundingRoundFactoryContract = FundingRoundFactory__factory.connect(
+					newRound.fundingRoundFactoryAddress,
 					provider,
 				)
-				this.round.maciFactoryAddress =
-					await this.round.fundingRoundFactoryContract.maciFactory()
-				this.round.maciFactoryContract = MACIFactory__factory.connect(
-					this.round.maciFactoryAddress,
+				newRound.maciFactoryAddress =
+					await newRound.fundingRoundFactoryContract.maciFactory()
+				newRound.maciFactoryContract = MACIFactory__factory.connect(
+					newRound.maciFactoryAddress,
 					provider,
 				)
+
+				this.round = newRound
 				this.isRoundLoaded = true
 			} catch (err: any) {
 				this.resetRound()

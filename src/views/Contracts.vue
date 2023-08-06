@@ -27,7 +27,7 @@ watch(roundAddressInput, () => {
 watch(
 	() => roundStore.roundAddress,
 	() => {
-		roundAddressInput.value = roundStore.round.address
+		roundAddressInput.value = roundStore.roundAddress
 	},
 )
 
