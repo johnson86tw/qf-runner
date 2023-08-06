@@ -17,36 +17,42 @@ export type DappState = {
 export type User = {
 	signer: Signer | null
 	address: string
+	chainId: number
 }
 export type AppNetwork = 'arbitrum' | 'arbitrum-goerli' | 'clr-hardhat'
 
-// @todo 改成 Map: AppNetwork => Chain
-export const viemChains = [
-	{
-		name: 'arbitrum',
-		chain: arbitrum,
-	},
-	{
-		name: 'arbitrum-goerli',
-		chain: arbitrumGoerli,
-	},
-	{
-		name: 'clr-hardhat',
-		chain: CLR_HARDHAT_CHAIN,
-	},
-]
+const networkMap = new Map<AppNetwork, Chain>()
+networkMap.set('arbitrum', arbitrum)
+networkMap.set('arbitrum-goerli', arbitrumGoerli)
+networkMap.set('clr-hardhat', CLR_HARDHAT_CHAIN)
 
-export const networkOptions = ['arbitrum', 'arbitrum-goerli', 'clr-hardhat']
+export const networkOptions = [...networkMap.keys()]
 
 export const useDappStore = defineStore('dapp', {
 	state: (): DappState => ({
 		user: {
 			address: '',
 			signer: null,
+			chainId: -1,
 		},
 		network: 'arbitrum',
 	}),
 	getters: {
+		chain(state): Chain {
+			const chain = networkMap.get(state.network)
+			invariant(chain, 'useDappStore.chain')
+
+			return chain
+		},
+		chainId(): number {
+			console.log('chainId', this.chain.id)
+			return this.chain.id
+		},
+		networkUnmatched(state): boolean {
+			console.log('user.chainId', state.user.chainId)
+
+			return state.user.chainId !== this.chainId
+		},
 		rpcUrl(): string {
 			return this.chain.rpcUrls.default.http[0]
 		},
@@ -77,13 +83,7 @@ export const useDappStore = defineStore('dapp', {
 				transport: http(),
 			})
 		},
-		chain(state): Chain {
-			const found = viemChains.find(chain => {
-				return chain.name === state.network
-			})
-			invariant(found, 'useDappStore.chain')
-			return found.chain
-		},
+
 		multicallAddress(state) {
 			if (state.network === 'clr-hardhat') {
 				return CLR_HARDHAT_MULTICALL3_ADDRESS
@@ -98,6 +98,7 @@ export const useDappStore = defineStore('dapp', {
 		resetUser() {
 			this.user.address = ''
 			this.user.signer = null
+			this.user.chainId = -1
 		},
 	},
 	persist: {

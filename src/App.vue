@@ -6,15 +6,24 @@ import { useRoundStore } from './stores/useRoundStore'
 import { watchImmediate } from '@vueuse/core'
 import { isAddress } from 'viem'
 
-const { onActivated, onDeactivated } = useEthersHooks()
-
 const dappStore = useDappStore()
 const { isConnected, user } = storeToRefs(dappStore)
 
-onActivated(({ signer, address }) => {
+const { onActivated, onChanged, onDeactivated } = useEthersHooks()
+
+onActivated(({ signer, address, network }) => {
 	dappStore.setUser({
 		address,
 		signer,
+		chainId: network.chainId,
+	})
+})
+
+onChanged(({ signer, address, network }) => {
+	dappStore.setUser({
+		address,
+		signer,
+		chainId: network.chainId,
 	})
 })
 

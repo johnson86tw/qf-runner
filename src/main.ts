@@ -24,6 +24,7 @@ import 'vue3-select/dist/vue3-select.css'
 
 // app
 import '@/styles/index.scss'
+import { CLR_HARDHAT_CHAIN } from './constants'
 
 const app = createApp(App)
 app.component('VSelect', VueSelect)

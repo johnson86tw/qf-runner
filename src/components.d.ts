@@ -13,6 +13,9 @@ declare module '@vue/runtime-core' {
     Contract: typeof import('./components/Contract.vue')['default']
     ContractUI: typeof import('./components/ContractUI.vue')['default']
     Header: typeof import('./components/Header.vue')['default']
+    'IIc:baselineContentCopy': typeof import('~icons/ic/baseline-content-copy')['default']
+    'IIc:baselineLogout': typeof import('~icons/ic/baseline-logout')['default']
+    'IIc:baselineSwitchAccessShortcut': typeof import('~icons/ic/baseline-switch-access-shortcut')['default']
     IIcAdd: typeof import('~icons/ic/add')['default']
     IIcArrowDown: typeof import('~icons/ic/arrow-down')['default']
     IIcBaselineContentCopy: typeof import('~icons/ic/baseline-content-copy')['default']
@@ -23,7 +26,10 @@ declare module '@vue/runtime-core' {
     IIcClose: typeof import('~icons/ic/close')['default']
     IIcDown: typeof import('~icons/ic/down')['default']
     'ISvgSpinners:3DotsFade': typeof import('~icons/svg-spinners/3-dots-fade')['default']
+    NetworkStatue: typeof import('./components/NetworkStatue.vue')['default']
+    NetworkStatus: typeof import('./components/NetworkStatus.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    UserStatus: typeof import('./components/UserStatus.vue')['default']
   }
 }

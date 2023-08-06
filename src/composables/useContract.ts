@@ -52,8 +52,6 @@ export function useContract(options: UseContractOptions) {
 	async function fetchPureState(address: string) {
 		const dappStore = useDappStore()
 
-		console.log('fetching pure state...', address)
-
 		const results = await dappStore.client.multicall({
 			contracts: pureFnNames.map(name => ({
 				address: getAddress(address),
@@ -67,7 +65,6 @@ export function useContract(options: UseContractOptions) {
 			// @ts-ignore
 			state[pureFnNames[i]] = res.result
 		})
-		console.log('Pure state fetched')
 	}
 
 	const data = computed<Info[]>(() => {
