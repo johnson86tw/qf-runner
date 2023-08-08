@@ -20,6 +20,8 @@ declare module '@vue/runtime-core' {
     IIcBaselineKeyboardArrowUp: typeof import('~icons/ic/baseline-keyboard-arrow-up')['default']
     IIcBaselineOpenInNew: typeof import('~icons/ic/baseline-open-in-new')['default']
     'ISvgSpinners:3DotsFade': typeof import('~icons/svg-spinners/3-dots-fade')['default']
+    'ISvgSpinners:6DotsRotate': typeof import('~icons/svg-spinners/6-dots-rotate')['default']
+    'ISvgSpinners:tadpole': typeof import('~icons/svg-spinners/tadpole')['default']
     NetworkStatus: typeof import('./components/NetworkStatus.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

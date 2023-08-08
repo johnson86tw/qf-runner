@@ -1,8 +1,12 @@
 <script setup lang="ts">
 const router = useRouter()
 
+const hiddenRoutes = ['maci', 'viem-ethers']
+
 const childRoutes = computed(() => {
-	return router.options.routes.filter(r => r.path !== '/')
+	return router.options.routes
+		.filter(r => r.path !== '/')
+		.filter(r => !hiddenRoutes.includes(r.name as string))
 })
 </script>
 

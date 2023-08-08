@@ -13,10 +13,12 @@ import { useDappStore } from '@/stores/useDappStore'
 import { useRoundStore } from '@/stores/useRoundStore'
 import { DateTime } from 'luxon'
 import { watchImmediate } from '@vueuse/core'
+import { ROUND_ADDRESSES } from '@/constants'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
-const { roundAddress } = storeToRefs(roundStore)
+const { roundAddress, roundStatus, startTime, signUpDeadline, votingDeadline } =
+	storeToRefs(roundStore)
 
 const roundAddressInput = ref(roundAddress.value)
 
@@ -33,9 +35,6 @@ watch(roundAddress, () => {
 })
 
 const blockNumber = ref(0n)
-const signUpTimestamp = ref(0n)
-const signUpDurationSeconds = ref(0n)
-const votingDurationSeconds = ref(0n)
 
 // update info when the network is changed
 watchImmediate(
@@ -48,30 +47,7 @@ watchImmediate(
 
 function resetPageState() {
 	blockNumber.value = 0n
-	signUpTimestamp.value = 0n
-	signUpDurationSeconds.value = 0n
-	votingDurationSeconds.value = 0n
 }
-
-const startTime = computed(() => {
-	if (!signUpTimestamp.value) return ''
-	return DateTime.fromSeconds(Number(signUpTimestamp.value)).toLocaleString()
-})
-
-const signUpDeadline = computed(() => {
-	if (!signUpTimestamp.value || !signUpDurationSeconds.value) return ''
-	return DateTime.fromSeconds(
-		Number(signUpTimestamp.value + signUpDurationSeconds.value),
-	).toLocaleString()
-})
-
-const votingDeadline = computed(() => {
-	if (!signUpTimestamp.value || !signUpDurationSeconds.value || !votingDurationSeconds.value)
-		return ''
-	return DateTime.fromSeconds(
-		Number(signUpTimestamp.value + signUpDurationSeconds.value + votingDurationSeconds.value),
-	).toLocaleString()
-})
 
 // update info when the round is loaded
 watchImmediate(
@@ -83,9 +59,6 @@ watchImmediate(
 			roundStore.round.maciAddress,
 			MACI__factory.abi,
 		)
-		signUpTimestamp.value = results[0].result as bigint
-		signUpDurationSeconds.value = results[1].result as bigint
-		votingDurationSeconds.value = results[2].result as bigint
 	},
 )
 
@@ -142,6 +115,11 @@ const maciFactoryProps = computed(() => {
 		useContractOptions: { abi: MACIFactory__factory.abi },
 	}
 })
+
+// roundStore.defaultRoundAddress
+// const roundAddressOptions = computed(() => {
+// 	return ROUND_ADDRESSES.filter(round => round.network === dappStore.network)
+// })
 </script>
 
 <template>
@@ -149,7 +127,16 @@ const maciFactoryProps = computed(() => {
 		<div class="max-w-[800px] w-full">
 			<div class="flex justify-center w-full">
 				<div class="w-[500px]">
-					<label class="label" for="funding-round"> Funding Round </label>
+					<div class="text-gray-700 flex justify-center mb-2" for="funding-round">
+						<label class="relative flex items-center" for="funding-round">
+							Funding Round
+							<i-svg-spinners:6-dots-rotate
+								v-if="roundStore.isRoundLoading"
+								class="w-4 h-4 text-gray-600 inline absolute -right-6"
+							/>
+						</label>
+					</div>
+
 					<input
 						v-model="roundAddressInput"
 						class="input"
@@ -165,6 +152,9 @@ const maciFactoryProps = computed(() => {
 			<div class="grid grid-cols-2 lg:grid-cols-3 p-4 my-4 w-full border rounded">
 				<p>
 					Block Number: <span class="round-info">{{ blockNumber }}</span>
+				</p>
+				<p>
+					Round Status: <span class="round-info">{{ roundStatus }}</span>
 				</p>
 				<p>
 					Start Time: <span class="round-info">{{ startTime }}</span>

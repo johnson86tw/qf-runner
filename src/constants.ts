@@ -24,6 +24,27 @@ export const ROUND_ADDRESSES = [
 		address: '0x806F08B7DD31fE0267e8c70C4bF8C4BfbBddE760',
 	},
 	{
+		name: '1st',
+		network: 'arbitrum-goerli',
+		address: '0x1F45363ED6415f841f2Bbc301B9dc451a09Da646',
+	},
+	{
+		name: '2nd',
+		network: 'arbitrum-goerli',
+		address: '0xA81D54D046f08599d614567534fB2cd853e392f3',
+	},
+	{
+		name: '3rd',
+		network: 'arbitrum-goerli',
+		address: '0x9C5638f94710BFcf77306E0aA2eC61657083957A',
+	},
+
+	{
+		name: '1st',
+		network: 'arbitrum-goerli',
+		address: '0x1F45363ED6415f841f2Bbc301B9dc451a09Da646',
+	},
+	{
 		name: 'Clrfund Hardhat',
 		network: 'clr-hardhat',
 		address: '0x61c36a8d610163660E21a8b7359e1Cac0C9133e1',

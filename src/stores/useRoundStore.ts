@@ -20,6 +20,8 @@ import { sha256 } from '@/utils/crypto'
 import invariant from 'tiny-invariant'
 import { isAddress } from 'ethers/lib/utils'
 import { useDappStore } from './useDappStore'
+import { DateTime } from 'luxon'
+import { getAddress, type Abi } from 'viem'
 
 export type Contributor = {
 	keypair: Keypair
@@ -45,8 +47,36 @@ export type RoundState = {
 		fundingRoundFactoryContract: FundingRoundFactory | null
 		maciFactoryAddress: string
 		maciFactoryContract: MACIFactory | null
+		signUpTimestamp: bigint
+		signUpDurationSeconds: bigint
+		votingDurationSeconds: bigint
+		isFinalized: boolean
+		isCancelled: boolean
 	}
 	votes: Votes
+}
+
+export type RoundStatus = 'contribution' | 'reallocation' | 'processing' | 'finalized' | 'cancelled'
+
+const getDefaultRound = (): RoundState['round'] => {
+	return {
+		address: '',
+		contract: null,
+		voiceCreditFactor: null,
+		nativeTokenAddress: '',
+		maciAddress: '',
+		maciContract: null,
+		coordinatorPubKey: null,
+		fundingRoundFactoryAddress: '',
+		fundingRoundFactoryContract: null,
+		maciFactoryAddress: '',
+		maciFactoryContract: null,
+		signUpTimestamp: 0n,
+		signUpDurationSeconds: 0n,
+		votingDurationSeconds: 0n,
+		isFinalized: false,
+		isCancelled: false,
+	}
 }
 
 export const useRoundStore = defineStore('round', {
@@ -54,22 +84,50 @@ export const useRoundStore = defineStore('round', {
 		isRoundLoaded: false,
 		isRoundLoading: false,
 		roundAddress: '',
-		round: {
-			address: '',
-			contract: null,
-			voiceCreditFactor: null,
-			nativeTokenAddress: '',
-			maciAddress: '',
-			maciContract: null,
-			coordinatorPubKey: null,
-			fundingRoundFactoryAddress: '',
-			fundingRoundFactoryContract: null,
-			maciFactoryAddress: '',
-			maciFactoryContract: null,
-		},
+		round: getDefaultRound(),
 		votes: [],
 	}),
 	getters: {
+		roundStatus(state): RoundStatus | '' {
+			if (!state.isRoundLoaded) return ''
+
+			if (state.round.isCancelled) {
+				return 'cancelled'
+			} else if (state.round.isFinalized) {
+				return 'finalized'
+			} else if (DateTime.now() > DateTime.fromISO(this.votingDeadline)) {
+				return 'processing'
+			} else if (DateTime.now() > DateTime.fromISO(this.signUpDeadline)) {
+				return 'reallocation'
+			} else {
+				return 'contribution'
+			}
+		},
+		startTime(state) {
+			if (!state.round.signUpTimestamp) return ''
+			return DateTime.fromSeconds(Number(state.round.signUpTimestamp)).toISODate()
+		},
+		signUpDeadline(state) {
+			if (!state.round.signUpTimestamp || !state.round.signUpDurationSeconds) return ''
+			return DateTime.fromSeconds(
+				Number(state.round.signUpTimestamp + state.round.signUpDurationSeconds),
+			).toISODate()
+		},
+		votingDeadline(state) {
+			if (
+				!state.round.signUpTimestamp ||
+				!state.round.signUpDurationSeconds ||
+				!state.round.votingDurationSeconds
+			)
+				return ''
+			return DateTime.fromSeconds(
+				Number(
+					state.round.signUpTimestamp +
+						state.round.signUpDurationSeconds +
+						state.round.votingDurationSeconds,
+				),
+			).toISODate()
+		},
 		defaultRoundAddress() {
 			const dappStore = useDappStore()
 			const found = ROUND_ADDRESSES.find(e => e.network === dappStore.network)
@@ -92,54 +150,21 @@ export const useRoundStore = defineStore('round', {
 		},
 		resetRound() {
 			this.isRoundLoaded = false
-			const defaultRound: RoundState['round'] = {
-				address: '',
-				contract: null,
-				voiceCreditFactor: null,
-				nativeTokenAddress: '',
-				maciAddress: '',
-				maciContract: null,
-				coordinatorPubKey: null,
-				fundingRoundFactoryAddress: '',
-				fundingRoundFactoryContract: null,
-				maciFactoryAddress: '',
-				maciFactoryContract: null,
-			}
+			const defaultRound: RoundState['round'] = getDefaultRound()
 			this.round = defaultRound
 		},
 		async updateRound(provider: providers.JsonRpcProvider | Signer) {
 			this.resetRound()
 			this.isRoundLoading = true
 
-			const newRound: RoundState['round'] = {
-				address: '',
-				contract: null,
-				voiceCreditFactor: null,
-				nativeTokenAddress: '',
-				maciAddress: '',
-				maciContract: null,
-				coordinatorPubKey: null,
-				fundingRoundFactoryAddress: '',
-				fundingRoundFactoryContract: null,
-				maciFactoryAddress: '',
-				maciFactoryContract: null,
-			}
+			const newRound: RoundState['round'] = getDefaultRound()
 
 			try {
 				invariant(this.hasRoundAddress, 'hasRoundAddress')
-				const fundingRound = FundingRound__factory.connect(this.roundAddress, provider)
 
-				newRound.address = this.roundAddress
-				newRound.contract = fundingRound
-				newRound.nativeTokenAddress = await fundingRound.nativeToken()
-				newRound.voiceCreditFactor = await fundingRound.voiceCreditFactor()
+				const fundingRound = FundingRound__factory.connect(this.roundAddress, provider)
 				newRound.maciAddress = await fundingRound.maci()
 				newRound.maciContract = MACI__factory.connect(newRound.maciAddress, provider)
-				const coordinatorPubKeyRaw = await newRound.maciContract.coordinatorPubKey()
-				newRound.coordinatorPubKey = new PubKey([
-					coordinatorPubKeyRaw.x.toBigInt(),
-					coordinatorPubKeyRaw.y.toBigInt(),
-				])
 				// the owner of fundingRound is fundingRoundFactory
 				newRound.fundingRoundFactoryAddress = await fundingRound.owner()
 				newRound.fundingRoundFactoryContract = FundingRoundFactory__factory.connect(
@@ -152,6 +177,45 @@ export const useRoundStore = defineStore('round', {
 					newRound.maciFactoryAddress,
 					provider,
 				)
+
+				newRound.address = this.roundAddress
+				newRound.contract = fundingRound
+				newRound.nativeTokenAddress = await fundingRound.nativeToken()
+				newRound.voiceCreditFactor = await fundingRound.voiceCreditFactor()
+				const coordinatorPubKeyRaw = await newRound.maciContract.coordinatorPubKey()
+				newRound.coordinatorPubKey = new PubKey([
+					coordinatorPubKeyRaw.x.toBigInt(),
+					coordinatorPubKeyRaw.y.toBigInt(),
+				])
+
+				const dappStore = useDappStore()
+				const results = await dappStore.client.multicall({
+					contracts: [
+						...[
+							'signUpTimestamp',
+							'signUpDurationSeconds',
+							'votingDurationSeconds',
+						].map(fnName => ({
+							address: getAddress(newRound.maciAddress),
+							abi: MACI__factory.abi as Abi,
+							functionName: fnName,
+						})),
+						...['isFinalized', 'isCancelled'].map(fnName => ({
+							address: getAddress(newRound.address),
+							abi: FundingRound__factory.abi as Abi,
+							functionName: fnName,
+						})),
+					],
+					multicallAddress: dappStore.multicallAddress,
+				})
+
+				newRound.signUpTimestamp = results[0].result as bigint
+				newRound.signUpDurationSeconds = results[1].result as bigint
+				newRound.votingDurationSeconds = results[2].result as bigint
+				newRound.isFinalized = results[3].result as boolean
+				newRound.isCancelled = results[4].result as boolean
+
+				// 取得 timeline
 
 				this.round = newRound
 				this.isRoundLoaded = true
