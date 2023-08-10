@@ -27,7 +27,9 @@ watchImmediate(
 )
 
 const contractProps = computed(() => ({
+	address: props.address,
 	title: props.title,
+	abi: props.useContractOptions.abi,
 	open: props.open,
 	data: data.value,
 	events: events,

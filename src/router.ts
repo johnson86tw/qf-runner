@@ -28,7 +28,7 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/factory',
 		name: 'factory',
 		meta: {
-			description: 'Retrieve fundingRoundFactory data.',
+			description: 'Retrieve FundingRoundFactory contract data.',
 		},
 		component: () => import('@/views/Factory.vue'),
 	},
@@ -36,7 +36,7 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/user-registry',
 		name: 'user-registry',
 		meta: {
-			description: 'Retrieve fundingRoundFactory data.',
+			description: 'Retrieve SimpleUserRegistry contract data.',
 		},
 		component: () => import('@/views/UserRegistry.vue'),
 	},
@@ -44,7 +44,7 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/recipient-registry',
 		name: 'recipient-registry',
 		meta: {
-			description: 'Retrieve fundingRoundFactory data.',
+			description: 'Retrieve Simple Recipient Registry contract data.',
 		},
 		component: () => import('@/views/RecipientRegistry.vue'),
 	},

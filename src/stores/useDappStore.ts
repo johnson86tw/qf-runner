@@ -80,7 +80,6 @@ export const useDappStore = defineStore('dapp', {
 				transport: http(),
 			})
 		},
-
 		multicallAddress(state) {
 			if (state.network === 'clr-hardhat') {
 				return CLR_HARDHAT_MULTICALL3_ADDRESS

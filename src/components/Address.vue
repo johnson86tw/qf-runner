@@ -8,10 +8,6 @@ const props = defineProps<{
 	address: string
 }>()
 
-if (!isAddress(props.address)) {
-	console.error(`${props.address} is not an address`)
-}
-
 const link = computed(() => {
 	const dappStore = useDappStore()
 	if (!dappStore.explorerUrl) return ''
@@ -20,7 +16,7 @@ const link = computed(() => {
 </script>
 
 <template>
-	<div v-if="address" class="flex items-center gap-2">
+	<div v-if="isAddress(address)" class="flex items-center gap-2">
 		<p>{{ shortenAddress(address) }}</p>
 
 		<div class="flex gap-2">

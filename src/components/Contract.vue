@@ -4,9 +4,12 @@ import type { AbiEvents, Info } from '@/types'
 import Address from '@/components/Address.vue'
 import { isAddress } from 'viem'
 import { PubKey } from 'clrfund-maci-utils'
+import { showEventModal } from '@/utils/modals'
 
 type Props = {
+	address: string
 	title: string
+	abi: any
 	data?: Info[]
 	open?: boolean
 	events?: AbiEvents
@@ -33,6 +36,14 @@ function shortenPubKey(macipk: string) {
 	const tail = macipk.substring(macipk.length - 4)
 	return head + '...' + tail
 }
+
+function onClickEvent(eventName: string) {
+	showEventModal({
+		address: props.address,
+		eventName,
+		abi: props.abi,
+	})
+}
 </script>
 
 <template>
@@ -41,7 +52,12 @@ function shortenPubKey(macipk: string) {
 		<div v-if="events?.length">
 			<p class="text-xl text-center p-2">Events</p>
 			<ul class="flex flex-wrap gap-2">
-				<li class="border rounded-3xl px-4" v-for="event in events" :key="event.name">
+				<li
+					@click="onClickEvent(event.name)"
+					class="border rounded-3xl px-4 hover:border-secondary-dark hover:bg-secondary-light cursor-pointer"
+					v-for="event in events"
+					:key="event.name"
+				>
 					{{ event.name }}
 				</li>
 			</ul>
