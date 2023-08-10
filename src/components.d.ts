@@ -11,6 +11,7 @@ declare module '@vue/runtime-core' {
     BaseButton: typeof import('./components/button/BaseButton.vue')['default']
     Contract: typeof import('./components/Contract.vue')['default']
     ContractUI: typeof import('./components/ContractUI.vue')['default']
+    Copy: typeof import('./components/button/Copy.vue')['default']
     Error: typeof import('./components/Error.vue')['default']
     EventModal: typeof import('./components/modal/EventModal.vue')['default']
     Header: typeof import('./components/Header.vue')['default']

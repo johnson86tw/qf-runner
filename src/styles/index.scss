@@ -1,7 +1,8 @@
 @import './tailwind.scss';
+@import './vars.scss';
 
 .btn {
-	@apply min-w-[100px] bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex justify-center items-center;
+	@apply min-w-[100px] bg-primary hover:bg-primary-dark text-white font-bold py-2 px-4 rounded flex justify-center items-center;
 }
 
 .label {
@@ -13,9 +14,9 @@
 }
 
 .clickable {
-	@apply cursor-pointer hover:text-blue-500;
+	@apply cursor-pointer hover:text-primary-dark;
 }
 
 a {
-	@apply text-blue-400 hover:text-blue-500;
+	@apply text-secondary hover:text-secondary-dark;
 }

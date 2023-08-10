@@ -1,7 +1,7 @@
 <script setup lang="ts">
 const router = useRouter()
 
-const hiddenRoutes = ['maci', 'viem-ethers']
+const hiddenRoutes = ['viem-ethers']
 
 const childRoutes = computed(() => {
 	return router.options.routes
@@ -12,7 +12,7 @@ const childRoutes = computed(() => {
 
 <template>
 	<div>
-		<p class="text-center text-3xl">Clrfund Mini UI</p>
+		<p class="text-center text-3xl text-primary-dark">Clrfund Mini UI</p>
 		<div class="mt-5 flex flex-col items-center justify-center gap-y-4">
 			<div class="flex flex-col items-center" v-for="route in childRoutes" :key="route.name">
 				<router-link :to="route.path" class="text-lg">

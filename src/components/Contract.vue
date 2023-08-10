@@ -89,6 +89,6 @@ const informations = computed(() => {
 }
 
 .info-value {
-	@apply text-blue-400 flex items-center gap-2;
+	@apply text-secondary flex items-center gap-2;
 }
 </style>

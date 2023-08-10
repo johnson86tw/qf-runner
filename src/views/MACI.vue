@@ -19,16 +19,38 @@ async function onSignMessage() {
 	pubKey.value = contributorKeypair.pubKey.serialize()
 	privKey.value = contributorKeypair.privKey.serialize()
 }
+
+async function onGenerateKey() {
+	const keypair = new Keypair()
+	const serializedPrivKey = keypair.privKey.serialize()
+	const serializedPubKey = keypair.pubKey.serialize()
+
+	privKey.value = serializedPrivKey
+	pubKey.value = serializedPubKey
+}
 </script>
 
 <template>
 	<div class="flex flex-col items-center gap-y-4">
 		<p>MACI</p>
 
-		<BaseButton @click="onSignMessage">Sign Message</BaseButton>
+		<BaseButton @click="onGenerateKey" text="Generate new MACI Keypair" />
+		<BaseButton @click="onSignMessage">Generate MACI Keypair by signing a message</BaseButton>
+
 		<div class="text-center">
-			<p>PubKey: {{ pubKey }}</p>
-			<p>PrivKey: {{ privKey }}</p>
+			<div v-if="pubKey">
+				<p>
+					PubKey <span><Copy class="inline" :content="pubKey" /></span>
+				</p>
+				{{ pubKey }}
+			</div>
+
+			<div v-if="privKey">
+				<p>
+					PrivKey <span><Copy class="inline" :content="privKey" /></span>
+				</p>
+				{{ privKey }}
+			</div>
 		</div>
 	</div>
 </template>

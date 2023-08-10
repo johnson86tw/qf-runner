@@ -44,7 +44,7 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/maci',
 		name: 'maci',
 		meta: {
-			description: 'Some operational experiments with MACI.',
+			description: 'Some operations with MACI.',
 		},
 		component: () => import('@/views/MACI.vue'),
 	},

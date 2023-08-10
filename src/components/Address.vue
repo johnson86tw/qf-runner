@@ -2,7 +2,6 @@
 import type { Address } from 'viem'
 import { computed } from 'vue'
 import { shortenAddress } from 'vue-dapp'
-import copy from 'copy-to-clipboard'
 import { useDappStore } from '@/stores/useDappStore'
 
 const props = defineProps<{
@@ -21,7 +20,7 @@ const link = computed(() => {
 		<p>{{ shortenAddress(address) }}</p>
 
 		<div class="flex gap-2">
-			<i-ic-baseline-content-copy class="clickable" @click="copy(address)" />
+			<Copy :content="address" />
 			<a v-if="link" target="_blank" :href="link">
 				<i-ic-baseline-open-in-new />
 			</a>

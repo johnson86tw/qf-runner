@@ -47,12 +47,7 @@ async function onSwitchChain() {
 			</div>
 		</div>
 
-		<button
-			v-else
-			@click="open()"
-			class="connect-btn"
-			:disabled="wallet.status === 'connecting'"
-		>
+		<BaseButton v-else @click="open()" :disabled="wallet.status === 'connecting'">
 			{{
 				wallet.status === 'connecting'
 					? 'Connecting...'
@@ -60,12 +55,8 @@ async function onSwitchChain() {
 					? 'Loading...'
 					: 'Connect'
 			}}
-		</button>
+		</BaseButton>
 	</div>
 </template>
 
-<style lang="scss">
-.connect-btn {
-	@apply h-[36px] px-4 bg-blue-500 hover:bg-blue-700 text-white font-bold rounded flex justify-center items-center;
-}
-</style>
+<style lang="scss"></style>

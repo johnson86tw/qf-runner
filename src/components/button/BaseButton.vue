@@ -38,6 +38,10 @@ const disabled = computed(() => {
 
 <style lang="scss">
 .base-btn {
-	@apply min-w-[120px] h-[36px] bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded flex justify-center items-center disabled:bg-blue-400;
+	@apply min-w-[120px] h-[36px] text-primary-dark bg-primary-light py-2 px-4 rounded flex justify-center items-center disabled:bg-primary-light;
+
+	&:hover {
+		@apply bg-primary-dark text-primary-light;
+	}
 }
 </style>
