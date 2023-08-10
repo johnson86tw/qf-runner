@@ -53,6 +53,7 @@ export type RoundState = {
 		isFinalized: boolean
 		isCancelled: boolean
 	}
+	roundError: any
 	votes: Votes
 }
 
@@ -85,19 +86,22 @@ export const useRoundStore = defineStore('round', {
 		isRoundLoading: false,
 		roundAddress: '',
 		round: getDefaultRound(),
+		roundError: null,
 		votes: [],
 	}),
 	getters: {
 		roundStatus(state): RoundStatus | '' {
 			if (!state.isRoundLoaded) return ''
 
+			console.log()
+
 			if (state.round.isCancelled) {
 				return 'cancelled'
 			} else if (state.round.isFinalized) {
 				return 'finalized'
-			} else if (DateTime.now() > DateTime.fromISO(this.votingDeadline)) {
+			} else if (DateTime.now() > this.votingDeadline) {
 				return 'processing'
-			} else if (DateTime.now() > DateTime.fromISO(this.signUpDeadline)) {
+			} else if (DateTime.now() > this.signUpDeadline) {
 				return 'reallocation'
 			} else {
 				return 'contribution'
@@ -105,13 +109,13 @@ export const useRoundStore = defineStore('round', {
 		},
 		startTime(state) {
 			if (!state.round.signUpTimestamp) return ''
-			return DateTime.fromSeconds(Number(state.round.signUpTimestamp)).toISODate()
+			return DateTime.fromSeconds(Number(state.round.signUpTimestamp))
 		},
 		signUpDeadline(state) {
 			if (!state.round.signUpTimestamp || !state.round.signUpDurationSeconds) return ''
 			return DateTime.fromSeconds(
 				Number(state.round.signUpTimestamp + state.round.signUpDurationSeconds),
-			).toISODate()
+			)
 		},
 		votingDeadline(state) {
 			if (
@@ -126,7 +130,7 @@ export const useRoundStore = defineStore('round', {
 						state.round.signUpDurationSeconds +
 						state.round.votingDurationSeconds,
 				),
-			).toISODate()
+			)
 		},
 		defaultRoundAddress() {
 			const dappStore = useDappStore()
@@ -149,6 +153,7 @@ export const useRoundStore = defineStore('round', {
 			this.roundAddress = address
 		},
 		resetRound() {
+			this.roundError = null
 			this.isRoundLoaded = false
 			const defaultRound: RoundState['round'] = getDefaultRound()
 			this.round = defaultRound
@@ -221,7 +226,8 @@ export const useRoundStore = defineStore('round', {
 				this.isRoundLoaded = true
 			} catch (err: any) {
 				this.resetRound()
-				throw new Error(err)
+				this.roundError = err
+				console.error(err)
 			} finally {
 				this.isRoundLoading = false
 			}

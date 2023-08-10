@@ -132,7 +132,7 @@ function generateRandomString(length) {
 				@click="onContribute"
 			/>
 			<p>{{ stateText }}</p>
-			<p class="w-full break-words text-center">{{ error }}</p>
+			<Error :err="error" />
 		</div>
 	</div>
 </template>

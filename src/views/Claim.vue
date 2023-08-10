@@ -77,7 +77,7 @@ async function onClaim() {
 
 		<div class="flex flex-col items-center gap-y-2 justify-center">
 			<TxButton :loading="loading" @click="onClaim" text="Claim" />
-			<p class="w-full break-words text-center">{{ error }}</p>
+			<Error :err="error" />
 		</div>
 	</div>
 </template>

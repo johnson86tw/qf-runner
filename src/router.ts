@@ -9,6 +9,14 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('@/views/Home.vue'),
 	},
 	{
+		path: '/deploy',
+		name: 'deploy',
+		meta: {
+			description: 'One-click contracts deployment.',
+		},
+		component: () => import('@/views/Deploy.vue'),
+	},
+	{
 		path: '/contracts',
 		name: 'contracts',
 		meta: {

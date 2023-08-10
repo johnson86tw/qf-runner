@@ -130,7 +130,7 @@ const maciFactoryProps = computed(() => {
 					<div class="text-gray-700 flex justify-center mb-2" for="funding-round">
 						<label class="relative flex items-center" for="funding-round">
 							Funding Round
-							<i-svg-spinners:6-dots-rotate
+							<i-svg-spinners:ring-resize
 								v-if="roundStore.isRoundLoading"
 								class="w-4 h-4 text-gray-600 inline absolute -right-6"
 							/>
@@ -157,15 +157,26 @@ const maciFactoryProps = computed(() => {
 					Round Status: <span class="round-info">{{ roundStatus }}</span>
 				</p>
 				<p>
-					Start Time: <span class="round-info">{{ startTime }}</span>
+					Start Time:
+					<span class="round-info">
+						{{ startTime.toLocaleString(DateTime.DATETIME_SHORT) }}
+					</span>
 				</p>
 				<p>
-					SignUp Deadline: <span class="round-info">{{ signUpDeadline }}</span>
+					SignUp Deadline:
+					<span class="round-info">
+						{{ signUpDeadline.toLocaleString(DateTime.DATETIME_SHORT) }}
+					</span>
 				</p>
 				<p>
-					Voting Deadline: <span class="round-info">{{ votingDeadline }}</span>
+					Voting Deadline:
+					<span class="round-info">
+						{{ votingDeadline.toLocaleString(DateTime.DATETIME_SHORT) }}
+					</span>
 				</p>
 			</div>
+
+			<Error :err="roundStore.roundError" />
 
 			<ContractUI v-if="fundingRoundProps" v-bind="fundingRoundProps" />
 			<ContractUI v-if="fundingRoundFactoryProps" v-bind="fundingRoundFactoryProps" />
