@@ -33,6 +33,22 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('@/views/Factory.vue'),
 	},
 	{
+		path: '/user-registry',
+		name: 'user-registry',
+		meta: {
+			description: 'Retrieve fundingRoundFactory data.',
+		},
+		component: () => import('@/views/UserRegistry.vue'),
+	},
+	{
+		path: '/recipient-registry',
+		name: 'recipient-registry',
+		meta: {
+			description: 'Retrieve fundingRoundFactory data.',
+		},
+		component: () => import('@/views/RecipientRegistry.vue'),
+	},
+	{
 		path: '/contribute',
 		name: 'contribute',
 		meta: {

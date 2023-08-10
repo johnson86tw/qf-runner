@@ -38,7 +38,7 @@ export type RoundStoreState = {
 	round: {
 		address: string // real round address
 		contract: FundingRound | null
-		voiceCreditFactor: BigNumber | null
+		voiceCreditFactor: bigint | null
 		nativeTokenAddress: string
 		coordinatorPubKey: PubKey | null
 		maciAddress: string
@@ -50,6 +50,8 @@ export type RoundStoreState = {
 		signUpTimestamp: bigint
 		signUpDurationSeconds: bigint
 		votingDurationSeconds: bigint
+		userRegistry: string
+		recipientRegistry: string
 		isFinalized: boolean
 		isCancelled: boolean
 	}
@@ -63,8 +65,6 @@ const getDefaultRound = (): RoundStoreState['round'] => {
 	return {
 		address: '',
 		contract: null,
-		voiceCreditFactor: null,
-		nativeTokenAddress: '',
 		maciAddress: '',
 		maciContract: null,
 		coordinatorPubKey: null,
@@ -75,6 +75,10 @@ const getDefaultRound = (): RoundStoreState['round'] => {
 		signUpTimestamp: 0n,
 		signUpDurationSeconds: 0n,
 		votingDurationSeconds: 0n,
+		voiceCreditFactor: null,
+		nativeTokenAddress: '',
+		userRegistry: '',
+		recipientRegistry: '',
 		isFinalized: false,
 		isCancelled: false,
 	}
@@ -165,12 +169,30 @@ export const useRoundStore = defineStore('round', {
 
 			try {
 				invariant(this.hasRoundAddress, 'hasRoundAddress')
+				newRound.address = this.roundAddress
 
-				const fundingRound = FundingRound__factory.connect(this.roundAddress, provider)
-				newRound.maciAddress = await fundingRound.maci()
+				const fundingRound = FundingRound__factory.connect(newRound.address, provider)
+				newRound.contract = fundingRound
+
+				const dappStore = useDappStore()
+
+				const res = await dappStore.client.multicall({
+					contracts: [
+						...['maci', 'owner'].map(fnName => ({
+							address: getAddress(newRound.address),
+							abi: FundingRound__factory.abi as Abi,
+							functionName: fnName,
+						})),
+					],
+					multicallAddress: dappStore.multicallAddress,
+				})
+
+				// @todo check results are all success
+
+				newRound.maciAddress = res[0].result as string
 				newRound.maciContract = MACI__factory.connect(newRound.maciAddress, provider)
 				// the owner of fundingRound is fundingRoundFactory
-				newRound.fundingRoundFactoryAddress = await fundingRound.owner()
+				newRound.fundingRoundFactoryAddress = res[1].result as string
 				newRound.fundingRoundFactoryContract = FundingRoundFactory__factory.connect(
 					newRound.fundingRoundFactoryAddress,
 					provider,
@@ -182,29 +204,26 @@ export const useRoundStore = defineStore('round', {
 					provider,
 				)
 
-				newRound.address = this.roundAddress
-				newRound.contract = fundingRound
-				newRound.nativeTokenAddress = await fundingRound.nativeToken()
-				newRound.voiceCreditFactor = await fundingRound.voiceCreditFactor()
-				const coordinatorPubKeyRaw = await newRound.maciContract.coordinatorPubKey()
-				newRound.coordinatorPubKey = new PubKey([
-					coordinatorPubKeyRaw.x.toBigInt(),
-					coordinatorPubKeyRaw.y.toBigInt(),
-				])
-
-				const dappStore = useDappStore()
 				const results = await dappStore.client.multicall({
 					contracts: [
 						...[
 							'signUpTimestamp',
 							'signUpDurationSeconds',
 							'votingDurationSeconds',
+							'coordinatorPubKey',
 						].map(fnName => ({
 							address: getAddress(newRound.maciAddress),
 							abi: MACI__factory.abi as Abi,
 							functionName: fnName,
 						})),
-						...['isFinalized', 'isCancelled'].map(fnName => ({
+						...[
+							'userRegistry',
+							'recipientRegistry',
+							'nativeToken',
+							'voiceCreditFactor',
+							'isFinalized',
+							'isCancelled',
+						].map(fnName => ({
 							address: getAddress(newRound.address),
 							abi: FundingRound__factory.abi as Abi,
 							functionName: fnName,
@@ -216,10 +235,13 @@ export const useRoundStore = defineStore('round', {
 				newRound.signUpTimestamp = results[0].result as bigint
 				newRound.signUpDurationSeconds = results[1].result as bigint
 				newRound.votingDurationSeconds = results[2].result as bigint
-				newRound.isFinalized = results[3].result as boolean
-				newRound.isCancelled = results[4].result as boolean
-
-				// 取得 timeline
+				newRound.coordinatorPubKey = new PubKey(results[3].result as [bigint, bigint])
+				newRound.userRegistry = results[4].result as string
+				newRound.recipientRegistry = results[5].result as string
+				newRound.nativeTokenAddress = results[6].result as string
+				newRound.voiceCreditFactor = results[7].result as bigint
+				newRound.isFinalized = results[8].result as boolean
+				newRound.isCancelled = results[9].result as boolean
 
 				this.round = newRound
 				this.isRoundLoaded = true

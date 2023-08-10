@@ -135,6 +135,18 @@ const maciFactoryProps = computed(() => {
 						{{ votingDeadline.toLocaleString(DateTime.DATETIME_SHORT) }}
 					</span>
 				</p>
+				<div>
+					<p>Native Token:</p>
+					<Address class="text-gray-500" :address="roundStore.round.nativeTokenAddress" />
+				</div>
+				<div>
+					<p>User Registry:</p>
+					<Address class="text-gray-500" :address="roundStore.round.userRegistry" />
+				</div>
+				<div>
+					<p>Recipient Registry:</p>
+					<Address class="text-gray-500" :address="roundStore.round.recipientRegistry" />
+				</div>
 			</div>
 
 			<Error :err="roundStore.roundError" />

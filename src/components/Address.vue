@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import type { Address } from 'viem'
 import { computed } from 'vue'
 import { shortenAddress } from 'vue-dapp'
 import { useDappStore } from '@/stores/useDappStore'
+import { isAddress } from 'viem'
 
 const props = defineProps<{
-	address: Address
+	address: string
 }>()
+
+if (!isAddress(props.address)) {
+	console.error(`${props.address} is not an address`)
+}
 
 const link = computed(() => {
 	const dappStore = useDappStore()
@@ -16,7 +20,7 @@ const link = computed(() => {
 </script>
 
 <template>
-	<div class="flex items-center gap-2">
+	<div v-if="address" class="flex items-center gap-2">
 		<p>{{ shortenAddress(address) }}</p>
 
 		<div class="flex gap-2">
