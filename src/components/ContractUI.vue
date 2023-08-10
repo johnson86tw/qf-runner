@@ -42,7 +42,10 @@ const collapsed = ref(props.open)
 	<div class="my-2 w-full">
 		<div class="flex flex-row justify-between">
 			<div class="grid grid-cols-1 md:grid-cols-2 gap-x-2 mb-2">
-				<div class="sm:text-xl cursor-pointer" @click="collapsed = !collapsed">
+				<div
+					class="sm:text-xl cursor-pointer text-primary-dark hover:text-primary"
+					@click="collapsed = !collapsed"
+				>
 					{{ title }}
 				</div>
 				<Address :address="getAddress(address)" />

@@ -13,11 +13,10 @@ import { useDappStore } from '@/stores/useDappStore'
 import { useRoundStore } from '@/stores/useRoundStore'
 import { DateTime } from 'luxon'
 import { watchImmediate } from '@vueuse/core'
-import { ROUND_ADDRESSES } from '@/constants'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
-const { roundAddress, roundStatus, startTime, signUpDeadline, votingDeadline } =
+const { isRoundLoading, roundAddress, roundStatus, startTime, signUpDeadline, votingDeadline } =
 	storeToRefs(roundStore)
 
 const roundAddressInput = ref(roundAddress.value)
@@ -34,31 +33,15 @@ watch(roundAddress, () => {
 	roundAddressInput.value = roundAddress.value
 })
 
+// ================== block number ==================
+
 const blockNumber = ref(0n)
 
 // update info when the network is changed
 watchImmediate(
 	() => dappStore.network,
 	async () => {
-		resetPageState()
-		blockNumber.value = await dappStore.client.getBlockNumber()
-	},
-)
-
-function resetPageState() {
-	blockNumber.value = 0n
-}
-
-// update info when the round is loaded
-watchImmediate(
-	() => roundStore.isRoundLoaded,
-	async () => {
-		if (!roundStore.isRoundLoaded) return
-		const results = await dappStore.multicall(
-			['signUpTimestamp', 'signUpDurationSeconds', 'votingDurationSeconds'],
-			roundStore.round.maciAddress,
-			MACI__factory.abi,
-		)
+		blockNumber.value = (await dappStore.client.getBlockNumber()) || 0n
 	},
 )
 
@@ -115,62 +98,40 @@ const maciFactoryProps = computed(() => {
 		useContractOptions: { abi: MACIFactory__factory.abi },
 	}
 })
-
-// roundStore.defaultRoundAddress
-// const roundAddressOptions = computed(() => {
-// 	return ROUND_ADDRESSES.filter(round => round.network === dappStore.network)
-// })
 </script>
 
 <template>
 	<div class="flex flex-col justify-center w-full items-center p-5">
-		<div class="max-w-[800px] w-full">
-			<div class="flex justify-center w-full">
-				<div class="w-[500px]">
-					<div class="text-gray-700 flex justify-center mb-2" for="funding-round">
-						<label class="relative flex items-center" for="funding-round">
-							Funding Round
-							<i-svg-spinners:ring-resize
-								v-if="roundStore.isRoundLoading"
-								class="w-4 h-4 text-gray-600 inline absolute -right-6"
-							/>
-						</label>
-					</div>
-
-					<input
-						v-model="roundAddressInput"
-						class="input"
-						:class="
-							isAddress(roundAddressInput) ? 'border-green-500' : 'border-red-500'
-						"
-						id="funding-round"
-						type="text"
-					/>
-				</div>
-			</div>
+		<div class="max-w-[800px] w-full flex flex-col gap-y-2">
+			<BaseInput
+				v-model="roundAddressInput"
+				:class="isAddress(roundAddressInput) ? 'border-green-500' : 'border-red-500'"
+				label="Funding Round"
+				:loading="isRoundLoading"
+			/>
 
 			<div class="grid grid-cols-2 lg:grid-cols-3 p-4 my-4 w-full border rounded">
 				<p>
-					Block Number: <span class="round-info">{{ blockNumber }}</span>
+					Block Number: <span class="text-gray-500">{{ blockNumber }}</span>
 				</p>
 				<p>
-					Round Status: <span class="round-info">{{ roundStatus }}</span>
+					Round Status: <span class="text-gray-500">{{ roundStatus }}</span>
 				</p>
 				<p>
 					Start Time:
-					<span class="round-info">
+					<span class="text-gray-500">
 						{{ startTime.toLocaleString(DateTime.DATETIME_SHORT) }}
 					</span>
 				</p>
 				<p>
 					SignUp Deadline:
-					<span class="round-info">
+					<span class="text-gray-500">
 						{{ signUpDeadline.toLocaleString(DateTime.DATETIME_SHORT) }}
 					</span>
 				</p>
 				<p>
 					Voting Deadline:
-					<span class="round-info">
+					<span class="text-gray-500">
 						{{ votingDeadline.toLocaleString(DateTime.DATETIME_SHORT) }}
 					</span>
 				</p>
@@ -186,8 +147,4 @@ const maciFactoryProps = computed(() => {
 	</div>
 </template>
 
-<style scoped>
-.round-info {
-	@apply text-gray-500;
-}
-</style>
+<style scoped></style>

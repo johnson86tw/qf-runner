@@ -12,7 +12,11 @@ import IconsResolver from 'unplugin-icons/resolver'
 // https://vitejs.dev/config/
 export default defineConfig({
 	plugins: [
-		vue(),
+		vue({
+			script: {
+				defineModel: true,
+			},
+		}),
 		// https://github.com/antfu/unplugin-auto-import#configuration
 		AutoImport({
 			dts: 'src/auto-import.d.ts',

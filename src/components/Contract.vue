@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import type { AbiEvents, Info } from '@/types'
 import Address from '@/components/Address.vue'
 import { isAddress } from 'viem'
+import { PubKey } from 'clrfund-maci-utils'
 
 type Props = {
 	title: string
@@ -20,6 +21,18 @@ const props = withDefaults(defineProps<Props>(), {
 const informations = computed(() => {
 	return props.data
 })
+
+function formatMACIPubKey(rawPubKey: [bigint, bigint]) {
+	const serializedPubKey = new PubKey(rawPubKey).serialize()
+	console.log(serializedPubKey)
+	return serializedPubKey
+}
+
+function shortenPubKey(macipk: string) {
+	const head = macipk.substring(0, 11)
+	const tail = macipk.substring(macipk.length - 4)
+	return head + '...' + tail
+}
 </script>
 
 <template>
@@ -66,7 +79,12 @@ const informations = computed(() => {
 				>
 					<p>{{ info.name }}:</p>
 					<div class="info-value">
-						<div v-if="!Array.isArray(info.value)">
+						<!-- 特別處理 maci key -->
+						<div v-if="info.name === 'coordinatorPubKey'">
+							{{ shortenPubKey(formatMACIPubKey(info.value)) }}
+							<Copy class="inline" :content="formatMACIPubKey(info.value)" />
+						</div>
+						<div v-else-if="!Array.isArray(info.value)">
 							<Address v-if="isAddress(info.value)" :address="info.value" />
 							<div v-else>{{ info.value }}</div>
 						</div>

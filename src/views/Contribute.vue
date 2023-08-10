@@ -7,7 +7,6 @@ import { getTxReason } from '@/utils/error'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
-const { isRoundLoaded } = storeToRefs(roundStore)
 
 const step = ref(0)
 const votesInput = ref('[[2, 40], [3, 60]]')

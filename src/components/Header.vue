@@ -1,5 +1,8 @@
 <script setup lang="ts">
+import { useRoundStore } from '@/stores/useRoundStore'
 import { RouterLink } from 'vue-router'
+
+const roundStore = useRoundStore()
 </script>
 
 <template>
@@ -8,7 +11,16 @@ import { RouterLink } from 'vue-router'
 			<nav class="w-full">
 				<div class="flex items-center justify-between">
 					<RouterLink to="/">
-						<p>Clrfund Mini UI</p>
+						<div
+							class="relative flex items-center text-primary-dark hover:text-secondary"
+						>
+							Clrfund Mini UI
+
+							<i-svg-spinners:ring-resize
+								v-if="roundStore.isRoundLoading"
+								class="w-4 h-4 text-primary inline absolute -right-6"
+							/>
+						</div>
 					</RouterLink>
 
 					<div class="flex items-center gap-x-5">

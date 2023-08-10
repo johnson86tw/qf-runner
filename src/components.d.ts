@@ -9,6 +9,7 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Address: typeof import('./components/Address.vue')['default']
     BaseButton: typeof import('./components/button/BaseButton.vue')['default']
+    BaseInput: typeof import('./components/form/BaseInput.vue')['default']
     Contract: typeof import('./components/Contract.vue')['default']
     ContractUI: typeof import('./components/ContractUI.vue')['default']
     Copy: typeof import('./components/button/Copy.vue')['default']

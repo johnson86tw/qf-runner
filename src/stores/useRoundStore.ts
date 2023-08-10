@@ -31,7 +31,7 @@ export type Contributor = {
 export type Vote = [number, BigNumber]
 export type Votes = Vote[]
 
-export type RoundState = {
+export type RoundStoreState = {
 	isRoundLoaded: boolean
 	isRoundLoading: boolean
 	roundAddress: string // expected round address
@@ -59,7 +59,7 @@ export type RoundState = {
 
 export type RoundStatus = 'contribution' | 'reallocation' | 'processing' | 'finalized' | 'cancelled'
 
-const getDefaultRound = (): RoundState['round'] => {
+const getDefaultRound = (): RoundStoreState['round'] => {
 	return {
 		address: '',
 		contract: null,
@@ -81,7 +81,7 @@ const getDefaultRound = (): RoundState['round'] => {
 }
 
 export const useRoundStore = defineStore('round', {
-	state: (): RoundState => ({
+	state: (): RoundStoreState => ({
 		isRoundLoaded: false,
 		isRoundLoading: false,
 		roundAddress: '',
@@ -155,14 +155,13 @@ export const useRoundStore = defineStore('round', {
 		resetRound() {
 			this.roundError = null
 			this.isRoundLoaded = false
-			const defaultRound: RoundState['round'] = getDefaultRound()
-			this.round = defaultRound
+			this.round = getDefaultRound()
 		},
 		async updateRound(provider: providers.JsonRpcProvider | Signer) {
 			this.resetRound()
 			this.isRoundLoading = true
 
-			const newRound: RoundState['round'] = getDefaultRound()
+			const newRound: RoundStoreState['round'] = getDefaultRound()
 
 			try {
 				invariant(this.hasRoundAddress, 'hasRoundAddress')

@@ -25,6 +25,14 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('@/views/Contracts.vue'),
 	},
 	{
+		path: '/factory',
+		name: 'factory',
+		meta: {
+			description: 'Retrieve fundingRoundFactory data.',
+		},
+		component: () => import('@/views/Factory.vue'),
+	},
+	{
 		path: '/contribute',
 		name: 'contribute',
 		meta: {
