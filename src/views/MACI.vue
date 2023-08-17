@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useDappStore } from '@/stores/useDappStore'
 import { sha256 } from '@/utils/crypto'
-import { Keypair } from 'clrfund-maci-utils'
+import { Keypair, PrivKey } from 'clrfund-maci-utils'
 
 const dappStore = useDappStore()
 
@@ -28,6 +28,15 @@ async function onGenerateKey() {
 	privKey.value = serializedPrivKey
 	pubKey.value = serializedPubKey
 }
+
+const serializedPrivKey = ref('')
+const derivedSerializedPubKey = ref('')
+
+async function onDerivePubKey() {
+	const privKey = PrivKey.unserialize(serializedPrivKey.value)
+	const keypair = new Keypair(privKey)
+	derivedSerializedPubKey.value = keypair.pubKey.serialize()
+}
 </script>
 
 <template>
@@ -52,6 +61,14 @@ async function onGenerateKey() {
 				{{ privKey }}
 			</div>
 		</div>
+
+		<p>Derived Public Key from private key</p>
+
+		<BaseInput label="Private Key" v-model="serializedPrivKey" />
+
+		<BaseButton @click="onDerivePubKey" text="Derive Public Key" />
+
+		<p>{{ derivedSerializedPubKey }}</p>
 	</div>
 </template>
 
