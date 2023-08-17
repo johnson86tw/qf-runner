@@ -24,6 +24,7 @@ declare module '@vue/runtime-core' {
     IIcBaselineKeyboardArrowDown: typeof import('~icons/ic/baseline-keyboard-arrow-down')['default']
     IIcBaselineKeyboardArrowUp: typeof import('~icons/ic/baseline-keyboard-arrow-up')['default']
     IIcBaselineOpenInNew: typeof import('~icons/ic/baseline-open-in-new')['default']
+    IOcticonPlug24: typeof import('~icons/octicon/plug24')['default']
     'ISvgSpinners:3DotsFade': typeof import('~icons/svg-spinners/3-dots-fade')['default']
     'ISvgSpinners:6DotsRotate': typeof import('~icons/svg-spinners/6-dots-rotate')['default']
     'ISvgSpinners:ringResize': typeof import('~icons/svg-spinners/ring-resize')['default']

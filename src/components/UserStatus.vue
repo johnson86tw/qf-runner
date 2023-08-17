@@ -53,8 +53,11 @@ async function onSwitchChain() {
 					? 'Connecting...'
 					: wallet.status === 'loading'
 					? 'Loading...'
-					: 'Connect'
+					: ''
 			}}
+			<i-octicon-plug-24
+				v-if="wallet.status !== 'connecting' && wallet.status !== 'loading'"
+			/>
 		</BaseButton>
 	</div>
 </template>
