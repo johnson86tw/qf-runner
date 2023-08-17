@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useDappStore } from '@/stores/useDappStore'
-import { getAbiItem, getAddress, parseAbiItem } from 'viem'
+import { getAbiItem, getAddress } from 'viem'
 import { VueFinalModal } from 'vue-final-modal'
 
 const props = withDefaults(
@@ -27,6 +27,20 @@ const dappStore = useDappStore()
 const logs = ref<any>(null)
 const isLoading = ref(false)
 
+const event = computed(() => {
+	const e = getAbiItem({
+		abi: props.abi,
+		name: props.eventName,
+	})
+	console.log(e)
+
+	return e
+})
+
+const eventInputs = computed(() => {
+	return event.value.inputs
+})
+
 onMounted(async () => {
 	isLoading.value = true
 
@@ -34,16 +48,14 @@ onMounted(async () => {
 		const toBlock = await dappStore.client.getBlockNumber()
 		logs.value = await dappStore.client.getLogs({
 			address: getAddress(props.address),
-			event: getAbiItem({
-				abi: props.abi,
-				name: props.eventName,
-			}),
+			event: event.value,
 			fromBlock: 0n,
 			toBlock,
 		})
 
 		console.log(logs.value)
 	} catch (err: any) {
+		console.error(err)
 	} finally {
 		isLoading.value = false
 	}
@@ -56,6 +68,23 @@ const emit = defineEmits<{
 function onClickButton() {
 	emit('close')
 }
+
+function isAddressArg(arg: any) {
+	try {
+		if (typeof arg === 'string' && getAddress(arg)) {
+			return true
+		}
+	} catch (err: any) {
+		return false
+	}
+
+	return false
+}
+
+/**
+ * @todo
+ * MACI PublishMessage event error
+ */
 </script>
 
 <template>
@@ -71,7 +100,19 @@ function onClickButton() {
 					<p v-if="subtitle" class="mt-2 text-center text-base">{{ subtitle }}</p>
 				</div>
 
-				<div class="w-full break-words text-base flex items-center flex-col gap-y-2">
+				<div class="w-full flex justify-center gap-x-2">
+					<div
+						class="border rounded-3xl px-3"
+						v-for="input in eventInputs"
+						:key="input.name"
+					>
+						<div>
+							{{ input.name }}
+						</div>
+					</div>
+				</div>
+
+				<div class="w-full break-words text-base flex flex-col gap-y-2">
 					<Loading :loading="isLoading" />
 					<NoData v-if="logs && !logs.length" />
 					<div
@@ -80,13 +121,16 @@ function onClickButton() {
 						v-for="log in logs"
 						:key="log.logIndex"
 					>
-						<div v-for="(arg, i) in Object.values(log.args)" :key="i">
-							<Address
-								v-if="typeof arg === 'string' && getAddress(arg)"
-								:address="arg"
-							/>
-							<p v-else>{{ arg }}</p>
-						</div>
+						<ul
+							class="list-disc px-2"
+							v-for="(arg, i) in Object.values(log.args)"
+							:key="i"
+						>
+							<li>
+								<Address v-if="isAddressArg(arg)" :address="(arg as string)" />
+								<p v-else>{{ arg }}</p>
+							</li>
+						</ul>
 					</div>
 				</div>
 			</div>

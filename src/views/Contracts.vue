@@ -148,7 +148,7 @@ const maciFactoryProps = computed(() => {
 				</p>
 
 				<div>
-					<p>Native Token:</p>
+					<p>Token Address:</p>
 					<Address class="text-gray-500" :address="roundStore.round.nativeTokenAddress" />
 				</div>
 				<div>
