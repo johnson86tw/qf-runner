@@ -9,6 +9,7 @@ import {
 	HARDHAT_PRIV_KEY,
 	MULTICALL3_ADDRESS,
 } from '@/constants'
+import { useRoundStore } from './useRoundStore'
 
 export type DappState = {
 	user: User
@@ -85,6 +86,16 @@ export const useDappStore = defineStore('dapp', {
 				return CLR_HARDHAT_MULTICALL3_ADDRESS
 			}
 			return MULTICALL3_ADDRESS
+		},
+		signatureMessage(): string {
+			const roundStore = useRoundStore()
+			return `Welcome to Clr.fund!
+
+To get logged in, sign this message to prove you have access to this wallet. This does not cost any ether.
+
+You will be asked to sign each time you load the app.
+
+Contract address: ${roundStore.round.fundingRoundFactoryAddress.toLowerCase()}.`
 		},
 	},
 	actions: {

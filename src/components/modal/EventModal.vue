@@ -2,6 +2,7 @@
 import { useDappStore } from '@/stores/useDappStore'
 import { getAbiItem, getAddress } from 'viem'
 import { VueFinalModal } from 'vue-final-modal'
+import JSONbig from 'json-bigint'
 
 const props = withDefaults(
 	defineProps<{
@@ -27,17 +28,24 @@ const dappStore = useDappStore()
 const logs = ref<any>(null)
 const isLoading = ref(false)
 
+const reversedLogs = computed(() => {
+	if (Array.isArray(logs.value)) {
+		return logs.value.reverse()
+	}
+	return null
+})
+
 const event = computed(() => {
 	const e = getAbiItem({
 		abi: props.abi,
 		name: props.eventName,
 	})
-	console.log(e)
 
 	return e
 })
 
 const eventInputs = computed(() => {
+	console.log('inputs', event.value.inputs)
 	return event.value.inputs
 })
 
@@ -81,10 +89,9 @@ function isAddressArg(arg: any) {
 	return false
 }
 
-/**
- * @todo
- * MACI PublishMessage event error
- */
+function formatTuple(arg: any) {
+	return JSONbig.stringify(arg)
+}
 </script>
 
 <template>
@@ -114,11 +121,11 @@ function isAddressArg(arg: any) {
 
 				<div class="w-full break-words text-base flex flex-col gap-y-2">
 					<Loading :loading="isLoading" />
-					<NoData v-if="logs && !logs.length" />
+					<NoData v-if="reversedLogs && !reversedLogs.length" />
 					<div
 						v-else
 						class="border border-gray-400 px-4 py-2 rounded-xl"
-						v-for="log in logs"
+						v-for="log in reversedLogs"
 						:key="log.logIndex"
 					>
 						<ul
@@ -127,7 +134,10 @@ function isAddressArg(arg: any) {
 							:key="i"
 						>
 							<li>
-								<Address v-if="isAddressArg(arg)" :address="(arg as string)" />
+								<p v-if="eventInputs[i].type === 'tuple'">
+									{{ formatTuple(arg) }}
+								</p>
+								<Address v-else-if="isAddressArg(arg)" :address="(arg as string)" />
 								<p v-else>{{ arg }}</p>
 							</li>
 						</ul>

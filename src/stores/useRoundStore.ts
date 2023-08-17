@@ -21,14 +21,14 @@ import invariant from 'tiny-invariant'
 import { isAddress } from 'ethers/lib/utils'
 import { useDappStore } from './useDappStore'
 import { DateTime } from 'luxon'
-import { getAddress, type Abi } from 'viem'
+import { getAddress, type Abi, getAbiItem } from 'viem'
 
 export type Contributor = {
 	keypair: Keypair
 	stateIndex: number
 }
 
-export type Vote = [number, BigNumber]
+export type Vote = [number, bigint]
 export type Votes = Vote[]
 
 export type RoundStoreState = {
@@ -147,9 +147,13 @@ export const useRoundStore = defineStore('round', {
 		total(state): BigNumber {
 			const factor = state.round.voiceCreditFactor
 			if (!factor) return BigNumber.from(0)
-			return state.votes.reduce((total: BigNumber, [, voiceCredits]) => {
-				return total.add(voiceCredits.mul(factor))
-			}, BigNumber.from(0))
+			const res = state.votes.reduce((total: bigint, [, voiceCredits]) => {
+				return total + voiceCredits * factor
+			}, 0n)
+
+			console.log(res)
+
+			return BigNumber.from(res) // from bigint to BigNumber
 		},
 	},
 	actions: {
@@ -260,6 +264,57 @@ export const useRoundStore = defineStore('round', {
 			invariant(this.isRoundLoaded, 'isRoundLoaded')
 			return ERC20__factory.connect(this.round.nativeTokenAddress, signer)
 		},
+		async getContributor(encryptionKey: string) {
+			if (!encryptionKey) {
+				throw new Error('Missing encryption key')
+			}
+
+			const contributorKeypair = Keypair.createFromSeed(encryptionKey)
+			const rawPubKey = contributorKeypair.pubKey.rawPubKey
+
+			// 從 maci 的 SignUp event 中尋找 _userPubKey 等於 contributor's rawPubKey，
+			// 就能知道該 user 的 stateIndex
+			const event = getAbiItem({
+				abi: MACI__factory.abi,
+				name: 'SignUp',
+			})
+
+			const dappStore = useDappStore()
+
+			const toBlock = await dappStore.client.getBlockNumber()
+			const eventLogs = await dappStore.client.getLogs({
+				address: getAddress(this.round.maciAddress),
+				event,
+				fromBlock: 0n,
+				toBlock,
+			})
+
+			type SignUpEventLog = {
+				args: {
+					_stateIndex: bigint
+					_userPubKey: { x: bigint; y: bigint }
+					_voiceCreditBalance: bigint
+				}
+			}
+
+			const signUpEventLog: SignUpEventLog | undefined = eventLogs.find(
+				(log: SignUpEventLog) => {
+					return (
+						log.args._userPubKey.x === rawPubKey[0] &&
+						log.args._userPubKey.y === rawPubKey[1]
+					)
+				},
+			)
+
+			if (!signUpEventLog) throw new Error('Public key not found in maci SignUp event')
+
+			const contributor: Contributor = {
+				keypair: contributorKeypair,
+				// @ts-ignore why??
+				stateIndex: Number(signUpEventLog.args._stateIndex),
+			}
+			return contributor
+		},
 		async getEncryptionKey(signer: Signer, message: string) {
 			const signature = (await signer.signMessage(message)) as string
 			return sha256(signature)
@@ -312,7 +367,7 @@ export const useRoundStore = defineStore('round', {
 					null,
 					this.round.coordinatorPubKey!,
 					recipientIndex,
-					voiceCredits,
+					BigNumber.from(voiceCredits),
 					nonce,
 				)
 				messages.push(message)

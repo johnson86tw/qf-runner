@@ -17,7 +17,7 @@ watchImmediate(votesInput, () => {
 	try {
 		const arr = JSON.parse(votesInput.value)
 		votes = arr.map(vote => {
-			return [vote[0], BigNumber.from(vote[1])]
+			return [vote[0], BigInt(vote[1])]
 		})
 	} catch (err: any) {
 		isVotesError.value = true
@@ -43,7 +43,7 @@ const stateText = computed(() => {
 			return ''
 	}
 })
-const loading = ref(false)
+const contributeLoading = ref(false)
 const error = ref<string | null>()
 
 // network change 要清除 error
@@ -55,12 +55,12 @@ whenever(
 )
 
 async function onContribute() {
-	loading.value = true
+	contributeLoading.value = true
 	error.value = null
 
 	const encryptionKey = await roundStore.getEncryptionKey(
 		dappStore.signer,
-		generateRandomString(50),
+		dappStore.signatureMessage,
 	)
 
 	console.log('votes: ', roundStore.votes)
@@ -87,7 +87,7 @@ async function onContribute() {
 
 		console.error('contribute:', err)
 	} finally {
-		loading.value = false
+		contributeLoading.value = false
 	}
 }
 
@@ -101,6 +101,33 @@ function generateRandomString(length) {
 	}
 
 	return result
+}
+
+const reallocateLoading = ref(false)
+
+async function onReallocate() {
+	reallocateLoading.value = true
+	error.value = null
+
+	try {
+		const encryptionKey = await roundStore.getEncryptionKey(
+			dappStore.signer,
+			dappStore.signatureMessage,
+		)
+
+		const contributor = await roundStore.getContributor(encryptionKey)
+		console.log('contributor: ', contributor)
+
+		console.log('Sending votes: ', roundStore.votes)
+		await roundStore.sendVotes(contributor, dappStore.signer)
+
+		console.log('Successfully reallocated')
+	} catch (err: any) {
+		error.value = err
+		console.error(err)
+	} finally {
+		reallocateLoading.value = false
+	}
 }
 </script>
 
@@ -124,12 +151,21 @@ function generateRandomString(length) {
 			</div>
 		</div>
 		<div class="flex flex-col items-center gap-y-2 justify-center">
-			<TxButton
-				text="Contribute"
-				:loading="loading"
-				:disabled="isVotesError"
-				@click="onContribute"
-			/>
+			<div class="flex gap-x-3">
+				<TxButton
+					text="Contribute"
+					:loading="contributeLoading"
+					:disabled="isVotesError || reallocateLoading"
+					@click="onContribute"
+				/>
+				<TxButton
+					text="Reallocate"
+					:loading="reallocateLoading"
+					:disabled="isVotesError || contributeLoading"
+					@click="onReallocate"
+				/>
+			</div>
+
 			<p>{{ stateText }}</p>
 			<Error :err="error" />
 		</div>
