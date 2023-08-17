@@ -13,6 +13,7 @@ import { useDappStore } from '@/stores/useDappStore'
 import { useRoundStore } from '@/stores/useRoundStore'
 import { DateTime } from 'luxon'
 import { watchImmediate } from '@vueuse/core'
+import { useToken } from '@/composables/useToken'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
@@ -33,17 +34,22 @@ watch(roundAddress, () => {
 	roundAddressInput.value = roundAddress.value
 })
 
-// ================== block number ==================
-
 const blockNumber = ref(0n)
+const { client } = storeToRefs(dappStore)
+const { balanceByUnit, fetchBalance } = useToken({
+	client,
+})
 
-// update info when the network is changed
-watchImmediate(
-	() => dappStore.network,
-	async () => {
-		blockNumber.value = (await dappStore.client.getBlockNumber()) || 0n
-	},
-)
+watchImmediate([() => dappStore.network, () => roundStore.isRoundLoading], async () => {
+	blockNumber.value = (await dappStore.client.getBlockNumber()) || 0n
+
+	if (roundStore.isRoundLoaded) {
+		fetchBalance(
+			roundStore.round.nativeTokenAddress,
+			roundStore.round.fundingRoundFactoryAddress,
+		)
+	}
+})
 
 // const { events } = useContract({
 // 	...fundingRound,
@@ -135,6 +141,12 @@ const maciFactoryProps = computed(() => {
 						{{ votingDeadline.toLocaleString(DateTime.DATETIME_SHORT) }}
 					</span>
 				</p>
+
+				<p>
+					Token Balance:
+					<span class="text-gray-500">{{ balanceByUnit }}</span>
+				</p>
+
 				<div>
 					<p>Native Token:</p>
 					<Address class="text-gray-500" :address="roundStore.round.nativeTokenAddress" />

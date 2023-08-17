@@ -23,7 +23,11 @@ const SimpleRecipientRegistryProps = computed(() => {
 			<p>{{ roundStore.round.recipientRegistry }}</p>
 
 			<Error :err="roundStore.roundError" />
-			<ContractUI v-if="SimpleRecipientRegistryProps" v-bind="SimpleRecipientRegistryProps" />
+			<ContractUI
+				open
+				v-if="SimpleRecipientRegistryProps"
+				v-bind="SimpleRecipientRegistryProps"
+			/>
 		</div>
 	</div>
 </template>
