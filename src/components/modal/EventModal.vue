@@ -25,20 +25,28 @@ const props = withDefaults(
 const dappStore = useDappStore()
 
 const logs = ref<any>(null)
+const isLoading = ref(false)
 
 onMounted(async () => {
-	const toBlock = await dappStore.client.getBlockNumber()
-	logs.value = await dappStore.client.getLogs({
-		address: getAddress(props.address),
-		event: getAbiItem({
-			abi: props.abi,
-			name: props.eventName,
-		}),
-		fromBlock: 0n,
-		toBlock,
-	})
+	isLoading.value = true
 
-	console.log(logs.value)
+	try {
+		const toBlock = await dappStore.client.getBlockNumber()
+		logs.value = await dappStore.client.getLogs({
+			address: getAddress(props.address),
+			event: getAbiItem({
+				abi: props.abi,
+				name: props.eventName,
+			}),
+			fromBlock: 0n,
+			toBlock,
+		})
+
+		console.log(logs.value)
+	} catch (err: any) {
+	} finally {
+		isLoading.value = false
+	}
 })
 
 const emit = defineEmits<{
@@ -63,8 +71,11 @@ function onClickButton() {
 					<p v-if="subtitle" class="mt-2 text-center text-base">{{ subtitle }}</p>
 				</div>
 
-				<div class="w-full break-words text-base flex flex-col gap-y-2">
+				<div class="w-full break-words text-base flex items-center flex-col gap-y-2">
+					<Loading :loading="isLoading" />
+					<NoData v-if="logs && !logs.length" />
 					<div
+						v-else
 						class="border border-gray-400 px-4 py-2 rounded-xl"
 						v-for="log in logs"
 						:key="log.logIndex"
