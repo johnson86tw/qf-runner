@@ -36,7 +36,11 @@ watch(roundAddress, () => {
 
 const blockNumber = ref(0n)
 const { client } = storeToRefs(dappStore)
-const { balanceByUnit, fetchBalance } = useToken({
+
+const { balanceByUnit: roundBalance, fetchBalance: fetchRoundBalance } = useToken({
+	client,
+})
+const { balanceByUnit: factoryBalance, fetchBalance: fetchFactoryBalance } = useToken({
 	client,
 })
 
@@ -44,7 +48,8 @@ watchImmediate([() => dappStore.network, () => roundStore.isRoundLoading], async
 	blockNumber.value = (await dappStore.client.getBlockNumber()) || 0n
 
 	if (roundStore.isRoundLoaded) {
-		fetchBalance(
+		fetchRoundBalance(roundStore.round.nativeTokenAddress, roundStore.round.address)
+		fetchFactoryBalance(
 			roundStore.round.nativeTokenAddress,
 			roundStore.round.fundingRoundFactoryAddress,
 		)
@@ -143,8 +148,13 @@ const maciFactoryProps = computed(() => {
 				</p>
 
 				<p>
-					Token Balance:
-					<span class="text-gray-500">{{ balanceByUnit }}</span>
+					Round Token Balance:
+					<span class="text-gray-500">{{ roundBalance }}</span>
+				</p>
+
+				<p>
+					Factory Token Balance:
+					<span class="text-gray-500">{{ factoryBalance }}</span>
 				</p>
 
 				<div>
