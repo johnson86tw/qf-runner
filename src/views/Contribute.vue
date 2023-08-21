@@ -9,7 +9,7 @@ const dappStore = useDappStore()
 const roundStore = useRoundStore()
 
 const step = ref(0)
-const votesInput = ref('[[2, 40], [3, 60]]')
+const votesInput = ref('[[0, 1000], [1, 2000]]')
 const isVotesError = ref(false)
 
 watchImmediate(votesInput, () => {
@@ -57,6 +57,7 @@ whenever(
 async function onContribute() {
 	contributeLoading.value = true
 	error.value = null
+	step.value = 0
 
 	const encryptionKey = await roundStore.getEncryptionKey(
 		dappStore.signer,
