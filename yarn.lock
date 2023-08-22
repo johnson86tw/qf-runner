@@ -8319,10 +8319,10 @@ vue-tsc@^1.8.8:
     "@vue/typescript" "1.8.8"
     semver "^7.3.8"
 
-vue3-select@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/vue3-select/-/vue3-select-0.1.1.tgz#89a4afa616dbb32b24efea7ca06d7d5c457ef941"
-  integrity sha512-PFufU8omYfdOA1AVWaPR0hyAZx9/hW/umhFOR7GXR8prqcNh1V5CHPAcigU5duXJ8qunKJ6WxzcfqE3xAygqvg==
+vue3-select@0.2.0-alpha.0:
+  version "0.2.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/vue3-select/-/vue3-select-0.2.0-alpha.0.tgz#15a3e9c47dfa60636247478a09b0508bbb72182b"
+  integrity sha512-ylGZHEMgKR6js/OqEPqJRT94eF/9JmTAhEjRpsHXXXCdEHnUaLYvQ9vqBw1ALphDXAaJjiLKBe14L66nN3AsWw==
 
 vue@^3.3.4:
   version "3.3.4"

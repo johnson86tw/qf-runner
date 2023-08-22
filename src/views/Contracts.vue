@@ -14,6 +14,7 @@ import { useRoundStore } from '@/stores/useRoundStore'
 import { DateTime } from 'luxon'
 import { watchImmediate } from '@vueuse/core'
 import { useToken } from '@/composables/useToken'
+import { ROUND_ADDRESSES } from '@/constants'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
@@ -119,6 +120,15 @@ const maciFactoryProps = computed(() => {
 				:class="isAddress(roundAddressInput) ? 'border-green-500' : 'border-red-500'"
 				label="Funding Round"
 				:loading="isRoundLoading"
+			/>
+
+			<v-select
+				:disabled="roundStore.isRoundLoading"
+				:class="isAddress(roundAddressInput) ? 'border-green-500' : 'border-red-500'"
+				v-model="roundAddressInput"
+				:options="ROUND_ADDRESSES"
+				:reduce="option => option.address"
+				label="address"
 			/>
 
 			<div class="grid grid-cols-2 lg:grid-cols-3 p-4 my-4 w-full border rounded">

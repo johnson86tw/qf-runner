@@ -54,12 +54,6 @@ export const ROUND_ADDRESSES = [
 		network: 'arbitrum-goerli',
 		address: '0x9C5638f94710BFcf77306E0aA2eC61657083957A',
 	},
-
-	{
-		name: '1st',
-		network: 'arbitrum-goerli',
-		address: '0x1F45363ED6415f841f2Bbc301B9dc451a09Da646',
-	},
 	{
 		name: 'Clrfund Hardhat',
 		network: 'clr-hardhat',
