@@ -20,7 +20,11 @@ const SimpleUserRegistryProps = computed(() => {
 <template>
 	<div class="flex flex-col justify-center w-full items-center p-5">
 		<div class="max-w-[800px] w-full flex flex-col gap-y-2 items-center">
-			<p>{{ roundStore.round.userRegistry }}</p>
+			<div class="flex justify-center px-10">
+				<p class="text-2xl">User Registry</p>
+			</div>
+
+			<RoundAddressInput />
 
 			<Error :err="roundStore.roundError" />
 			<ContractUI open v-if="SimpleUserRegistryProps" v-bind="SimpleUserRegistryProps" />

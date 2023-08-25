@@ -70,10 +70,12 @@ async function onClaim() {
 </script>
 
 <template>
-	<div>
-		<div class="flex justify-center py-4 px-10">
-			<p>Claim</p>
+	<div class="max-w-[800px] w-full items-center flex flex-col gap-y-6">
+		<div class="flex justify-center px-10">
+			<p class="text-2xl">Claim</p>
 		</div>
+
+		<RoundAddressInput />
 
 		<div class="flex flex-col items-center gap-y-2 justify-center">
 			<TxButton :loading="loading" @click="onClaim" text="Claim" />

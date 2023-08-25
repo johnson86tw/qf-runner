@@ -33,6 +33,7 @@ declare module '@vue/runtime-core' {
     ModalError: typeof import('./components/modal/ModalError.vue')['default']
     NetworkStatus: typeof import('./components/NetworkStatus.vue')['default']
     NoData: typeof import('./components/NoData.vue')['default']
+    RoundAddressInput: typeof import('./components/RoundAddressInput.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     TxButton: typeof import('./components/button/TxButton.vue')['default']

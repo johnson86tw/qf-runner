@@ -87,6 +87,7 @@ export const useDappStore = defineStore('dapp', {
 			}
 			return MULTICALL3_ADDRESS
 		},
+		// @todo move to useRoundStore
 		signatureMessage(): string {
 			const roundStore = useRoundStore()
 			return `Welcome to Clr.fund!

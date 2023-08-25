@@ -133,12 +133,14 @@ async function onReallocate() {
 </script>
 
 <template>
-	<div>
-		<div class="flex justify-center py-4 px-10">
-			<p>Contribute</p>
+	<div class="max-w-[800px] w-full items-center flex flex-col gap-y-6">
+		<div class="flex justify-center px-10">
+			<p class="text-2xl">Contribute</p>
 		</div>
 
-		<div class="flex flex-col items-center gap-y-4 pb-4">
+		<RoundAddressInput />
+
+		<div class="flex flex-col items-center gap-y-4">
 			<div class="w-[500px]">
 				<label class="label" for="votes"> Votes </label>
 				<input
