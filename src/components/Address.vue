@@ -4,9 +4,17 @@ import { shortenAddress } from 'vue-dapp'
 import { useDappStore } from '@/stores/useDappStore'
 import { isAddress } from 'viem'
 
-const props = defineProps<{
-	address: string
-}>()
+const props = withDefaults(
+	defineProps<{
+		address: string
+		noLink?: boolean
+		noCopy?: boolean
+	}>(),
+	{
+		noLink: false,
+		noCopy: false,
+	},
+)
 
 const link = computed(() => {
 	const dappStore = useDappStore()
@@ -20,8 +28,8 @@ const link = computed(() => {
 		<p>{{ shortenAddress(address) }}</p>
 
 		<div class="flex gap-2">
-			<Copy :content="address" />
-			<a v-if="link" target="_blank" :href="link">
+			<Copy v-if="!noCopy" :content="address" />
+			<a v-if="link && !noLink" target="_blank" :href="link">
 				<i-ic-baseline-open-in-new />
 			</a>
 		</div>
