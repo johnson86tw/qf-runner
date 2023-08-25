@@ -17,7 +17,7 @@ const roundStore = useRoundStore()
 const dappStore = useDappStore()
 
 const disabled = computed(() => {
-	if (!roundStore.isRoundLoaded || dappStore.isNetworkUnmatched) {
+	if (!roundStore.isRoundLoaded || dappStore.isNetworkUnmatched || !dappStore.isConnected) {
 		return true
 	}
 	return props.disabled
