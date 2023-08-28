@@ -8,6 +8,7 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Address: typeof import('./components/Address.vue')['default']
+    AdminLayout: typeof import('./components/layout/AdminLayout.vue')['default']
     BaseButton: typeof import('./components/button/BaseButton.vue')['default']
     BaseInput: typeof import('./components/form/BaseInput.vue')['default']
     Contract: typeof import('./components/Contract.vue')['default']
@@ -16,9 +17,11 @@ declare module '@vue/runtime-core' {
     Error: typeof import('./components/Error.vue')['default']
     ErrorModal: typeof import('./components/modal/ErrorModal.vue')['default']
     EventModal: typeof import('./components/modal/EventModal.vue')['default']
-    Header: typeof import('./components/Header.vue')['default']
+    Header: typeof import('./components/deprecated/Header.vue')['default']
+    IEpClose: typeof import('~icons/ep/close')['default']
     'IIc:baselineContentCopy': typeof import('~icons/ic/baseline-content-copy')['default']
     'IIc:baselineLogout': typeof import('~icons/ic/baseline-logout')['default']
+    'IIc:baselineSort': typeof import('~icons/ic/baseline-sort')['default']
     'IIc:baselineSwitchAccessShortcut': typeof import('~icons/ic/baseline-switch-access-shortcut')['default']
     IIcBaselineContentCopy: typeof import('~icons/ic/baseline-content-copy')['default']
     IIcBaselineKeyboardArrowDown: typeof import('~icons/ic/baseline-keyboard-arrow-down')['default']
@@ -36,6 +39,7 @@ declare module '@vue/runtime-core' {
     RoundAddressInput: typeof import('./components/RoundAddressInput.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    TheHeader: typeof import('./components/TheHeader.vue')['default']
     TxButton: typeof import('./components/button/TxButton.vue')['default']
     UserStatus: typeof import('./components/UserStatus.vue')['default']
   }

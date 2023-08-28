@@ -70,9 +70,9 @@ async function onClaim() {
 </script>
 
 <template>
-	<div class="max-w-[800px] w-full items-center flex flex-col gap-y-6">
-		<div class="flex justify-center px-10">
-			<p class="text-2xl">Claim</p>
+	<div class="page">
+		<div class="page-title">
+			<p>Claim</p>
 		</div>
 
 		<RoundAddressInput />

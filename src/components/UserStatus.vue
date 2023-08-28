@@ -47,7 +47,12 @@ async function onSwitchChain() {
 			</div>
 		</div>
 
-		<BaseButton v-else @click="open()" :disabled="wallet.status === 'connecting'">
+		<BaseButton
+			class="rounded-3xl w-auto"
+			v-else
+			@click="open()"
+			:disabled="wallet.status === 'connecting'"
+		>
 			{{
 				wallet.status === 'connecting'
 					? 'Connecting...'

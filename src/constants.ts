@@ -1,5 +1,6 @@
 import type { Chain } from 'viem'
 
+export const APP_NAME = 'Clrfund Mini UI'
 export const CLR_HARDHAT_MULTICALL3_ADDRESS = '0x09635F643e140090A9A8Dcd712eD6285858ceBef'
 export const MULTICALL3_ADDRESS = '0xcA11bde05977b3631167028862bE2a173976CA11'
 export const CLR_HARDHAT_CHAIN = {

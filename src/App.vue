@@ -111,11 +111,9 @@ watchImmediate(isRoundLoading, (newVal, oldVal) => {
 
 <template>
 	<div id="app">
-		<Header />
-
-		<main class="p-5">
+		<AdminLayout>
 			<RouterView />
-		</main>
+		</AdminLayout>
 
 		<vd-board
 			:connectors="connectors"

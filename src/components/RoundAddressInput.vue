@@ -4,6 +4,15 @@ import { useRoundStore } from '@/stores/useRoundStore'
 import { isAddress } from 'viem'
 import { ROUND_ADDRESSES } from '@/constants'
 
+withDefaults(
+	defineProps<{
+		noLabel?: boolean
+	}>(),
+	{
+		noLabel: false,
+	},
+)
+
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
 const { isRoundLoading, roundAddress } = storeToRefs(roundStore)
@@ -35,7 +44,7 @@ const vselectBorderColor = computed(() => {
 
 <template>
 	<div class="w-full flex flex-col items-center justify-center">
-		<label class="label"> Round </label>
+		<label v-if="!noLabel" class="label"> Round </label>
 		<v-select
 			class="max-w-[500px] w-full"
 			:loading="isRoundLoading"

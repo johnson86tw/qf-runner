@@ -40,8 +40,10 @@ async function onDerivePubKey() {
 </script>
 
 <template>
-	<div class="flex flex-col items-center gap-y-4">
-		<p>MACI</p>
+	<div class="page">
+		<div class="page-title">
+			<p>MACI</p>
+		</div>
 
 		<BaseButton @click="onGenerateKey" text="Generate new MACI Keypair" />
 		<BaseButton @click="onSignMessage">Generate MACI Keypair by signing a message</BaseButton>

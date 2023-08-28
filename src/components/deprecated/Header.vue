@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { APP_NAME } from '@/constants'
 import { useRoundStore } from '@/stores/useRoundStore'
 import { RouterLink } from 'vue-router'
 
@@ -14,7 +15,7 @@ const roundStore = useRoundStore()
 						<div
 							class="relative flex items-center text-primary-dark hover:text-secondary"
 						>
-							Clrfund Mini UI
+							{{ APP_NAME }}
 
 							<i-svg-spinners:ring-resize
 								v-if="roundStore.isRoundLoading"

@@ -133,9 +133,9 @@ async function onReallocate() {
 </script>
 
 <template>
-	<div class="max-w-[800px] w-full items-center flex flex-col gap-y-6">
-		<div class="flex justify-center px-10">
-			<p class="text-2xl">Contribute</p>
+	<div class="page">
+		<div class="page-title">
+			<p>Contribute</p>
 		</div>
 
 		<RoundAddressInput />

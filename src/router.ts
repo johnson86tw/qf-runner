@@ -4,9 +4,11 @@ import type { RouteRecordRaw } from 'vue-router'
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/',
-		name: 'home',
-
-		component: () => import('@/views/Home.vue'),
+		name: 'round',
+		meta: {
+			description: 'Retrieve contract data for a specific funding round.',
+		},
+		component: () => import('@/views/Round.vue'),
 	},
 	{
 		path: '/deploy',
@@ -15,14 +17,6 @@ const routes: Array<RouteRecordRaw> = [
 			description: 'One-click contracts deployment.',
 		},
 		component: () => import('@/views/Deploy.vue'),
-	},
-	{
-		path: '/round',
-		name: 'round',
-		meta: {
-			description: 'Retrieve contract data for a specific funding round.',
-		},
-		component: () => import('@/views/Round.vue'),
 	},
 	{
 		path: '/factory',

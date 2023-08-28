@@ -38,7 +38,7 @@ const disabled = computed(() => {
 
 <style lang="scss">
 .base-btn {
-	@apply min-w-[120px] h-[36px] text-primary-dark bg-primary-light py-2 px-4 rounded flex justify-center items-center;
+	@apply min-w-[50px] h-[36px] text-primary-dark bg-primary-light py-2 px-4 rounded flex justify-center items-center;
 	transition: background-color 0.2s ease;
 
 	&:hover {
