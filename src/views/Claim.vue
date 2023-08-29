@@ -25,16 +25,6 @@ const recipientIndexes = computed(() => {
 	return parsed.recipientIndexes
 })
 
-watch(
-	recipientIndexes,
-	() => {
-		console.log(recipientIndexes.value)
-	},
-	{
-		immediate: true,
-	},
-)
-
 const tallyJson = ref()
 const tally = computed<Tally>(() => {
 	let parsed
