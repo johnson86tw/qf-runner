@@ -1,79 +1,68 @@
 <script setup lang="ts">
-import { FundingRound__factory } from 'clrfund-contracts/build/typechain'
 import { useDappStore } from '@/stores/useDappStore'
 import { useRoundStore } from '@/stores/useRoundStore'
-import { getRecipientClaimData } from 'clrfund-maci-utils'
-import tally from '@/mocks/tally'
-import { waitForTransaction, getEventArg } from '@/utils/contracts'
-import { whenever } from '@vueuse/core'
-import type { addRecipient } from '@/api/recipient-registry-optimistic'
+import { getTxReason } from '@/utils/error'
+import type { Tally } from 'clrfund-maci-utils'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
 
-const claimTxHash = ref('')
+const recipientIndexesJson = ref({
+	recipientIndexes: [1, 2],
+})
 
-const loading = ref(false)
-const error = ref(null)
+const recipientIndexes = computed(() => {
+	let parsed
+	try {
+		if (typeof recipientIndexesJson.value === 'string') {
+			parsed = JSON.parse(recipientIndexesJson.value as any as string)
+		} else {
+			parsed = recipientIndexesJson.value
+		}
+	} catch (err: any) {
+		return []
+	}
+	return parsed.recipientIndexes
+})
 
-// network change 要清除 error
-whenever(
-	() => roundStore.isRoundLoading,
+watch(
+	recipientIndexes,
 	() => {
-		error.value = null
+		console.log(recipientIndexes.value)
+	},
+	{
+		immediate: true,
 	},
 )
+
+const tallyJson = ref()
+const tally = computed<Tally>(() => {
+	let parsed
+	try {
+		parsed = JSON.parse(tallyJson.value as any as string)
+	} catch (err: any) {
+		return {}
+	}
+	return parsed
+})
+
+const loading = ref(false)
+const error = ref<string | null>(null)
 
 async function onClaim() {
 	loading.value = true
 	error.value = null
 
+	console.log(recipientIndexes.value)
 	try {
-		const fundingRound = FundingRound__factory.connect(
-			roundStore.roundAddress,
-			dappStore.signer,
-		)
-		const projectIndex = 1
-		const recipientTreeDepth = 32
-
-		const recipientClaimData = getRecipientClaimData(projectIndex, recipientTreeDepth, tally)
-
-		console.log('recipientClaimData', recipientClaimData)
-
-		let claimTxReceipt
-		try {
-			claimTxReceipt = await waitForTransaction(
-				fundingRound.claimFunds(...recipientClaimData),
-				hash => (claimTxHash.value = hash),
-			)
-		} catch (error: any) {
-			error.value = error
-			return
-		}
-
-		const amount = getEventArg(claimTxReceipt, fundingRound, 'FundsClaimed', '_amount')
-		const recipientAddress = getEventArg(
-			claimTxReceipt,
-			fundingRound,
-			'FundsClaimed',
-			'_recipient',
-		)
-
-		console.log('amount', amount)
-		console.log('recipientAddress', recipientAddress)
+		await roundStore.claimFunds(recipientIndexes.value, tally.value, dappStore.signer)
 	} catch (err: any) {
-		error.value = err
+		error.value = getTxReason(err.message)
 		console.error(err)
 	} finally {
 		loading.value = false
 	}
 }
-
-const recipientsJson = ref({
-	recipients: [],
-})
-
-const tallyJson = ref<string>()
 
 const jsonEditorMode = 'text'
 </script>
@@ -87,11 +76,11 @@ const jsonEditorMode = 'text'
 		<RoundAddressInput />
 
 		<div class="flex flex-col gap-y-1 items-center">
-			<p class="text-primary-dark">Recipients</p>
+			<p class="text-primary-dark">Recipient Indexes</p>
 
 			<JsonEditorVue
 				class="w-[500px] h-[300px]"
-				v-model="recipientsJson"
+				v-model="recipientIndexesJson"
 				v-model:mode="jsonEditorMode"
 			/>
 		</div>
@@ -106,8 +95,8 @@ const jsonEditorMode = 'text'
 			/>
 		</div>
 
-		<div class="flex flex-col items-center gap-y-2 justify-center">
-			<TxButton :loading="loading" @click="onClaim" text="Claim" />
+		<div class="w-full flex flex-col items-center gap-y-2 justify-center">
+			<TxButton text="Claim" :loading="loading" @click="onClaim" />
 			<Error :err="error" />
 		</div>
 	</div>

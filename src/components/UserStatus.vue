@@ -28,7 +28,7 @@ async function onSwitchChain() {
 				class="h-[36px] px-4 rounded-3xl sm:inline-flex items-center gap-x-2 bg-gray-100"
 				:class="isNetworkUnmatched ? 'border border-red-500' : ''"
 			>
-				<p v-if="isNetworkUnmatched">Network Unmatched</p>
+				<p v-if="isNetworkUnmatched" class="text-sm">Network Unmatched</p>
 				<i-ic:baseline-switch-access-shortcut
 					v-if="isNetworkUnmatched"
 					class="clickable"

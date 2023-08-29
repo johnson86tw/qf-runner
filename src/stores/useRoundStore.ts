@@ -14,7 +14,14 @@ import type {
 	MACI,
 	MACIFactory,
 } from 'clrfund-contracts/build/typechain'
-import { Keypair, PubKey, Message, createMessage } from 'clrfund-maci-utils'
+import {
+	Keypair,
+	PubKey,
+	Message,
+	createMessage,
+	getRecipientClaimData,
+	type Tally,
+} from 'clrfund-maci-utils'
 import { getEventArg, waitForTransaction } from '@/utils/contracts'
 import { sha256 } from '@/utils/crypto'
 import invariant from 'tiny-invariant'
@@ -384,6 +391,33 @@ export const useRoundStore = defineStore('round', {
 					encPubKeys.reverse().map(key => key.asContractParam()),
 				),
 			)
+		},
+		async claimFunds(recipientIndexes: number[], tally: Tally, signer: Signer) {
+			invariant(this.isRoundLoaded, 'isRoundLoaded')
+
+			const recipientTreeDepth = (await this.round.maciContract!.treeDepths())
+				.voteOptionTreeDepth
+
+			for (const recipientIndex of recipientIndexes) {
+				const recipientClaimData = getRecipientClaimData(
+					recipientIndex,
+					recipientTreeDepth,
+					tally,
+				)
+				const fundingRound = FundingRound__factory.connect(this.round.address, signer)
+				const claimTx = await fundingRound.claimFunds(
+					// @ts-ignore
+					...recipientClaimData,
+				)
+				const claimedAmount = await getEventArg(
+					// @ts-ignore
+					claimTx,
+					fundingRound,
+					'FundsClaimed',
+					'_amount',
+				)
+				console.log(`Recipient ${recipientIndex} claimed ${claimedAmount} tokens.`)
+			}
 		},
 	},
 })
