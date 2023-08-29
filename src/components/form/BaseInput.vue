@@ -4,10 +4,11 @@ const modelValue = defineModel()
 
 withDefaults(
 	defineProps<{
-		label: string
+		label?: string
 		loading?: boolean
 	}>(),
 	{
+		label: '',
 		loading: false,
 	},
 )

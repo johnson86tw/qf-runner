@@ -28,6 +28,11 @@ import '@/styles/index.scss'
 const app = createApp(App)
 app.component('VSelect', VueSelect)
 
+// json-editor-vue
+import JsonEditorVue from 'json-editor-vue'
+import 'vanilla-jsoneditor/themes/jse-theme-dark.css'
+app.use(JsonEditorVue, {})
+
 const pinia = createPinia()
 pinia.use(piniaPluginPersistedstate)
 app.use(pinia)

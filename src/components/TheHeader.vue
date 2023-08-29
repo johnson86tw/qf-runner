@@ -42,7 +42,7 @@ function menuActiveClass(path: string) {
 				/>
 			</div>
 
-			<div>
+			<div class="w-[500px]">
 				<RoundAddressInput no-label />
 			</div>
 

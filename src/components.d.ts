@@ -8,6 +8,7 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Address: typeof import('./components/Address.vue')['default']
+    AddressInput: typeof import('./components/form/AddressInput.vue')['default']
     AdminLayout: typeof import('./components/layout/AdminLayout.vue')['default']
     BaseButton: typeof import('./components/button/BaseButton.vue')['default']
     BaseInput: typeof import('./components/form/BaseInput.vue')['default']
@@ -27,6 +28,8 @@ declare module '@vue/runtime-core' {
     IIcBaselineKeyboardArrowDown: typeof import('~icons/ic/baseline-keyboard-arrow-down')['default']
     IIcBaselineKeyboardArrowUp: typeof import('~icons/ic/baseline-keyboard-arrow-up')['default']
     IIcBaselineOpenInNew: typeof import('~icons/ic/baseline-open-in-new')['default']
+    IIcRoundMinus: typeof import('~icons/ic/round-minus')['default']
+    IIcRoundPlus: typeof import('~icons/ic/round-plus')['default']
     IOcticonPlug24: typeof import('~icons/octicon/plug24')['default']
     'ISvgSpinners:3DotsFade': typeof import('~icons/svg-spinners/3-dots-fade')['default']
     'ISvgSpinners:6DotsRotate': typeof import('~icons/svg-spinners/6-dots-rotate')['default']

@@ -6,6 +6,7 @@ import { getRecipientClaimData } from 'clrfund-maci-utils'
 import tally from '@/mocks/tally'
 import { waitForTransaction, getEventArg } from '@/utils/contracts'
 import { whenever } from '@vueuse/core'
+import type { addRecipient } from '@/api/recipient-registry-optimistic'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
@@ -67,6 +68,14 @@ async function onClaim() {
 		loading.value = false
 	}
 }
+
+const recipientsJson = ref({
+	recipients: [],
+})
+
+const tallyJson = ref<string>()
+
+const jsonEditorMode = 'text'
 </script>
 
 <template>
@@ -77,6 +86,26 @@ async function onClaim() {
 
 		<RoundAddressInput />
 
+		<div class="flex flex-col gap-y-1 items-center">
+			<p class="text-primary-dark">Recipients</p>
+
+			<JsonEditorVue
+				class="w-[500px] h-[300px]"
+				v-model="recipientsJson"
+				v-model:mode="jsonEditorMode"
+			/>
+		</div>
+
+		<div class="flex flex-col gap-y-1 items-center">
+			<p class="text-primary-dark">tally.json</p>
+
+			<JsonEditorVue
+				class="w-[500px] h-[400px]"
+				v-model="tallyJson"
+				v-model:mode="jsonEditorMode"
+			/>
+		</div>
+
 		<div class="flex flex-col items-center gap-y-2 justify-center">
 			<TxButton :loading="loading" @click="onClaim" text="Claim" />
 			<Error :err="error" />
@@ -84,4 +113,14 @@ async function onClaim() {
 	</div>
 </template>
 
-<style></style>
+<style lang="scss">
+@import '../styles/index.scss';
+
+.icon-btn {
+	@apply border rounded-full w-[30px] h-[30px] hover:bg-primary-light hover:cursor-pointer hover:text-primary-dark relative;
+
+	svg {
+		@extend .absolute-center;
+	}
+}
+</style>
