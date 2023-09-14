@@ -9,7 +9,9 @@ const dappStore = useDappStore()
 const roundStore = useRoundStore()
 
 const step = ref(0)
-const votesInput = ref('[[0, 1000], [1, 2000]]')
+const votesInput = ref(
+	'[[0, 1000], [1, 2000], [2, 2000], [3, 2000], [4, 2000], [5, 2000], [6, 2000], [7, 2000]]',
+)
 const isVotesError = ref(false)
 
 watchImmediate(votesInput, () => {
