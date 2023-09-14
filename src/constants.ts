@@ -26,6 +26,11 @@ export const ROUND_ADDRESSES = [
 	},
 	// The default arbitrum-goerli round
 	{
+		name: 'Round 911',
+		network: 'arbitrum-goerli',
+		address: '0xFF4De1531E24769fC8DC0230dB9A70b8fC0950fa',
+	},
+	{
 		name: 'Round 821',
 		network: 'arbitrum-goerli',
 		address: '0x8c825018EcC5C35CEe92074BA9065d3226f828aA',

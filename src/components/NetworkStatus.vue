@@ -10,8 +10,8 @@ const roundStore = useRoundStore()
 	<div class="w-[160px]">
 		<v-select
 			:disabled="roundStore.isRoundLoading"
+			:preservable="false"
 			:clearable="false"
-			:searchable="false"
 			v-model="dappStore.network"
 			:options="networkOptions"
 		/>
