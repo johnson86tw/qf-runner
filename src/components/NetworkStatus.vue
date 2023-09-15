@@ -12,6 +12,7 @@ const roundStore = useRoundStore()
 			:disabled="roundStore.isRoundLoading"
 			:preservable="false"
 			:clearable="false"
+			:searchable="false"
 			v-model="dappStore.network"
 			:options="networkOptions"
 		/>
