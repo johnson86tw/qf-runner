@@ -107,7 +107,7 @@ function formatTuple(arg: any) {
 					<p v-if="subtitle" class="mt-2 text-center text-base">{{ subtitle }}</p>
 				</div>
 
-				<div class="w-full flex justify-center gap-x-2">
+				<div class="w-full flex flex-wrap gap-y-2 justify-start gap-x-2">
 					<div
 						class="border rounded-3xl px-3"
 						v-for="input in eventInputs"
