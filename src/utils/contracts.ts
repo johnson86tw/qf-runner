@@ -1,6 +1,6 @@
 import type { Contract } from 'ethers'
 import type { TransactionResponse, TransactionReceipt } from '@ethersproject/abstract-provider'
-import { provider } from '@/api/core'
+// import { provider } from '@/api/core'
 
 export async function waitForTransaction(
 	pendingTransaction: Promise<TransactionResponse>,
@@ -53,7 +53,7 @@ export function getEventArg(
 	throw new Error('Event not found')
 }
 
-export async function isTransactionMined(hash: string): Promise<boolean> {
-	const receipt = await provider.getTransactionReceipt(hash)
-	return !!receipt
-}
+// export async function isTransactionMined(hash: string): Promise<boolean> {
+// 	const receipt = await provider.getTransactionReceipt(hash)
+// 	return !!receipt
+// }

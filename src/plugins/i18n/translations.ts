@@ -2,12 +2,10 @@
 const languages = {
 	tw: { emoji: '🇹🇼', description: '繁體中文' },
 	en: { emoji: '🇺🇸', description: 'English' },
-	es: { emoji: '🇪🇸', description: 'Español' },
-	cn: { emoji: '🇨🇳', description: '简体中文' },
 }
 
 export const defaultLocale = import.meta.env.VITE_I18N_LOCALE || 'tw'
-export const supportedLocales = ['tw', 'cn', 'en', 'es']
+export const supportedLocales = ['tw', 'en']
 
 export function isLocaleSupported(locale) {
 	return supportedLocales.includes(locale)

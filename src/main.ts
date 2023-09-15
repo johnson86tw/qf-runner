@@ -1,26 +1,50 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import { createMetaManager } from 'vue-meta'
+import i18n from '@/plugins/i18n'
+import { ethers } from 'ethers'
 import router from '@/router'
 import App from '@/App.vue'
-import { VueDapp } from 'vue-dapp'
-import { ethers } from 'ethers'
-import { createMetaManager } from 'vue-meta'
+
+// modal
+import { createVfm } from 'vue-final-modal'
+import 'vue-final-modal/style.css'
+
+// floating-vue
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
-import i18n from '@/plugins/i18n'
+
+// vue-dapp
+import { VueDapp } from 'vue-dapp'
+
+// vue3-select
+import VueSelect from 'vue3-select'
+import 'vue3-select/dist/vue3-select.css'
+
+// app
+import '@/styles/index.scss'
+
+const app = createApp(App)
+app.component('VSelect', VueSelect)
+
+// json-editor-vue
+import JsonEditorVue from 'json-editor-vue'
+import 'vanilla-jsoneditor/themes/jse-theme-dark.css'
+app.use(JsonEditorVue, {})
 
 const pinia = createPinia()
-const app = createApp(App)
-const metaManager = createMetaManager()
-
+pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
+
+app.use(createMetaManager())
+app.use(createVfm())
 app.use(router)
-app.use(metaManager)
 app.use(FloatingVue)
 app.use(i18n)
 app.use(VueDapp, {
 	autoConnect: true,
-	dumb: false,
+	dumb: true,
 	networks: {
 		80001: {
 			chainId: ethers.utils.hexValue(80001),

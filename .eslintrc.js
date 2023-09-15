@@ -47,5 +47,12 @@ module.exports = {
 		'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'warn',
 		'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
 	},
-	ignorePatterns: ['dist', 'src/graphql/API.ts', '.eslintrc.js', 'src/locales/*'],
+	ignorePatterns: [
+		'dist',
+		'src/graphql/API.ts',
+		'.eslintrc.js',
+		'src/locales/*',
+		'tailwind.config.*',
+		'postcss.config.js',
+	],
 }
