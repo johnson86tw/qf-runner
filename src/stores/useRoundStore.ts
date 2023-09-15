@@ -405,13 +405,12 @@ export const useRoundStore = defineStore('round', {
 					tally,
 				)
 				const fundingRound = FundingRound__factory.connect(this.round.address, signer)
-				const claimTx = await fundingRound.claimFunds(
+				const claimTxReceipt = await waitForTransaction(
 					// @ts-ignore
-					...recipientClaimData,
+					fundingRound.claimFunds(...recipientClaimData),
 				)
 				const claimedAmount = await getEventArg(
-					// @ts-ignore
-					claimTx,
+					claimTxReceipt,
 					fundingRound,
 					'FundsClaimed',
 					'_amount',

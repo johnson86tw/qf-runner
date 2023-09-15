@@ -20,7 +20,7 @@ const recipientIndexes = computed(() => {
 			parsed = recipientIndexesJson.value
 		}
 	} catch (err: any) {
-		return []
+		return null
 	}
 	return parsed.recipientIndexes
 })
@@ -38,14 +38,16 @@ const tally = computed<Tally>(() => {
 
 const loading = ref(false)
 const error = ref<string | null>(null)
-
+const stateText = ref('')
 async function onClaim() {
+	stateText.value = ''
 	loading.value = true
 	error.value = null
 
 	console.log(recipientIndexes.value)
 	try {
 		await roundStore.claimFunds(recipientIndexes.value, tally.value, dappStore.signer)
+		stateText.value = 'Successfully claimed!'
 	} catch (err: any) {
 		error.value = getTxReason(err.message)
 		console.error(err)
@@ -88,6 +90,7 @@ const jsonEditorMode = 'text'
 		<div class="w-full flex flex-col items-center gap-y-2 justify-center">
 			<TxButton text="Claim" :loading="loading" @click="onClaim" />
 			<Error :err="error" />
+			{{ stateText }}
 		</div>
 	</div>
 </template>
