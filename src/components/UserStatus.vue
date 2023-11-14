@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { useBoard, useEthers, useWallet, shortenAddress } from 'vue-dapp'
 import copy from 'copy-to-clipboard'
 import { useDappStore } from '@/stores/useDappStore'
+import { useBoardStore } from '@vue-dapp/vd-board'
+import { shortenAddress, useWalletStore } from '@vue-dapp/core'
 
-const { open } = useBoard()
-const { address, isActivated } = useEthers()
-const { disconnect, wallet } = useWallet()
+const { open } = useBoardStore()
+
+const { disconnect } = useWalletStore()
+const { connector, status, isConnected } = storeToRefs(useWalletStore())
 
 const dappStore = useDappStore()
-const { isNetworkUnmatched } = storeToRefs(dappStore)
+const { isNetworkUnmatched, user } = storeToRefs(dappStore)
 
 async function onSwitchChain() {
 	try {
-		if (wallet.connector) {
-			await wallet.connector.switchChain?.(dappStore.chainId)
+		if (connector.value) {
+			await connector.value.switchChain?.(dappStore.chainId)
 		}
 	} catch (err: any) {
 		console.error(err)
@@ -23,7 +25,7 @@ async function onSwitchChain() {
 
 <template>
 	<div>
-		<div v-if="isActivated" class="flex items-center flex-col">
+		<div v-if="isConnected" class="flex items-center flex-col">
 			<div
 				class="h-[36px] px-4 rounded-3xl sm:inline-flex items-center gap-x-2 bg-gray-100"
 				:class="isNetworkUnmatched ? 'border border-red-500' : ''"
@@ -35,12 +37,12 @@ async function onSwitchChain() {
 					@click="onSwitchChain"
 				/>
 
-				<p v-else>{{ shortenAddress(address) }}</p>
+				<p v-else>{{ shortenAddress(user.address) }}</p>
 
 				<i-ic-baseline-content-copy
 					v-if="!isNetworkUnmatched"
 					class="clickable"
-					@click="copy(address)"
+					@click="copy(user.address)"
 				/>
 
 				<i-ic:baseline-logout class="clickable" @click="disconnect" />
@@ -51,18 +53,10 @@ async function onSwitchChain() {
 			class="rounded-3xl w-auto"
 			v-else
 			@click="open()"
-			:disabled="wallet.status === 'connecting'"
+			:disabled="status === 'connecting'"
 		>
-			{{
-				wallet.status === 'connecting'
-					? 'Connecting...'
-					: wallet.status === 'loading'
-					? 'Loading...'
-					: ''
-			}}
-			<i-octicon-plug-24
-				v-if="wallet.status !== 'connecting' && wallet.status !== 'loading'"
-			/>
+			{{ status === 'connecting' ? 'Connecting...' : '' }}
+			<i-octicon-plug-24 v-if="status !== 'connecting'" />
 		</BaseButton>
 	</div>
 </template>

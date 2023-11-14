@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { shortenAddress } from 'vue-dapp'
+import { shortenAddress } from '@vue-dapp/core'
 import { useDappStore } from '@/stores/useDappStore'
 import { isAddress } from 'viem'
 

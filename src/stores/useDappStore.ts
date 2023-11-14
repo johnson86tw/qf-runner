@@ -101,7 +101,7 @@ Contract address: ${roundStore.round.fundingRoundFactoryAddress.toLowerCase()}.`
 	},
 	actions: {
 		setUser(user: User) {
-			this.user = user
+			this.user = markRaw(user)
 		},
 		resetUser() {
 			this.user.address = ''

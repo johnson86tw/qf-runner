@@ -1,29 +1,42 @@
 <script setup lang="ts">
 import { ModalsContainer } from 'vue-final-modal'
-import { MetaMaskConnector, useEthersHooks } from 'vue-dapp'
 import { useDappStore } from './stores/useDappStore'
 import { useRoundStore } from './stores/useRoundStore'
 import { watchImmediate } from '@vueuse/core'
 import { isAddress } from 'viem'
+import { ethers } from 'ethers'
+
+import { MetaMaskConnector, useWalletStore } from '@vue-dapp/core'
+import { Board } from '@vue-dapp/vd-board'
 
 const dappStore = useDappStore()
 const { isConnected, user } = storeToRefs(dappStore)
 
-const { onActivated, onChanged, onDeactivated } = useEthersHooks()
+const { onActivated, onChanged, onDeactivated } = useWalletStore()
 
-onActivated(({ signer, address, network }) => {
+onActivated(async ({ address, provider, chainId }) => {
+	const ethersProvider = new ethers.providers.Web3Provider(provider)
+	const signer = await ethersProvider.getSigner()
+
+	console.log('onActivated')
+
 	dappStore.setUser({
 		address,
 		signer,
-		chainId: network.chainId,
+		chainId,
 	})
 })
 
-onChanged(({ signer, address, network }) => {
+onChanged(async ({ address, provider, chainId }) => {
+	const ethersProvider = new ethers.providers.Web3Provider(provider)
+	const signer = await ethersProvider.getSigner()
+
+	console.log('onChanged')
+
 	dappStore.setUser({
 		address,
 		signer,
-		chainId: network.chainId,
+		chainId,
 	})
 })
 
@@ -115,9 +128,9 @@ watchImmediate(isRoundLoading, (newVal, oldVal) => {
 			<RouterView />
 		</AdminLayout>
 
-		<vd-board
-			:connectors="connectors"
+		<Board
 			dark
+			:connectors="connectors"
 			:autoConnectErrorHandler="autoConnectErrorHandler"
 			:connectErrorHandler="connectErrorHandler"
 		/>

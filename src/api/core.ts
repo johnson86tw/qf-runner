@@ -1,7 +1,6 @@
 import { ethers } from 'ethers'
 
 import { CHAIN_INFO } from '@/plugins/Web3/constants/chains'
-import { CoinbaseWalletConnector, MetaMaskConnector, WalletConnectConnector } from 'vue-dapp'
 
 export const rpcUrl = import.meta.env.VITE_ETHEREUM_API_URL
 if (!rpcUrl) {
@@ -73,18 +72,3 @@ export enum ThemeMode {
 
 // the number of records per batch in the `pending submissions` export file
 export const exportBatchSize = Number(import.meta.env.VITE_EXPORT_BATCH_SIZE) || 60
-
-// vue-dapp
-export const connectors = [
-	new MetaMaskConnector(),
-	new WalletConnectConnector({
-		qrcode: true,
-		rpc: {
-			31337: rpcUrl,
-		},
-	}),
-	new CoinbaseWalletConnector({
-		appName: 'Clr.fund',
-		jsonRpcUrl: rpcUrl,
-	}),
-]
