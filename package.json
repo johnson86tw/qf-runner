@@ -39,6 +39,7 @@
 		"luxon": "^3.3.0",
 		"markdown-it": "^13.0.1",
 		"markdown-it-link-attributes": "^4.0.1",
+		"naive-ui": "^2.35.0",
 		"node-stdlib-browser": "^1.2.0",
 		"pinia": "^2.1.6",
 		"pinia-plugin-persistedstate": "^3.2.0",

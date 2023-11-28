@@ -8,6 +8,7 @@ import inject from '@rollup/plugin-inject'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
+import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -20,7 +21,14 @@ export default defineConfig({
 		// https://github.com/antfu/unplugin-auto-import#configuration
 		AutoImport({
 			dts: 'src/auto-import.d.ts',
-			imports: ['vue', 'vue-router', 'pinia'],
+			imports: [
+				'vue',
+				'vue-router',
+				'pinia',
+				{
+					'naive-ui': ['useDialog', 'useMessage', 'useNotification', 'useLoadingBar'],
+				},
+			],
 			eslintrc: {
 				enabled: true,
 			},
@@ -28,7 +36,7 @@ export default defineConfig({
 		// https://github.com/antfu/unplugin-vue-components#configuration
 		Components({
 			dts: 'src/components.d.ts',
-			resolvers: [IconsResolver()],
+			resolvers: [IconsResolver(), NaiveUiResolver()],
 		}),
 		Icons(),
 		VueI18nPlugin({}),

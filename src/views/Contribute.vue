@@ -4,6 +4,7 @@ import { useRoundStore } from '@/stores/useRoundStore'
 import { watchImmediate, whenever } from '@vueuse/core'
 import { BigNumber } from 'ethers'
 import { getTxReason } from '@/utils/error'
+import { showContributeModal } from '@/utils/modals'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
@@ -57,41 +58,42 @@ whenever(
 )
 
 async function onContribute() {
-	contributeLoading.value = true
-	error.value = null
-	step.value = 0
+	showContributeModal()
+	// contributeLoading.value = true
+	// error.value = null
+	// step.value = 0
 
-	const encryptionKey = await roundStore.getEncryptionKey(
-		dappStore.signer,
-		dappStore.signatureMessage,
-	)
+	// const encryptionKey = await roundStore.getEncryptionKey(
+	// 	dappStore.signer,
+	// 	dappStore.signatureMessage,
+	// )
 
-	console.log('votes: ', roundStore.votes)
+	// console.log('votes: ', roundStore.votes)
 
-	try {
-		step.value += 1
-		await roundStore.approveToken(dappStore.signer)
-		console.log('token approved')
+	// try {
+	// 	step.value += 1
+	// 	await roundStore.approveToken(dappStore.signer)
+	// 	console.log('token approved')
 
-		step.value += 1
-		const contributor = await roundStore.contribute(encryptionKey, dappStore.signer)
-		console.log('contributed')
+	// 	step.value += 1
+	// 	const contributor = await roundStore.contribute(encryptionKey, dappStore.signer)
+	// 	console.log('contributed')
 
-		await roundStore.updateRound(dappStore.provider)
-		console.log('round updated')
+	// 	await roundStore.updateRound(dappStore.provider)
+	// 	console.log('round updated')
 
-		step.value += 1
-		await roundStore.sendVotes(contributor, dappStore.signer)
-		step.value += 1
-		console.log('Successfully contributed')
-	} catch (err: any) {
-		step.value = 0
-		error.value = getTxReason(err.message)
+	// 	step.value += 1
+	// 	await roundStore.sendVotes(contributor, dappStore.signer)
+	// 	step.value += 1
+	// 	console.log('Successfully contributed')
+	// } catch (err: any) {
+	// 	step.value = 0
+	// 	error.value = getTxReason(err.message)
 
-		console.error('contribute:', err)
-	} finally {
-		contributeLoading.value = false
-	}
+	// 	console.error('contribute:', err)
+	// } finally {
+	// 	contributeLoading.value = false
+	// }
 }
 
 function generateRandomString(length) {
@@ -143,7 +145,7 @@ async function onReallocate() {
 		<RoundAddressInput />
 
 		<div class="flex flex-col items-center gap-y-4">
-			<div class="w-[500px]">
+			<div class="max-w-[500px]">
 				<label class="label" for="votes"> Votes </label>
 				<input
 					v-model="votesInput"
@@ -157,7 +159,8 @@ async function onReallocate() {
 		</div>
 		<div class="flex flex-col items-center gap-y-2 justify-center">
 			<div class="flex gap-x-3">
-				<TxButton
+				<button class="btn" @click="onContribute">Contribute</button>
+				<!-- <TxButton
 					text="Contribute"
 					:loading="contributeLoading"
 					:disabled="isVotesError || reallocateLoading"
@@ -168,7 +171,7 @@ async function onReallocate() {
 					:loading="reallocateLoading"
 					:disabled="isVotesError || contributeLoading"
 					@click="onReallocate"
-				/>
+				/> -->
 			</div>
 
 			<p>{{ stateText }}</p>
