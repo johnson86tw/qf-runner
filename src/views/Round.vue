@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { getAddress, isAddress } from 'viem'
+import { getAddress } from 'viem'
 import ContractUI from '@/components/ContractUI.vue'
 import {
 	FundingRoundFactory__factory,
@@ -14,7 +14,6 @@ import { useRoundStore } from '@/stores/useRoundStore'
 import { DateTime } from 'luxon'
 import { watchImmediate } from '@vueuse/core'
 import { useToken } from '@/composables/useToken'
-import { ROUND_ADDRESSES } from '@/constants'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
@@ -100,9 +99,9 @@ const maciFactoryProps = computed(() => {
 <template>
 	<div class="flex flex-col justify-center w-full items-center p-5">
 		<div class="max-w-[800px] w-full items-center flex flex-col gap-y-2">
-			<RoundAddressInput />
-
-			<div class="grid grid-cols-2 lg:grid-cols-3 p-4 my-4 w-full border rounded">
+			<div
+				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-4 my-4 w-full border rounded"
+			>
 				<p>
 					Block Number: <span class="text-gray-500">{{ blockNumber }}</span>
 				</p>

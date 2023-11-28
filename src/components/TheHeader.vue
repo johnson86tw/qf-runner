@@ -60,9 +60,9 @@ function menuActiveClass(path: string) {
 						<i-ic:baseline-sort class="hover:cursor-pointer hover:text-primary-dark" />
 					</div>
 
-					<div>
+					<!-- <div>
 						<RouterLink class="" to="/"> {{ APP_NAME }} </RouterLink>
-					</div>
+					</div> -->
 				</div>
 
 				<!-- Drawer Menu -->

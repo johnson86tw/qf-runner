@@ -1,5 +1,5 @@
 {
-	"name": "my-clr-fun",
+	"name": "qf-runner",
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "vite",
