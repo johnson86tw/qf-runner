@@ -42,9 +42,9 @@ function menuActiveClass(path: string) {
 				/>
 			</div>
 
-			<div class="w-[500px]">
+			<!-- <div class="w-[500px]">
 				<RoundAddressInput no-label />
-			</div>
+			</div> -->
 
 			<div class="flex items-center gap-x-5">
 				<NetworkStatus />

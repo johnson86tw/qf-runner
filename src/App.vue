@@ -131,6 +131,7 @@ watchImmediate(isRoundLoading, (newVal, oldVal) => {
 
 		<Board
 			dark
+			autoConnect
 			:connectors="connectors"
 			:autoConnectErrorHandler="autoConnectErrorHandler"
 			:connectErrorHandler="connectErrorHandler"

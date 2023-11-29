@@ -31,6 +31,7 @@ declare module '@vue/runtime-core' {
     'ISvgSpinners:3DotsFade': typeof import('~icons/svg-spinners/3-dots-fade')['default']
     'ISvgSpinners:ringResize': typeof import('~icons/svg-spinners/ring-resize')['default']
     Loading: typeof import('./components/Loading.vue')['default']
+    NButton: typeof import('naive-ui')['NButton']
     NetworkStatus: typeof import('./components/NetworkStatus.vue')['default']
     NoData: typeof import('./components/NoData.vue')['default']
     NSpace: typeof import('naive-ui')['NSpace']

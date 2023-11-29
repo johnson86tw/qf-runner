@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { VueFinalModal } from 'vue-final-modal'
 import type { StepsProps } from 'naive-ui'
+import { useBoardStore } from '@vue-dapp/vd-board'
+
+const { open } = useBoardStore()
 
 const current = ref<number | null>(1)
 const currentStatus = ref<StepsProps['status']>('process')
@@ -26,16 +29,17 @@ function prev() {
 		<div class="modal-content">
 			<n-space vertical>
 				<n-steps vertical :current="(current as number)" :status="currentStatus">
-					<n-step
-						title="I Me Mine"
-						description="All through the day, I me mine I me mine, I me mine"
-					/>
+					<n-step title="Connect to your wallet" description="" />
 					<n-step
 						title="Let It Be"
 						description="When I find myself in times of trouble Mother Mary comes to me"
 					/>
 					<n-step title="Break" />
 				</n-steps>
+			</n-space>
+
+			<n-space>
+				<n-button v-if="current === 1" @click="open">Connect</n-button>
 			</n-space>
 		</div>
 	</VueFinalModal>

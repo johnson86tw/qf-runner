@@ -1,6 +1,6 @@
 import type { Chain } from 'viem'
 
-export const APP_NAME = 'Clrfund Mini UI'
+export const APP_NAME = 'QF Runner'
 export const CLR_HARDHAT_MULTICALL3_ADDRESS = '0x09635F643e140090A9A8Dcd712eD6285858ceBef'
 export const MULTICALL3_ADDRESS = '0xcA11bde05977b3631167028862bE2a173976CA11'
 export const CLR_HARDHAT_CHAIN = {
@@ -25,6 +25,11 @@ export const ROUND_ADDRESSES = [
 		address: '0x806F08B7DD31fE0267e8c70C4bF8C4BfbBddE760',
 	},
 	// The default arbitrum-goerli round
+	{
+		name: 'Infinite Round',
+		network: 'arbitrum-goerli',
+		address: '0xF139A234814DcB279761cE2944Bd8e764a6b371d',
+	},
 	{
 		name: 'Round 11/2, 2023',
 		network: 'arbitrum-goerli',
