@@ -4,6 +4,14 @@ import type { RouteRecordRaw } from 'vue-router'
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/',
+		name: 'rounds',
+		meta: {
+			description: 'Retrieve contract data for a specific funding round.',
+		},
+		component: () => import('@/views/Rounds.vue'),
+	},
+	{
+		path: '/round',
 		name: 'round',
 		meta: {
 			description: 'Retrieve contract data for a specific funding round.',

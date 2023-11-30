@@ -45,7 +45,6 @@ const event = computed(() => {
 })
 
 const eventInputs = computed(() => {
-	console.log('inputs', event.value.inputs)
 	return event.value.inputs
 })
 
@@ -60,8 +59,6 @@ onMounted(async () => {
 			fromBlock: 0n,
 			toBlock,
 		})
-
-		console.log(logs.value)
 	} catch (err: any) {
 		console.error(err)
 	} finally {

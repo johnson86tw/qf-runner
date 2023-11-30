@@ -20,7 +20,6 @@ const dappStore = useDappStore()
 const roundStore = useRoundStore()
 const { roundStatus, startTime, signUpDeadline, votingDeadline, votes } = storeToRefs(roundStore)
 
-const blockNumber = ref(0n)
 const { client } = storeToRefs(dappStore)
 
 const { balanceByUnit: roundBalance, fetchBalance: fetchRoundBalance } = useToken({
@@ -30,14 +29,7 @@ const { balanceByUnit: factoryBalance, fetchBalance: fetchFactoryBalance } = use
 	client,
 })
 
-// temp
-onMounted(() => {
-	showContributeModal({ votes: votes.value })
-})
-
 watchImmediate([() => dappStore.network, () => roundStore.isRoundLoading], async () => {
-	blockNumber.value = (await dappStore.client.getBlockNumber()) || 0n
-
 	if (roundStore.isRoundLoaded) {
 		fetchRoundBalance(roundStore.round.nativeTokenAddress, roundStore.round.address)
 		fetchFactoryBalance(
@@ -139,11 +131,16 @@ function onClickContribute() {
 			<div
 				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-4 my-4 w-full border rounded"
 			>
-				<!-- <p>
-					Block Number: <span class="text-gray-500">{{ blockNumber }}</span>
-				</p> -->
 				<p>
-					Round Status: <span class="text-gray-500">{{ roundStatus }}</span>
+					Matching Pool:
+					<span class="text-gray-500">{{ factoryBalance }}</span>
+				</p>
+				<p>
+					Total Contribution:
+					<span class="text-gray-500">{{ roundBalance }}</span>
+				</p>
+				<p>
+					Status: <span class="text-gray-500">{{ roundStatus }}</span>
 				</p>
 				<p>
 					Start Time:
@@ -164,17 +161,7 @@ function onClickContribute() {
 					</span>
 				</p>
 
-				<p>
-					Total Contribution (Round Token Balance):
-					<span class="text-gray-500">{{ roundBalance }}</span>
-				</p>
-
-				<p>
-					Matching Pool (Factory Token Balance):
-					<span class="text-gray-500">{{ factoryBalance }}</span>
-				</p>
-
-				<div>
+				<!-- <div>
 					<p>Token Address:</p>
 					<Address class="text-gray-500" :address="roundStore.round.nativeTokenAddress" />
 				</div>
@@ -186,15 +173,15 @@ function onClickContribute() {
 				<div>
 					<p>Recipient Registry:</p>
 					<Address class="text-gray-500" :address="roundStore.round.recipientRegistry" />
-				</div>
+				</div> -->
 			</div>
 
 			<Error :err="roundStore.roundError" />
 
 			<n-space>
-				<n-button :disabled="roundStatus !== 'contribution'" @click="onClickContribute"
-					>Contribute</n-button
-				>
+				<n-button :disabled="roundStatus !== 'contribution'" @click="onClickContribute">
+					Contribute
+				</n-button>
 				<n-button :disabled="roundStatus !== 'finalized'">Claim</n-button>
 			</n-space>
 
@@ -211,6 +198,11 @@ function onClickContribute() {
 				</div>
 			</n-space>
 
+			<!-- Recipient list -->
+
+			<!-- Voter list -->
+
+			<!-- Raw data -->
 			<ContractUI v-if="fundingRoundProps" v-bind="fundingRoundProps" />
 			<ContractUI v-if="fundingRoundFactoryProps" v-bind="fundingRoundFactoryProps" />
 			<ContractUI v-if="maciProps" v-bind="maciProps" />
