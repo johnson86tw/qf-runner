@@ -18,7 +18,7 @@ import { showContributeModal } from '@/utils/modals'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
-const { roundStatus, startTime, signUpDeadline, votingDeadline } = storeToRefs(roundStore)
+const { roundStatus, startTime, signUpDeadline, votingDeadline, votes } = storeToRefs(roundStore)
 
 const blockNumber = ref(0n)
 const { client } = storeToRefs(dappStore)
@@ -32,7 +32,7 @@ const { balanceByUnit: factoryBalance, fetchBalance: fetchFactoryBalance } = use
 
 // temp
 onMounted(() => {
-	// showContributeModal()
+	showContributeModal({ votes: votes.value })
 })
 
 watchImmediate([() => dappStore.network, () => roundStore.isRoundLoading], async () => {
@@ -100,6 +100,35 @@ const maciFactoryProps = computed(() => {
 		useContractOptions: { abi: MACIFactory__factory.abi },
 	}
 })
+
+/**
+ * ======================= Votes =======================
+ */
+
+const votesInput = ref(
+	'[[0, 1000], [1, 2000], [2, 2000], [3, 2000], [4, 2000], [5, 2000], [6, 2000], [7, 2000]]',
+)
+const isVotesError = ref(false)
+
+watchImmediate(votesInput, () => {
+	let votes
+	try {
+		const arr = JSON.parse(votesInput.value)
+		votes = arr.map(vote => {
+			return [vote[0], BigInt(vote[1])]
+		})
+	} catch (err: any) {
+		isVotesError.value = true
+		return
+	}
+	isVotesError.value = false
+	const roundStore = useRoundStore()
+	roundStore.setVotes(votes)
+})
+
+function onClickContribute() {
+	showContributeModal({ votes: votes.value })
+}
 </script>
 
 <template>
@@ -163,10 +192,23 @@ const maciFactoryProps = computed(() => {
 			<Error :err="roundStore.roundError" />
 
 			<n-space>
-				<n-button :disabled="roundStatus !== 'contribution'" @click="showContributeModal"
+				<n-button :disabled="roundStatus !== 'contribution'" @click="onClickContribute"
 					>Contribute</n-button
 				>
 				<n-button :disabled="roundStatus !== 'finalized'">Claim</n-button>
+			</n-space>
+
+			<n-space>
+				<div class="max-w-[500px]">
+					<label class="label" for="votes"> Votes </label>
+					<n-input
+						v-model:value="votesInput"
+						:status="isVotesError ? 'error' : undefined"
+						id="votes"
+						type="text"
+						placeholder="[[stateIndex, amount], [...]] ex. [[1, 20], [2, 40]]"
+					/>
+				</div>
 			</n-space>
 
 			<ContractUI v-if="fundingRoundProps" v-bind="fundingRoundProps" />

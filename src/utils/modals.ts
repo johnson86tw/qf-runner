@@ -2,6 +2,7 @@ import { useModal } from 'vue-final-modal'
 import EventModal from '@/components/modal/EventModal.vue'
 import ErrorModal from '@/components/modal/ErrorModal.vue'
 import ContributeModal from '@/components/modal/ContributeModal.vue'
+import { Vote } from '@/stores/useRoundStore'
 
 type ShowEventModalOption = {
 	address: string
@@ -25,15 +26,15 @@ export function showEventModal(options: ShowEventModalOption) {
 	open()
 }
 
-// type ShowContributeModal {
+export type ContributeModalProps = {
+	votes: Vote[]
+}
 
-// }
-
-export function showContributeModal() {
+export function showContributeModal(options: ContributeModalProps) {
 	const { open, close } = useModal({
 		component: ContributeModal,
 		attrs: {
-			// ...options,
+			...options,
 			onConfirm() {
 				close()
 			},

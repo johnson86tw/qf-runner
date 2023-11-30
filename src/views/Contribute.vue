@@ -58,42 +58,41 @@ whenever(
 )
 
 async function onContribute() {
-	showContributeModal()
-	// contributeLoading.value = true
-	// error.value = null
-	// step.value = 0
+	contributeLoading.value = true
+	error.value = null
+	step.value = 0
 
-	// const encryptionKey = await roundStore.getEncryptionKey(
-	// 	dappStore.signer,
-	// 	dappStore.signatureMessage,
-	// )
+	const encryptionKey = await roundStore.getEncryptionKey(
+		dappStore.signer,
+		dappStore.signatureMessage,
+	)
 
-	// console.log('votes: ', roundStore.votes)
+	console.log('votes: ', roundStore.votes)
 
-	// try {
-	// 	step.value += 1
-	// 	await roundStore.approveToken(dappStore.signer)
-	// 	console.log('token approved')
+	try {
+		step.value += 1
+		await roundStore.approveToken(dappStore.signer)
+		console.log('token approved')
 
-	// 	step.value += 1
-	// 	const contributor = await roundStore.contribute(encryptionKey, dappStore.signer)
-	// 	console.log('contributed')
+		step.value += 1
+		const contributor = await roundStore.contribute(encryptionKey, dappStore.signer)
+		console.log('contributed')
 
-	// 	await roundStore.updateRound(dappStore.provider)
-	// 	console.log('round updated')
+		await roundStore.updateRound(dappStore.provider)
+		console.log('round updated')
 
-	// 	step.value += 1
-	// 	await roundStore.sendVotes(contributor, dappStore.signer)
-	// 	step.value += 1
-	// 	console.log('Successfully contributed')
-	// } catch (err: any) {
-	// 	step.value = 0
-	// 	error.value = getTxReason(err.message)
+		step.value += 1
+		await roundStore.sendVotes(contributor, dappStore.signer)
+		step.value += 1
+		console.log('Successfully contributed')
+	} catch (err: any) {
+		step.value = 0
+		error.value = getTxReason(err.message)
 
-	// 	console.error('contribute:', err)
-	// } finally {
-	// 	contributeLoading.value = false
-	// }
+		console.error('contribute:', err)
+	} finally {
+		contributeLoading.value = false
+	}
 }
 
 function generateRandomString(length) {
