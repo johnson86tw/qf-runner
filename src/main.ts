@@ -6,6 +6,8 @@ import i18n from '@/plugins/i18n'
 import router from '@/router'
 import App from '@/App.vue'
 
+import '@/styles/main.scss'
+
 // modal
 import { createVfm } from 'vue-final-modal'
 import 'vue-final-modal/style.css'
@@ -17,9 +19,6 @@ import 'floating-vue/dist/style.css'
 // vue3-select
 import VueSelect from 'vue3-select'
 import 'vue3-select/dist/vue3-select.css'
-
-// app
-import '@/styles/index.scss'
 
 const app = createApp(App)
 app.component('VSelect', VueSelect)

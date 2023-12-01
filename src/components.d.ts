@@ -11,6 +11,7 @@ declare module '@vue/runtime-core' {
     AdminLayout: typeof import('./components/layout/AdminLayout.vue')['default']
     AppConnectButton: typeof import('./components/AppConnectButton.vue')['default']
     AppNetwork: typeof import('./components/AppNetwork.vue')['default']
+    AppWeb3Provider: typeof import('./components/AppWeb3Provider.vue')['default']
     BaseButton: typeof import('./components/button/BaseButton.vue')['default']
     BaseInput: typeof import('./components/form/BaseInput.vue')['default']
     Contract: typeof import('./components/Contract.vue')['default']
