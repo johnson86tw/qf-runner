@@ -2,7 +2,17 @@ export function useMenu() {
 	const router = useRouter()
 	const routes = router.getRoutes()
 
-	const exclusionRouteNames = ['deploy']
+	const exclusionRouteNames = [
+		'deploy',
+		'round',
+		'factory',
+		'user-registry',
+		'recipient-registry',
+		'contribute',
+		'claim',
+		'maci',
+		'viem-ethers',
+	]
 
 	const pages = computed(() => {
 		return routes

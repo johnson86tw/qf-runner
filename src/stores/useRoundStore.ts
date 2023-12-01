@@ -1,6 +1,6 @@
 import { BigNumber, Contract, Signer, providers } from 'ethers'
 import { defineStore } from 'pinia'
-import { ROUND_ADDRESSES } from '@/constants'
+import { ROUNDS } from '@/constants'
 import {
 	ERC20__factory,
 	FundingRoundFactory__factory,
@@ -142,11 +142,6 @@ export const useRoundStore = defineStore('round', {
 						state.round.votingDurationSeconds,
 				),
 			)
-		},
-		defaultRoundAddress() {
-			const dappStore = useDappStore()
-			const found = ROUND_ADDRESSES.find(e => e.network === dappStore.network)
-			return found?.address
 		},
 		hasRoundAddress(state) {
 			return isAddress(state.roundAddress)

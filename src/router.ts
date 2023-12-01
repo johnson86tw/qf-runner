@@ -11,7 +11,7 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('@/views/Rounds.vue'),
 	},
 	{
-		path: '/round',
+		path: '/round/:address',
 		name: 'round',
 		meta: {
 			description: 'Retrieve contract data for a specific funding round.',

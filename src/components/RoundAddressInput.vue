@@ -2,7 +2,7 @@
 import { useDappStore } from '@/stores/useDappStore'
 import { useRoundStore } from '@/stores/useRoundStore'
 import { isAddress } from 'viem'
-import { ROUND_ADDRESSES } from '@/constants'
+import { ROUNDS } from '@/constants'
 
 withDefaults(
 	defineProps<{
@@ -33,7 +33,7 @@ watch(roundAddress, () => {
 
 const addressOptions = computed(() => {
 	const dappStore = useDappStore()
-	return ROUND_ADDRESSES.filter(address => address.network === dappStore.network)
+	return ROUNDS.filter(address => address.network === dappStore.network)
 })
 
 const vselectBorderColor = computed(() => {

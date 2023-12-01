@@ -22,19 +22,27 @@ export function useToken(options: UseTokenOptions) {
 
 	async function fetchBalance(contractAddress: string, address: string) {
 		if (!decimals.value) {
-			decimals.value = (await client.value.readContract({
-				address: getAddress(contractAddress),
-				abi: ERC20__factory.abi as Abi,
-				functionName: 'decimals',
-			})) as bigint
+			try {
+				decimals.value = (await client.value.readContract({
+					address: getAddress(contractAddress),
+					abi: ERC20__factory.abi as Abi,
+					functionName: 'decimals',
+				})) as bigint
+			} catch (err: any) {
+				console.error(err)
+			}
 		}
 
-		balance.value = (await client.value.readContract({
-			address: getAddress(contractAddress),
-			abi: ERC20__factory.abi as Abi,
-			functionName: 'balanceOf',
-			args: [address],
-		})) as bigint
+		try {
+			balance.value = (await client.value.readContract({
+				address: getAddress(contractAddress),
+				abi: ERC20__factory.abi as Abi,
+				functionName: 'balanceOf',
+				args: [address],
+			})) as bigint
+		} catch (err: any) {
+			console.error(err)
+		}
 	}
 
 	return {

@@ -18,6 +18,10 @@ import { showContributeModal } from '@/utils/modals'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
+
+const route = useRoute()
+roundStore.setRoundAddress(route.params.address as string)
+
 const { roundStatus, startTime, signUpDeadline, votingDeadline, votes } = storeToRefs(roundStore)
 
 const { client } = storeToRefs(dappStore)
@@ -29,15 +33,18 @@ const { balanceByUnit: factoryBalance, fetchBalance: fetchFactoryBalance } = use
 	client,
 })
 
-watchImmediate([() => dappStore.network, () => roundStore.isRoundLoading], async () => {
-	if (roundStore.isRoundLoaded) {
-		fetchRoundBalance(roundStore.round.nativeTokenAddress, roundStore.round.address)
-		fetchFactoryBalance(
-			roundStore.round.nativeTokenAddress,
-			roundStore.round.fundingRoundFactoryAddress,
-		)
-	}
-})
+watchImmediate(
+	() => roundStore.isRoundLoading,
+	async (val, oldVal) => {
+		if (oldVal && roundStore.isRoundLoaded) {
+			fetchRoundBalance(roundStore.round.nativeTokenAddress, roundStore.round.address)
+			fetchFactoryBalance(
+				roundStore.round.nativeTokenAddress,
+				roundStore.round.fundingRoundFactoryAddress,
+			)
+		}
+	},
+)
 
 // const { events } = useContract({
 // 	...fundingRound,

@@ -47,8 +47,8 @@ function menuActiveClass(path: string) {
 			</div> -->
 
 			<div class="flex items-center gap-x-5">
-				<NetworkStatus />
-				<UserStatus />
+				<AppNetwork />
+				<AppConnectButton />
 			</div>
 		</header>
 
@@ -98,8 +98,8 @@ function menuActiveClass(path: string) {
 			</div>
 
 			<div class="flex gap-x-2">
-				<NetworkStatus />
-				<UserStatus />
+				<AppNetwork />
+				<AppConnectButton />
 			</div>
 		</header>
 	</div>

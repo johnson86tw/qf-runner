@@ -18,7 +18,14 @@ export const CLR_HARDHAT_CHAIN = {
 	},
 } as const satisfies Chain
 
-export const ROUND_ADDRESSES = [
+export type Round = {
+	name: string
+	network: string
+	address: string
+	tallyJson?: string
+}
+
+export const ROUNDS: Round[] = [
 	{
 		name: 'Clrfund Round 9',
 		network: 'arbitrum',
@@ -34,46 +41,6 @@ export const ROUND_ADDRESSES = [
 		name: 'Round 11/2, 2023',
 		network: 'arbitrum-goerli',
 		address: '0x25cDfa74c0507FfA0130F0Bb96CEDCE481d0A214',
-	},
-	{
-		name: 'Round 914',
-		network: 'arbitrum-goerli',
-		address: '0x916a7cf6FC5eB63a0ed6a9D4Bb66277541134221',
-	},
-	{
-		name: 'Round 911',
-		network: 'arbitrum-goerli',
-		address: '0xFF4De1531E24769fC8DC0230dB9A70b8fC0950fa',
-	},
-	{
-		name: 'Round 821',
-		network: 'arbitrum-goerli',
-		address: '0x8c825018EcC5C35CEe92074BA9065d3226f828aA',
-	},
-	{
-		name: 'Test Round',
-		network: 'arbitrum-goerli',
-		address: '0x8bAF95896Eca49Bd08070Fa7b83e0395280869f3',
-	},
-	{
-		name: 'Infinite Round',
-		network: 'arbitrum-goerli',
-		address: '0xF139A234814DcB279761cE2944Bd8e764a6b371d',
-	},
-	{
-		name: '1st',
-		network: 'arbitrum-goerli',
-		address: '0x1F45363ED6415f841f2Bbc301B9dc451a09Da646',
-	},
-	{
-		name: '2nd',
-		network: 'arbitrum-goerli',
-		address: '0xA81D54D046f08599d614567534fB2cd853e392f3',
-	},
-	{
-		name: '3rd',
-		network: 'arbitrum-goerli',
-		address: '0x9C5638f94710BFcf77306E0aA2eC61657083957A',
 	},
 	{
 		name: 'Clrfund Hardhat',

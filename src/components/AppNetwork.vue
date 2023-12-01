@@ -9,7 +9,7 @@ const roundStore = useRoundStore()
 <template>
 	<div class="w-[160px]">
 		<v-select
-			:disabled="roundStore.isRoundLoading"
+			:disabled="true"
 			:preservable="false"
 			:clearable="false"
 			:searchable="false"

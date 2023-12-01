@@ -7,6 +7,7 @@ import { isAddress } from 'viem'
 const props = withDefaults(
 	defineProps<{
 		address: string
+		isFull?: boolean
 		noLink?: boolean
 		noCopy?: boolean
 	}>(),
@@ -25,7 +26,7 @@ const link = computed(() => {
 
 <template>
 	<div v-if="isAddress(address)" class="flex items-center gap-2">
-		<p>{{ shortenAddress(address) }}</p>
+		<p>{{ isFull ? address : shortenAddress(address) }}</p>
 
 		<div class="flex gap-2">
 			<Copy v-if="!noCopy" :content="address" />

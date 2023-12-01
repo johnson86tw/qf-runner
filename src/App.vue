@@ -69,25 +69,18 @@ const route = useRoute()
 watch([() => roundStore.round.address, () => route.path], () => {
 	if (roundStore.round.address) {
 		router.replace({
-			query: {
+			params: {
 				round: roundStore.round.address,
 			},
 		})
 	} else {
 		router.replace({
-			query: {
+			params: {
 				round: undefined,
 			},
 		})
 	}
 })
-
-watchImmediate(
-	() => dappStore.network,
-	() => {
-		roundStore.setRoundAddress(roundStore.defaultRoundAddress!)
-	},
-)
 
 watchImmediate(
 	() => roundStore.roundAddress,

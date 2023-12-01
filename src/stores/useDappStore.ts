@@ -21,6 +21,10 @@ export type User = {
 	chainId: number
 }
 export type AppNetwork = 'arbitrum' | 'arbitrum-goerli' | 'clr-hardhat'
+export function isAppNetwork(network: string) {
+	const allowedNetworks: AppNetwork[] = ['arbitrum', 'arbitrum-goerli', 'clr-hardhat']
+	return allowedNetworks.includes(network as AppNetwork)
+}
 
 const networkMap = new Map<AppNetwork, Chain>()
 networkMap.set('arbitrum', arbitrum)
@@ -107,6 +111,9 @@ Contract address: ${roundStore.round.fundingRoundFactoryAddress.toLowerCase()}.`
 			this.user.address = ''
 			this.user.signer = null
 			this.user.chainId = -1
+		},
+		setNetwork(network: AppNetwork) {
+			this.network = network
 		},
 		multicall(functionNames: string[], address: string, abi: any) {
 			return this.client.multicall({
