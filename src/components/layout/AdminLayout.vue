@@ -14,7 +14,7 @@ function activeClass(path: string) {
 	<div class="flex flex-col">
 		<TheHeader />
 
-		<div class="flex">
+		<div class="flex pb-5">
 			<!-- Sidebar Menu -->
 			<aside class="sidebar-menu my-shadow">
 				<div class="h-full w-full overflow-y-auto px-3 py-4">

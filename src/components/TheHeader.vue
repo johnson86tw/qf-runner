@@ -31,8 +31,9 @@ function menuActiveClass(path: string) {
 	<div class="mb-[var(--header-height)]">
 		<header class="header frosted-glass-effect">
 			<div class="flex items-center gap-x-3">
-				<RouterLink to="/">
-					<div class="flex items-center text-primary-dark hover:text-secondary">
+				<RouterLink to="/" class="flex items-center gap-x-3">
+					<n-image preview-disabled width="30" src="/logo.png" />
+					<div class="flex items-center text-lg text-primary-dark hover:text-secondary">
 						{{ APP_NAME }}
 					</div>
 				</RouterLink>

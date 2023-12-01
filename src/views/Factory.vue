@@ -7,37 +7,63 @@ import {
 	MACIFactory__factory,
 } from 'clrfund-contracts/build/typechain'
 import { watchImmediate } from '@vueuse/core'
+import { useToken } from '@/composables/useToken'
 
 const dappStore = useDappStore()
 
-// ================== factory ==================
+const route = useRoute()
+
+const factoryAddress = ref<string>(route.params.address as string)
 
 const factoryStore = useFactoryStore()
-const factoryAddressInput = ref('')
-const { isFactoryLoaded, isFactoryLoading } = storeToRefs(factoryStore)
+const { isFactoryLoaded, isFactoryLoading, factory } = storeToRefs(factoryStore)
 
-watch(factoryAddressInput, async () => {
-	if (isAddress(factoryAddressInput.value)) {
+const { client } = storeToRefs(dappStore)
+
+const { balanceByUnit, fetchBalance } = useToken({
+	client,
+})
+
+const notification = useNotification()
+
+const factoryRounds = ref<string[]>([])
+
+const factoryRoundsLoading = ref(false)
+
+watch(isFactoryLoaded, async () => {
+	if (isFactoryLoaded.value) {
 		try {
-			await factoryStore.updateFactory(dappStore.provider, factoryAddressInput.value)
+			await fetchBalance(factory.value.nativeToken, factory.value.address)
+		} catch (err: any) {
+			notification.error({
+				content:
+					"Failed to get token balance. Factory's native token address might be wrong",
+			})
+		}
 
+		try {
+			factoryRoundsLoading.value = true
+			factoryRounds.value = await factoryStore.fetchAllRounds()
+		} catch (err: any) {
+			notification.error({
+				content: "Failed to get factory's rounds.",
+			})
+		} finally {
+			factoryRoundsLoading.value = false
+		}
+	}
+})
+
+watchImmediate(factoryAddress, async () => {
+	if (isAddress(factoryAddress.value)) {
+		try {
+			await factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
 			console.log('Factory loaded', factoryStore.factory)
 		} catch (err) {
 			return
 		}
 	}
 })
-
-// ================== block number ==================
-
-const blockNumber = ref(0n)
-
-watchImmediate(
-	() => dappStore.network,
-	async () => {
-		blockNumber.value = (await dappStore.client.getBlockNumber()) || 0n
-	},
-)
 
 const fundingRoundFactoryProps = computed(() => {
 	if (isFactoryLoaded.value) {
@@ -66,17 +92,63 @@ const maciFactoryProps = computed(() => {
 	<div class="flex flex-col justify-center w-full items-center p-5">
 		<div class="max-w-[800px] w-full flex flex-col gap-y-2">
 			<BaseInput
-				v-model="factoryAddressInput"
-				:class="isAddress(factoryAddressInput) ? 'border-green-500' : 'border-red-500'"
-				label="Funding Round Factory"
+				v-model="factoryAddress"
+				:class="isAddress(factoryAddress) ? 'border-green-500' : 'border-red-500'"
+				label="Factory"
 				:loading="isFactoryLoading"
 			/>
 
-			<div class="grid grid-cols-2 lg:grid-cols-3 p-4 my-4 w-full border rounded">
-				<p>
-					Block Number: <span class="text-gray-500">{{ blockNumber }}</span>
+			<div
+				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-4 my-4 w-full border rounded"
+			>
+				<p class="break-words">
+					Owner:
+					<span class="text-gray-500"> <Address :address="factory.owner" /></span>
 				</p>
+				<p class="break-words">
+					Coordinator:
+					<span class="text-gray-500"><Address :address="factory.coordinator" /></span>
+				</p>
+				<p class="break-words">
+					Balance:
+					<span class="text-gray-500">{{ balanceByUnit }}</span>
+				</p>
+				<p class="break-words">
+					Token Address:
+					<span class="text-gray-500"><Address :address="factory.nativeToken" /></span>
+				</p>
+				<div>
+					<div class="break-words flex items-center gap-x-2">
+						<p>Rounds:</p>
+						<i-svg-spinners:ring-resize
+							v-if="factoryRoundsLoading"
+							class="w-4 h-4 text-gray-600 inline"
+						/>
+						<p v-if="!factoryRounds.length">no round</p>
+					</div>
+
+					<ul
+						v-if="factoryRounds.length"
+						class="pl-4 list-disc"
+						v-for="address in factoryRounds"
+						:key="address"
+					>
+						<li class="text-gray-600">
+							<Address :address="address" :internal-link="`/round/${address}`" />
+						</li>
+					</ul>
+				</div>
 			</div>
+
+			<n-space justify="center">
+				<n-button disabled> Deploy New Round </n-button>
+				<n-button disabled> Set Token </n-button>
+				<n-button disabled> Set MACI Parameters </n-button>
+				<n-button disabled> Set Coordinator </n-button>
+				<n-button disabled> Set User Registry </n-button>
+				<n-button disabled> Set Recipient Registry </n-button>
+				<n-button disabled> Transfer Ownership </n-button>
+			</n-space>
 
 			<Error :err="factoryStore.factoryError" />
 

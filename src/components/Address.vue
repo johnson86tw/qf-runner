@@ -7,8 +7,9 @@ import { isAddress } from 'viem'
 const props = withDefaults(
 	defineProps<{
 		address: string
-		isFull?: boolean
+		full?: boolean
 		noLink?: boolean
+		internalLink?: string
 		noCopy?: boolean
 	}>(),
 	{
@@ -18,6 +19,9 @@ const props = withDefaults(
 )
 
 const link = computed(() => {
+	if (props.internalLink) {
+		return props.internalLink
+	}
 	const dappStore = useDappStore()
 	if (!dappStore.explorerUrl) return ''
 	return dappStore.explorerUrl + '/address/' + props.address
@@ -26,11 +30,14 @@ const link = computed(() => {
 
 <template>
 	<div v-if="isAddress(address)" class="flex items-center gap-2">
-		<p>{{ isFull ? address : shortenAddress(address) }}</p>
+		<p class="">{{ full ? address : shortenAddress(address) }}</p>
 
 		<div class="flex gap-2">
 			<Copy v-if="!noCopy" :content="address" />
-			<a v-if="link && !noLink" target="_blank" :href="link">
+			<RouterLink v-if="internalLink" :to="internalLink">
+				<i-ic-baseline-open-in-new />
+			</RouterLink>
+			<a v-else-if="link && !noLink" target="_blank" :href="link">
 				<i-ic-baseline-open-in-new />
 			</a>
 		</div>

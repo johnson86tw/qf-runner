@@ -19,20 +19,20 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('@/views/Round.vue'),
 	},
 	{
+		path: '/factory/:address',
+		name: 'factory',
+		meta: {
+			description: 'Retrieve FundingRoundFactory contract data.',
+		},
+		component: () => import('@/views/Factory.vue'),
+	},
+	{
 		path: '/deploy',
 		name: 'deploy',
 		meta: {
 			description: 'One-click contracts deployment.',
 		},
 		component: () => import('@/views/Deploy.vue'),
-	},
-	{
-		path: '/factory',
-		name: 'factory',
-		meta: {
-			description: 'Retrieve FundingRoundFactory contract data.',
-		},
-		component: () => import('@/views/Factory.vue'),
 	},
 	{
 		path: '/user-registry',

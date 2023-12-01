@@ -20,28 +20,28 @@ export function useToken(options: UseTokenOptions) {
 		return formatUnits(balance.value, Number(decimals.value))
 	})
 
-	async function fetchBalance(contractAddress: string, address: string) {
+	async function fetchBalance(tokenAddress: string, address: string) {
 		if (!decimals.value) {
 			try {
 				decimals.value = (await client.value.readContract({
-					address: getAddress(contractAddress),
+					address: getAddress(tokenAddress),
 					abi: ERC20__factory.abi as Abi,
 					functionName: 'decimals',
 				})) as bigint
 			} catch (err: any) {
-				console.error(err)
+				throw new Error(err)
 			}
 		}
 
 		try {
 			balance.value = (await client.value.readContract({
-				address: getAddress(contractAddress),
+				address: getAddress(tokenAddress),
 				abi: ERC20__factory.abi as Abi,
 				functionName: 'balanceOf',
 				args: [address],
 			})) as bigint
 		} catch (err: any) {
-			console.error(err)
+			throw new Error(err)
 		}
 	}
 

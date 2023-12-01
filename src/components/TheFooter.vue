@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { watchImmediate } from '@vueuse/core'
 import { useDappStore } from '@/stores/useDappStore'
+import pkg from '../../package.json'
 
 const blockNumber = ref(0n)
 const dappStore = useDappStore()
@@ -14,7 +15,7 @@ watchImmediate(
 
 setInterval(async () => {
 	blockNumber.value = (await dappStore.client.getBlockNumber()) || 0n
-}, 5000)
+}, 4200)
 </script>
 
 <template>
@@ -25,7 +26,11 @@ setInterval(async () => {
 			<div :key="blockNumber.toString()">{{ blockNumber }}</div>
 		</Transition>
 
-		<div>clr.fund: v4.3.1</div>
+		<div class="flex gap-x-2">
+			<p>maci: v0.10.1</p>
+			<p>clr.fund: v4.3.1</p>
+			<p>QF Runner: v{{ pkg.version }}</p>
+		</div>
 	</footer>
 </template>
 

@@ -138,6 +138,10 @@ function onClickContribute() {
 			<div
 				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-4 my-4 w-full border rounded"
 			>
+				<div>
+					<p>Token Address:</p>
+					<Address class="text-gray-500" :address="roundStore.round.nativeTokenAddress" />
+				</div>
 				<p>
 					Matching Pool:
 					<span class="text-gray-500">{{ factoryBalance }}</span>
@@ -167,12 +171,17 @@ function onClickContribute() {
 						{{ votingDeadline.toLocaleString(DateTime.DATETIME_SHORT) }}
 					</span>
 				</p>
+				<div>
+					<p>Factory Address:</p>
 
-				<!-- <div>
-					<p>Token Address:</p>
-					<Address class="text-gray-500" :address="roundStore.round.nativeTokenAddress" />
+					<Address
+						class="text-gray-500"
+						:address="roundStore.round.fundingRoundFactoryAddress"
+						:internal-link="`/factory/${roundStore.round.fundingRoundFactoryAddress}`"
+					/>
 				</div>
 
+				<!-- 
 				<div>
 					<p>User Registry:</p>
 					<Address class="text-gray-500" :address="roundStore.round.userRegistry" />

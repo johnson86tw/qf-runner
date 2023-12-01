@@ -5,6 +5,7 @@ import {
 	MACIFactory__factory,
 } from 'clrfund-contracts/build/typechain'
 import type { FundingRoundFactory, MACIFactory } from 'clrfund-contracts/build/typechain'
+import invariant from 'tiny-invariant'
 
 type FactoryStoreState = {
 	isFactoryLoaded: boolean
@@ -16,6 +17,9 @@ type FactoryStoreState = {
 		fundingRoundFactoryContract: FundingRoundFactory | null
 		maciFactoryAddress: string
 		maciFactoryContract: MACIFactory | null
+		owner: string
+		nativeToken: string
+		coordinator: string
 	}
 	factoryError: any
 }
@@ -28,6 +32,9 @@ const getDefaultFactory = (): FactoryStoreState['factory'] => {
 		fundingRoundFactoryContract: null,
 		maciFactoryAddress: '',
 		maciFactoryContract: null,
+		owner: '',
+		nativeToken: '',
+		coordinator: '',
 	}
 }
 
@@ -62,6 +69,10 @@ export const useFactoryStore = defineStore('factory', {
 					newFactory.maciFactoryAddress,
 					provider,
 				)
+				newFactory.owner = await newFactory.fundingRoundFactoryContract.owner()
+				newFactory.nativeToken = await newFactory.fundingRoundFactoryContract.nativeToken()
+				newFactory.coordinator = await newFactory.fundingRoundFactoryContract.coordinator()
+				console.log()
 
 				this.factory = newFactory
 				this.isFactoryLoaded = true
@@ -72,6 +83,24 @@ export const useFactoryStore = defineStore('factory', {
 			} finally {
 				this.isFactoryLoading = false
 			}
+		},
+		async fetchAllRounds() {
+			invariant(this.isFactoryLoaded, 'useFactoryStore-fetchAllRounds-isFactoryLoaded')
+
+			const rounds: string[] = []
+			let i = 0
+			while (true) {
+				try {
+					const round = await this.factory.fundingRoundFactoryContract!.rounds(BigInt(i))
+					rounds.push(round)
+				} catch (err: any) {
+					break
+				}
+				i++
+				console.log('looping...')
+			}
+
+			return rounds
 		},
 	},
 })

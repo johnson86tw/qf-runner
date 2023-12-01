@@ -49,6 +49,20 @@ export const ROUNDS: Round[] = [
 	},
 ]
 
+export type FactoryAddressStorage = {
+	name: string
+	network: string
+	address: string
+}
+
+export const FACTORYS: FactoryAddressStorage[] = [
+	{
+		name: '2023-12-1',
+		network: 'arbitrum-goerli',
+		address: '0x7bD633C3705A42E6eD4a7AC5E3776Ef3568E2601',
+	},
+]
+
 export const HARDHAT_PRIV_KEY = [
 	'', // #0
 	'', // #1
