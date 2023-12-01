@@ -68,7 +68,7 @@ const routes: Array<RouteRecordRaw> = [
 	},
 	{
 		path: '/maci',
-		name: 'maci',
+		name: 'MACI',
 		meta: {
 			description: 'Some operations with MACI.',
 		},

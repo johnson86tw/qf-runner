@@ -156,7 +156,7 @@ function onClickContribute() {
 					</span>
 				</p>
 				<p>
-					SignUp Deadline:
+					Voter Signup Deadline:
 					<span class="text-gray-500">
 						{{ signUpDeadline.toLocaleString(DateTime.DATETIME_SHORT) }}
 					</span>

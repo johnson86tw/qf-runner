@@ -55,11 +55,14 @@ function menuActiveClass(path: string) {
 		<!-- mobile header -->
 		<header class="header-mobile frosted-glass-effect">
 			<div class="flex">
-				<div class="flex gap-x-4 items-center">
-					<div class="" @click="() => (isDrawerOpen = true)">
+				<div class="flex gap-x-2 items-center">
+					<div class="flex items-center" @click="() => (isDrawerOpen = true)">
 						<i-ic:baseline-sort class="hover:cursor-pointer hover:text-primary-dark" />
 					</div>
 
+					<RouterLink to="/" class="flex justify-center items-center">
+						<n-image preview-disabled width="30" src="/logo.png" />
+					</RouterLink>
 					<!-- <div>
 						<RouterLink class="" to="/"> {{ APP_NAME }} </RouterLink>
 					</div> -->

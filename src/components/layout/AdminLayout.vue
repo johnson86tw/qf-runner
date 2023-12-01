@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { useMenu } from '@/composables/useMenu'
-import { watchImmediate } from '@vueuse/core'
-import { useDappStore } from '@/stores/useDappStore'
 
 const { pages } = useMenu()
 
@@ -10,16 +8,6 @@ const route = useRoute()
 function activeClass(path: string) {
 	return `${route.path === path ? 'sidebar-menu-link--active' : ''}`
 }
-
-const blockNumber = ref(0n)
-const dappStore = useDappStore()
-
-watchImmediate(
-	() => dappStore.network,
-	async () => {
-		blockNumber.value = (await dappStore.client.getBlockNumber()) || 0n
-	},
-)
 </script>
 
 <template>
@@ -49,13 +37,7 @@ watchImmediate(
 			</main>
 		</div>
 
-		<!-- footer -->
-		<footer
-			class="px-2 h-[20px] text-xs text-gray-800 bg-gray-200 fixed bottom-0 flex justify-between items-center w-full"
-		>
-			<div>{{ blockNumber }}</div>
-			<div>clr.fund: v4.3.1</div>
-		</footer>
+		<TheFooter />
 	</div>
 </template>
 

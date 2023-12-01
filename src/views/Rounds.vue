@@ -65,6 +65,10 @@ function onClickRound(round: Round) {
 
 <template>
 	<div>
+		<div class="w-full flex justify-center my-8">
+			<n-image preview-disabled width="100" src="/logo.png" />
+		</div>
+
 		<n-list hoverable clickable>
 			<n-list-item v-for="round in ROUNDS" :key="round.address" @click="onClickRound(round)">
 				<n-thing :title="round.name">

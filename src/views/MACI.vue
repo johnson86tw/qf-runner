@@ -45,8 +45,8 @@ async function onDerivePubKey() {
 			<p>MACI</p>
 		</div>
 
-		<BaseButton @click="onGenerateKey" text="Generate new MACI Keypair" />
-		<BaseButton @click="onSignMessage">Generate MACI Keypair by signing a message</BaseButton>
+		<n-button @click="onGenerateKey">Generate new MACI Keypair</n-button>
+		<n-button @click="onSignMessage">Generate MACI Keypair by signing a message</n-button>
 
 		<div class="text-center">
 			<div v-if="pubKey">

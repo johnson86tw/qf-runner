@@ -10,7 +10,6 @@ export function useMenu() {
 		'recipient-registry',
 		'contribute',
 		'claim',
-		'maci',
 		'viem-ethers',
 	]
 

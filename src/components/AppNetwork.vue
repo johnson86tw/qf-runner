@@ -9,7 +9,7 @@ const roundStore = useRoundStore()
 <template>
 	<div class="w-[160px]">
 		<v-select
-			:disabled="true"
+			no-drop
 			:preservable="false"
 			:clearable="false"
 			:searchable="false"
