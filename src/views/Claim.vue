@@ -96,7 +96,7 @@ const jsonEditorMode = 'text'
 </template>
 
 <style lang="scss">
-@import '../styles/index.scss';
+@import '../styles/main.scss';
 
 .icon-btn {
 	@apply border rounded-full w-[30px] h-[30px] hover:bg-primary-light hover:cursor-pointer hover:text-primary-dark relative;

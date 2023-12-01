@@ -2,6 +2,7 @@
 	"name": "qf-runner",
 	"version": "0.1.0",
 	"type": "module",
+	"packageManager": "pnpm@8.6.9",
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
@@ -11,7 +12,8 @@
 		"format": "prettier --ignore-path .gitignore --write \"**/*.+(html|vue|ts|js|json|cjs)\"",
 		"type-check": "yarn vue-tsc --noEmit",
 		"build-map": "NODE_OPTIONS=--max-old-space-size=4096 vite build --sourcemap",
-		"test:lint-i18n": "vue-i18n-extract report --vueFiles 'src/**/*.?(vue)' --languageFiles 'src/locales/*.?(json)' --exclude dynamic"
+		"test:lint-i18n": "vue-i18n-extract report --vueFiles 'src/**/*.?(vue)' --languageFiles 'src/locales/*.?(json)' --exclude dynamic",
+		"preinstall": "npx only-allow pnpm"
 	},
 	"lint-staged": {
 		"**/*.{js,ts,json,scss,css,vue}": [
