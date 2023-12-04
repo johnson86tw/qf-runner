@@ -102,5 +102,20 @@ export const useFactoryStore = defineStore('factory', {
 
 			return rounds
 		},
+		async setCoordinator(
+			coordinatorAddr: string,
+			macipk: {
+				x: bigint
+				y: bigint
+			},
+		) {
+			invariant(this.factory.contract, 'useFactoryStore.setCoordinator.factory.contract')
+
+			try {
+				await this.factory.contract.setCoordinator(coordinatorAddr, macipk)
+			} catch (err: any) {
+				throw new Error(err)
+			}
+		},
 	},
 })

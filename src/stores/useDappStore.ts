@@ -2,7 +2,17 @@ import { ethers, type Signer } from 'ethers'
 import { defineStore } from 'pinia'
 import invariant from 'tiny-invariant'
 import { arbitrum, arbitrumGoerli } from 'viem/chains'
-import { createPublicClient, type Chain, http, type PublicClient, type Abi, getAddress } from 'viem'
+import {
+	createPublicClient,
+	type Chain,
+	http,
+	type PublicClient,
+	type Abi,
+	getAddress,
+	WalletClient,
+	createWalletClient,
+	custom,
+} from 'viem'
 import {
 	CLR_HARDHAT_CHAIN,
 	CLR_HARDHAT_MULTICALL3_ADDRESS,
@@ -10,6 +20,8 @@ import {
 	MULTICALL3_ADDRESS,
 } from '@/constants'
 import { useRoundStore } from './useRoundStore'
+import { useWalletStore } from '@vue-dapp/core'
+import { Raw } from 'vue'
 
 export type DappState = {
 	user: User
@@ -85,6 +97,13 @@ export const useDappStore = defineStore('dapp', {
 				transport: http(),
 			})
 		},
+		walletClient(): WalletClient {
+			const { provider } = storeToRefs(useWalletStore())
+			return createWalletClient({
+				chain: this.chain,
+				transport: custom(provider.value),
+			})
+		},
 		multicallAddress(state) {
 			if (state.network === 'clr-hardhat') {
 				return CLR_HARDHAT_MULTICALL3_ADDRESS
@@ -105,7 +124,9 @@ Contract address: ${roundStore.round.fundingRoundFactoryAddress.toLowerCase()}.`
 	},
 	actions: {
 		setUser(user: User) {
-			this.user = markRaw(user)
+			this.user.address = user.address
+			this.user.signer = user.signer
+			this.user.chainId = user.chainId
 		},
 		resetUser() {
 			this.user.address = ''
@@ -126,6 +147,16 @@ Contract address: ${roundStore.round.fundingRoundFactoryAddress.toLowerCase()}.`
 				}),
 				multicallAddress: this.multicallAddress,
 			})
+		},
+		async switchChain() {
+			const { connector } = storeToRefs(useWalletStore())
+			try {
+				if (connector.value) {
+					await connector.value.switchChain?.(this.chainId)
+				}
+			} catch (err: any) {
+				console.error(err)
+			}
 		},
 	},
 	persist: {

@@ -15,9 +15,11 @@ import { DateTime } from 'luxon'
 import { watchImmediate } from '@vueuse/core'
 import { useToken } from '@/composables/useToken'
 import { showContributeModal } from '@/utils/modals'
+import { useFactoryStore } from '@/stores/useFactoryStore'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
+const factoryStore = useFactoryStore()
 
 const route = useRoute()
 roundStore.setRoundAddress(route.params.address as string)
@@ -138,6 +140,14 @@ function onClickContribute() {
 			<div
 				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-4 my-4 w-full border rounded"
 			>
+				<div>
+					<p>Owner:</p>
+					<Address class="text-gray-500" :address="factoryStore.factory.owner" />
+				</div>
+				<div>
+					<p>Coordinator:</p>
+					<Address class="text-gray-500" :address="factoryStore.factory.coordinator" />
+				</div>
 				<div>
 					<p>Token Address:</p>
 					<Address class="text-gray-500" :address="roundStore.round.nativeTokenAddress" />

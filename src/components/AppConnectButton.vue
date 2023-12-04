@@ -7,20 +7,10 @@ import { shortenAddress, useWalletStore } from '@vue-dapp/core'
 const { open } = useBoardStore()
 
 const { disconnect } = useWalletStore()
-const { connector, status, isConnected } = storeToRefs(useWalletStore())
+const { status, isConnected } = storeToRefs(useWalletStore())
 
 const dappStore = useDappStore()
 const { isNetworkUnmatched, user } = storeToRefs(dappStore)
-
-async function onSwitchChain() {
-	try {
-		if (connector.value) {
-			await connector.value.switchChain?.(dappStore.chainId)
-		}
-	} catch (err: any) {
-		console.error(err)
-	}
-}
 </script>
 
 <template>
@@ -34,7 +24,7 @@ async function onSwitchChain() {
 				<i-ic:baseline-switch-access-shortcut
 					v-if="isNetworkUnmatched"
 					class="clickable"
-					@click="onSwitchChain"
+					@click="dappStore.switchChain"
 				/>
 
 				<p class="hidden sm:block" v-else>{{ shortenAddress(user.address) }}</p>

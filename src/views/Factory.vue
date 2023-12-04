@@ -8,6 +8,7 @@ import {
 } from 'clrfund-contracts/build/typechain'
 import { watchImmediate } from '@vueuse/core'
 import { useToken } from '@/composables/useToken'
+import { showExecModal } from '@/utils/modals'
 
 const dappStore = useDappStore()
 
@@ -86,6 +87,22 @@ const maciFactoryProps = computed(() => {
 	}
 	return null
 })
+
+function onClickSetCoordinator() {
+	showExecModal({
+		address: factoryAddress.value,
+		name: 'setCoordinator',
+		abi: FundingRoundFactory__factory.abi,
+	})
+}
+
+function onClickSetToken() {
+	showExecModal({
+		address: factoryAddress.value,
+		name: 'setToken',
+		abi: FundingRoundFactory__factory.abi,
+	})
+}
 </script>
 
 <template>
@@ -141,10 +158,10 @@ const maciFactoryProps = computed(() => {
 			</div>
 
 			<n-space justify="center">
+				<n-button @click="onClickSetCoordinator"> Set Coordinator </n-button>
 				<n-button disabled> Deploy New Round </n-button>
-				<n-button disabled> Set Token </n-button>
+				<n-button @click="onClickSetToken"> Set Token </n-button>
 				<n-button disabled> Set MACI Parameters </n-button>
-				<n-button disabled> Set Coordinator </n-button>
 				<n-button disabled> Set User Registry </n-button>
 				<n-button disabled> Set Recipient Registry </n-button>
 				<n-button disabled> Transfer Ownership </n-button>

@@ -18,7 +18,7 @@ onActivated(async ({ address, provider, chainId }) => {
 
 	dappStore.setUser({
 		address,
-		signer,
+		signer: markRaw(signer),
 		chainId,
 	})
 })
@@ -31,14 +31,16 @@ onChanged(async ({ address, provider, chainId }) => {
 
 	dappStore.setUser({
 		address,
-		signer,
+		signer: markRaw(signer),
 		chainId,
 	})
 })
 
 onDeactivated(() => {
+	console.log('onDeactivated')
 	dappStore.resetUser()
 })
+
 const connectors = [new MetaMaskConnector()]
 
 function connectErrorHandler(err: any) {
