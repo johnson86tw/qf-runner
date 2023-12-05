@@ -27,9 +27,7 @@ setInterval(async () => {
 		</Transition>
 
 		<div class="flex gap-x-2">
-			<p>maci: v0.10.1</p>
-			<p>clr.fund: v4.3.1</p>
-			<p>QF Runner: v{{ pkg.version }}</p>
+			<p>v{{ pkg.version }}</p>
 		</div>
 	</footer>
 </template>
