@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { ROUNDS, Round } from '@/constants'
+import { FACTORYS, ROUNDS, Round, FactoryAddressStorage } from '@/constants'
 import { RoundStatus } from '@/stores/useRoundStore'
 import { shortenAddress } from '@vue-dapp/core'
-import { PublicClient } from 'viem'
+import { PublicClient, http } from 'viem'
 import { useDappStore, isAppNetwork, AppNetwork } from '@/stores/useDappStore'
+
+type RoundItem = Round & {
+	status: RoundStatus | null
+}
 
 onMounted(() => {
 	const networkSet = new Set<string>()
@@ -44,25 +48,37 @@ function onClickRound(round: Round) {
 
 	router.push(`/round/${round.address}`)
 }
+
+function onClickFactory(factory: FactoryAddressStorage) {
+	if (!isAppNetwork(factory.network)) return
+
+	const dappStore = useDappStore()
+	dappStore.setNetwork(factory.network as AppNetwork)
+
+	router.push(`/factory/${factory.address}`)
+}
 </script>
 
 <template>
 	<div>
-		<div class="w-full flex flex-col items-center my-8">
-			<n-image preview-disabled width="100" src="/logo.png" />
-			<p class="text-gray-500">Hey, do you want to go round with me?</p>
+		<div class="text-xl flex justify-center mb-2">
+			<p>Factories</p>
 		</div>
 
 		<n-list hoverable clickable>
-			<n-list-item v-for="round in ROUNDS" :key="round.address" @click="onClickRound(round)">
-				<n-thing :title="round.name">
+			<n-list-item
+				v-for="factory in FACTORYS"
+				:key="factory.address"
+				@click="onClickFactory(factory)"
+			>
+				<n-thing :title="factory.name">
 					<template #description>
 						<div>
-							<p class="hidden sm:block">{{ round.address }}</p>
-							<p class="sm:hidden">{{ shortenAddress(round.address) }}</p>
+							<p class="hidden sm:block">{{ factory.address }}</p>
+							<p class="sm:hidden">{{ shortenAddress(factory.address) }}</p>
 							<n-space size="small" class="mt-1">
 								<n-tag :bordered="false" type="info" size="small">
-									{{ round.network }}
+									{{ factory.network }}
 								</n-tag>
 							</n-space>
 						</div>

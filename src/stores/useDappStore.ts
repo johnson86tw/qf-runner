@@ -21,7 +21,6 @@ import {
 } from '@/constants'
 import { useRoundStore } from './useRoundStore'
 import { useWalletStore } from '@vue-dapp/core'
-import { Raw } from 'vue'
 
 export type DappState = {
 	user: User
@@ -101,6 +100,7 @@ export const useDappStore = defineStore('dapp', {
 			const { provider } = storeToRefs(useWalletStore())
 			return createWalletClient({
 				chain: this.chain,
+				// @ts-ignore
 				transport: custom(provider.value),
 			})
 		},
@@ -124,9 +124,7 @@ Contract address: ${roundStore.round.fundingRoundFactoryAddress.toLowerCase()}.`
 	},
 	actions: {
 		setUser(user: User) {
-			this.user.address = user.address
-			this.user.signer = user.signer
-			this.user.chainId = user.chainId
+			this.user = user
 		},
 		resetUser() {
 			this.user.address = ''

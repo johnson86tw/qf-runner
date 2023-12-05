@@ -11,6 +11,14 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('@/views/Rounds.vue'),
 	},
 	{
+		path: '/factories',
+		name: 'factories',
+		meta: {
+			description: 'Display factories',
+		},
+		component: () => import('@/views/Factories.vue'),
+	},
+	{
 		path: '/round/:address',
 		name: 'round',
 		meta: {

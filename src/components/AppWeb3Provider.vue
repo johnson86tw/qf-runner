@@ -41,7 +41,11 @@ onDeactivated(() => {
 	dappStore.resetUser()
 })
 
-const connectors = [new MetaMaskConnector()]
+const connectors = [
+	new MetaMaskConnector({
+		appUrl: 'qf-runner.vercel.app',
+	}),
+]
 
 function connectErrorHandler(err: any) {
 	console.error('ConnectError', err)
