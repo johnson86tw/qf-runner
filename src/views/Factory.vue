@@ -9,6 +9,7 @@ import {
 import { watchImmediate } from '@vueuse/core'
 import { useToken } from '@/composables/useToken'
 import { showExecModal } from '@/utils/modals'
+import { useParticipants } from '@/composables/useParticipants'
 
 const dappStore = useDappStore()
 
@@ -31,6 +32,8 @@ const factoryRounds = ref<string[]>([])
 
 const factoryRoundsLoading = ref(false)
 
+const { users, recipients, fetchUsers, fetchRecipients } = useParticipants()
+
 watch(isFactoryLoaded, async () => {
 	if (isFactoryLoaded.value) {
 		try {
@@ -52,6 +55,9 @@ watch(isFactoryLoaded, async () => {
 		} finally {
 			factoryRoundsLoading.value = false
 		}
+
+		fetchUsers(factoryStore.factory.userRegistry)
+		fetchRecipients(factoryStore.factory.recipientRegistry)
 	}
 })
 
@@ -283,6 +289,8 @@ function onClickCancelCurrentRound() {
 			</n-space>
 
 			<Error :err="factoryStore.factoryError" />
+
+			<Participants :users="users" :recipients="recipients" />
 
 			<ContractUI v-if="fundingRoundFactoryProps" v-bind="fundingRoundFactoryProps" />
 			<ContractUI v-if="maciFactoryProps" v-bind="maciFactoryProps" />

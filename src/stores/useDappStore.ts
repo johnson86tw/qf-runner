@@ -21,10 +21,12 @@ import {
 } from '@/constants'
 import { useRoundStore } from './useRoundStore'
 import { useWalletStore } from '@vue-dapp/core'
+import { numeric } from '@vuelidate/validators'
 
 export type DappState = {
 	user: User
 	network: AppNetwork
+	blockNumber: number
 }
 export type User = {
 	signer: Signer | null
@@ -52,6 +54,7 @@ export const useDappStore = defineStore('dapp', {
 			chainId: -1,
 		},
 		network: 'arbitrum',
+		blockNumber: 0,
 	}),
 	getters: {
 		chain(state): Chain {
@@ -133,6 +136,11 @@ Contract address: ${roundStore.round.fundingRoundFactoryAddress.toLowerCase()}.`
 		},
 		setNetwork(network: AppNetwork) {
 			this.network = network
+		},
+		async fetchBlockNumber() {
+			const num = await this.provider.getBlockNumber()
+			this.blockNumber = num
+			return num
 		},
 		multicall(functionNames: string[], address: string, abi: any) {
 			return this.client.multicall({

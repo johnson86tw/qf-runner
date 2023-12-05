@@ -35,14 +35,12 @@ const reversedLogs = computed(() => {
 	return null
 })
 
-const event = computed(() => {
-	const e = getAbiItem({
+const event = computed(() =>
+	getAbiItem({
 		abi: props.abi,
 		name: props.eventName,
-	})
-
-	return e
-})
+	}),
+)
 
 const eventInputs = computed(() => {
 	return event.value.inputs
@@ -52,7 +50,7 @@ onMounted(async () => {
 	isLoading.value = true
 
 	try {
-		const toBlock = await dappStore.client.getBlockNumber()
+		const toBlock = BigInt(dappStore.blockNumber)
 		logs.value = await dappStore.client.getLogs({
 			address: getAddress(props.address),
 			event: event.value,

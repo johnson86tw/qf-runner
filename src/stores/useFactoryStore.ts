@@ -6,6 +6,8 @@ import {
 } from 'clrfund-contracts/build/typechain'
 import type { FundingRoundFactory, MACIFactory } from 'clrfund-contracts/build/typechain'
 import invariant from 'tiny-invariant'
+import { useDappStore } from './useDappStore'
+import { Abi, getAddress } from 'viem'
 
 type FactoryStoreState = {
 	isFactoryLoaded: boolean
@@ -20,6 +22,8 @@ type FactoryStoreState = {
 		owner: string
 		nativeToken: string
 		coordinator: string
+		userRegistry: string
+		recipientRegistry: string
 	}
 	factoryError: any
 }
@@ -35,6 +39,8 @@ const getDefaultFactory = (): FactoryStoreState['factory'] => {
 		owner: '',
 		nativeToken: '',
 		coordinator: '',
+		userRegistry: '',
+		recipientRegistry: '',
 	}
 }
 
@@ -59,20 +65,42 @@ export const useFactoryStore = defineStore('factory', {
 			try {
 				const newFactory = getDefaultFactory()
 				newFactory.address = factoryAddress
+
 				newFactory.fundingRoundFactoryContract = FundingRoundFactory__factory.connect(
 					factoryAddress,
 					provider,
 				)
-				newFactory.maciFactoryAddress =
-					await newFactory.fundingRoundFactoryContract.maciFactory()
+
+				const dappStore = useDappStore()
+
+				const res = await dappStore.client.multicall({
+					contracts: [
+						...[
+							'owner',
+							'nativeToken',
+							'coordinator',
+							'userRegistry',
+							'recipientRegistry',
+							'maciFactory',
+						].map(fnName => ({
+							address: getAddress(newFactory.address),
+							abi: FundingRoundFactory__factory.abi as Abi,
+							functionName: fnName,
+						})),
+					],
+					multicallAddress: dappStore.multicallAddress,
+				})
+
+				newFactory.owner = res[0].result as string
+				newFactory.nativeToken = res[1].result as string
+				newFactory.coordinator = res[2].result as string
+				newFactory.userRegistry = res[3].result as string
+				newFactory.recipientRegistry = res[4].result as string
+				newFactory.maciFactoryAddress = res[5].result as string
 				newFactory.maciFactoryContract = MACIFactory__factory.connect(
 					newFactory.maciFactoryAddress,
 					provider,
 				)
-				newFactory.owner = await newFactory.fundingRoundFactoryContract.owner()
-				newFactory.nativeToken = await newFactory.fundingRoundFactoryContract.nativeToken()
-				newFactory.coordinator = await newFactory.fundingRoundFactoryContract.coordinator()
-				console.log()
 
 				this.factory = newFactory
 				this.isFactoryLoaded = true
@@ -97,7 +125,6 @@ export const useFactoryStore = defineStore('factory', {
 					break
 				}
 				i++
-				console.log('looping...')
 			}
 
 			return rounds
