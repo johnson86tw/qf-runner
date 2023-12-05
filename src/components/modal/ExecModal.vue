@@ -221,7 +221,7 @@ async function onClickExecTransaction() {
 										type="text"
 										:placeholder="input.type"
 									/>
-									<p class="w-0" v-else>{{ inputValues[i].value }}</p>
+									<p class="" v-else>{{ inputValues[i].value }}</p>
 								</div>
 
 								<div class="" v-if="input.type === 'address'">
@@ -234,7 +234,7 @@ async function onClickExecTransaction() {
 										type="text"
 										:placeholder="input.type"
 									/>
-									<p class="w-0" v-else>{{ inputValues[i].value }}</p>
+									<p class="" v-else>{{ inputValues[i].value }}</p>
 								</div>
 
 								<div
@@ -255,7 +255,7 @@ async function onClickExecTransaction() {
 											type="text"
 											:placeholder="component.type"
 										/>
-										<p class="w-0" v-else>
+										<p class="" v-else>
 											{{ inputValues[i][j].value }}
 										</p>
 									</n-space>
@@ -270,7 +270,7 @@ async function onClickExecTransaction() {
 										type="text"
 										placeholder="macipk.xxx"
 									/>
-									<p class="w-0" v-else>
+									<p class="" v-else>
 										{{ macipkInput }}
 									</p>
 								</div>
@@ -322,6 +322,11 @@ async function onClickExecTransaction() {
 </template>
 
 <style lang="scss" scoped>
+// hack to fix address overflow and n-step-indicator squeezed
+:deep(.n-step-content) {
+	overflow-wrap: break-word;
+	min-width: 1%;
+}
 .modal-content {
 	@apply flex flex-col gap-y-2 rounded-2xl bg-white px-5 py-5;
 	width: 70vw;
