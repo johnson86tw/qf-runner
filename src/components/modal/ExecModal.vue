@@ -6,22 +6,14 @@ import { StepsProps } from 'naive-ui'
 import { useBoardStore } from '@vue-dapp/vd-board'
 import { watchDeep, watchImmediate, whenever } from '@vueuse/core'
 import { PubKey } from 'clrfund-maci-utils'
+import { ExecModalOption } from '@/utils/modals'
 
-const MOCK_COORDINATOR_ADDRESS = ''
 const MOCK_COORDINATOR_PUBKEY =
 	'macipk.4dc26587aaa2ca98c0237e4e592331a9301c2c24454cf256ea39afcee2f25a8f'
 
-const props = withDefaults(
-	defineProps<{
-		address: string
-		name: string
-		abi: any
-	}>(),
-	{
-		name: '發生錯誤',
-		subtitle: '',
-	},
-)
+const props = withDefaults(defineProps<ExecModalOption>(), {
+	name: '發生錯誤',
+})
 
 const emit = defineEmits<{
 	(e: 'close'): void
@@ -39,7 +31,9 @@ const inputs = computed(
 		}).inputs,
 )
 
-console.log(inputs.value)
+const isNoInput = computed(() => !inputs.value.length)
+
+console.log('Inputs', inputs.value)
 
 const current = ref<number | null>(1)
 const currentStatus = ref<StepsProps['status']>('process')
@@ -58,12 +52,6 @@ function prev() {
 
 const { open } = useBoardStore()
 
-const dappStore = useDappStore()
-whenever(
-	() => dappStore.isNetworkUnmatched,
-	() => {},
-)
-
 type InputValue = {
 	name: string
 	internalType: string
@@ -76,11 +64,18 @@ type InputValue = {
 
 const inputValues = ref<InputValue[]>([])
 for (const input of inputs.value) {
+	if (input.type === 'uint8' || input.type === 'uint256') {
+		inputValues.value.push({
+			name: input.name,
+			internalType: input.internalType,
+			value: '',
+		})
+	}
 	if (input.type === 'address') {
 		inputValues.value.push({
 			name: input.name,
 			internalType: input.internalType,
-			value: MOCK_COORDINATOR_ADDRESS,
+			value: '',
 		})
 	}
 	if (input.type === 'tuple') {
@@ -112,18 +107,35 @@ watchImmediate(macipkInput, () => {
 	}
 })
 
-watchEffect(() => {
-	console.log(dappStore.isConnected)
-	if (dappStore.isConnected && !dappStore.isNetworkUnmatched) {
-		current.value = 2
-	}
-})
+const dappStore = useDappStore()
+
+const step1Error = ref<string | null>(null)
+
+watchImmediate(
+	() => dappStore.user.address,
+	() => {
+		if (dappStore.isConnected && !dappStore.isNetworkUnmatched) {
+			if (props.isValidAddress && !props.isValidAddress(dappStore.user.address)) {
+				current.value = 1
+				currentStatus.value = 'error'
+				step1Error.value = 'Invalid address to execute the function'
+				return
+			}
+
+			if (current.value === 1) {
+				next()
+				currentStatus.value = 'process'
+				step1Error.value = null
+			}
+		}
+	},
+)
 
 watchDeep(inputValues, () => {
 	console.log('inputValues', inputValues.value)
 })
 
-const error = ref(null)
+const error = ref<string | null>(null)
 const receipt = ref<TransactionReceipt | null>(null)
 const execLoading = ref(false)
 async function onClickExecTransaction() {
@@ -143,6 +155,8 @@ async function onClickExecTransaction() {
 
 	try {
 		execLoading.value = true
+
+		// @ts-ignore
 		const hash = await dappStore.walletClient.writeContract({
 			address: getAddress(props.address),
 			abi: props.abi,
@@ -188,11 +202,28 @@ async function onClickExecTransaction() {
 							Switch Network
 						</n-button>
 						<p>{{ dappStore.user.address }}</p>
+						<p>{{ step1Error }}</p>
 					</n-step>
 					<!-- 2 -->
-					<n-step title="Inputs">
-						<div class="flex flex-col gap-y-3">
+					<n-step :title="isNoInput ? 'Send Transaction' : 'Inputs'">
+						<div v-if="!isNoInput" class="flex flex-col gap-y-3">
 							<div v-for="(input, i) in inputs" :key="i">
+								<div
+									class=""
+									v-if="input.type === 'uint8' || input.type === 'uint256'"
+								>
+									<p>
+										{{ input.name }}
+									</p>
+									<n-input
+										v-if="current === 2"
+										v-model:value="inputValues[i].value"
+										type="text"
+										:placeholder="input.type"
+									/>
+									<p class="w-0" v-else>{{ inputValues[i].value }}</p>
+								</div>
+
 								<div class="" v-if="input.type === 'address'">
 									<p>
 										{{ input.name }}
@@ -249,9 +280,26 @@ async function onClickExecTransaction() {
 								<n-button v-if="current === 2" @click="next"> Confirm </n-button>
 							</div>
 						</div>
+
+						<!-- No input situation -->
+						<div v-if="isNoInput">
+							<n-space>
+								<n-button @click="onClickExecTransaction" :loading="execLoading">
+									Execute
+								</n-button>
+							</n-space>
+
+							<div class="mt-5">
+								<p v-if="error" class="text-red-500">{{ error }}</p>
+								<div v-else-if="receipt">
+									<p>Transaction Success!</p>
+									<p>{{ stringify(receipt) }}</p>
+								</div>
+							</div>
+						</div>
 					</n-step>
 					<!-- 3 -->
-					<n-step title="Send Transaction">
+					<n-step v-if="!isNoInput" title="Send Transaction">
 						<n-space v-if="current === 3">
 							<n-button :disabled="execLoading" @click="prev"> Back </n-button>
 							<n-button @click="onClickExecTransaction" :loading="execLoading">

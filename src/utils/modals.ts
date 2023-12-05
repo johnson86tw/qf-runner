@@ -47,10 +47,11 @@ export function showContributeModal(options: ContributeModalProps) {
 	open()
 }
 
-type ExecModalOption = {
+export type ExecModalOption = {
 	address: string
 	name: string
 	abi: any
+	isValidAddress?: (address: string) => boolean
 }
 
 export function showExecModal(options: ExecModalOption) {

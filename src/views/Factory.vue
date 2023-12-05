@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getAddress, isAddress } from 'viem'
+import { getAddress, isAddress, isAddressEqual } from 'viem'
 import { useFactoryStore } from '@/stores/useFactoryStore'
 import { useDappStore } from '@/stores/useDappStore'
 import {
@@ -93,6 +93,9 @@ function onClickSetCoordinator() {
 		address: factoryAddress.value,
 		name: 'setCoordinator',
 		abi: FundingRoundFactory__factory.abi,
+		isValidAddress: (address: string) => {
+			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
+		},
 	})
 }
 
@@ -101,6 +104,64 @@ function onClickSetToken() {
 		address: factoryAddress.value,
 		name: 'setToken',
 		abi: FundingRoundFactory__factory.abi,
+		isValidAddress: (address: string) => {
+			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
+		},
+	})
+}
+
+function onClickDeployNewRound() {
+	showExecModal({
+		address: factoryAddress.value,
+		name: 'deployNewRound',
+		abi: FundingRoundFactory__factory.abi,
+		isValidAddress: (address: string) => {
+			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
+		},
+	})
+}
+
+function onClickSetMaciParameters() {
+	showExecModal({
+		address: factoryAddress.value,
+		name: 'setMaciParameters',
+		abi: FundingRoundFactory__factory.abi,
+		isValidAddress: (address: string) => {
+			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
+		},
+	})
+}
+
+function onClickSetUserRegistry() {
+	showExecModal({
+		address: factoryAddress.value,
+		name: 'setUserRegistry',
+		abi: FundingRoundFactory__factory.abi,
+		isValidAddress: (address: string) => {
+			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
+		},
+	})
+}
+
+function onClickSetRecipientRegistry() {
+	showExecModal({
+		address: factoryAddress.value,
+		name: 'setRecipientRegistry',
+		abi: FundingRoundFactory__factory.abi,
+		isValidAddress: (address: string) => {
+			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
+		},
+	})
+}
+
+function onClickTransferOwnership() {
+	showExecModal({
+		address: factoryAddress.value,
+		name: 'transferOwnership',
+		abi: FundingRoundFactory__factory.abi,
+		isValidAddress: (address: string) => {
+			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
+		},
 	})
 }
 </script>
@@ -158,13 +219,27 @@ function onClickSetToken() {
 			</div>
 
 			<n-space justify="center">
-				<n-button @click="onClickSetCoordinator"> Set Coordinator </n-button>
-				<n-button disabled> Deploy New Round </n-button>
-				<n-button @click="onClickSetToken"> Set Token </n-button>
-				<n-button disabled> Set MACI Parameters </n-button>
-				<n-button disabled> Set User Registry </n-button>
-				<n-button disabled> Set Recipient Registry </n-button>
-				<n-button disabled> Transfer Ownership </n-button>
+				<n-button :disabled="!isFactoryLoaded" @click="onClickSetCoordinator">
+					Set Coordinator
+				</n-button>
+				<n-button :disabled="!isFactoryLoaded" @click="onClickDeployNewRound">
+					Deploy New Round
+				</n-button>
+				<n-button :disabled="!isFactoryLoaded" @click="onClickSetToken">
+					Set Token
+				</n-button>
+				<n-button :disabled="!isFactoryLoaded" @click="onClickSetMaciParameters">
+					Set MACI Parameters
+				</n-button>
+				<n-button :disabled="!isFactoryLoaded" @click="onClickSetUserRegistry">
+					Set User Registry
+				</n-button>
+				<n-button :disabled="!isFactoryLoaded" @click="onClickSetRecipientRegistry">
+					Set Recipient Registry
+				</n-button>
+				<n-button :disabled="!isFactoryLoaded" @click="onClickTransferOwnership">
+					Transfer Ownership
+				</n-button>
 			</n-space>
 
 			<Error :err="factoryStore.factoryError" />
