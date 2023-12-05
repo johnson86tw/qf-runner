@@ -96,6 +96,9 @@ function onClickSetCoordinator() {
 		isValidAddress: (address: string) => {
 			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
 		},
+		onExecuted: () => {
+			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
+		},
 	})
 }
 
@@ -118,6 +121,9 @@ function onClickDeployNewRound() {
 		isValidAddress: (address: string) => {
 			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
 		},
+		onExecuted: () => {
+			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
+		},
 	})
 }
 
@@ -128,6 +134,9 @@ function onClickSetMaciParameters() {
 		abi: FundingRoundFactory__factory.abi,
 		isValidAddress: (address: string) => {
 			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
+		},
+		onExecuted: () => {
+			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
 		},
 	})
 }
@@ -140,6 +149,9 @@ function onClickSetUserRegistry() {
 		isValidAddress: (address: string) => {
 			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
 		},
+		onExecuted: () => {
+			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
+		},
 	})
 }
 
@@ -150,6 +162,9 @@ function onClickSetRecipientRegistry() {
 		abi: FundingRoundFactory__factory.abi,
 		isValidAddress: (address: string) => {
 			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
+		},
+		onExecuted: () => {
+			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
 		},
 	})
 }
@@ -162,6 +177,23 @@ function onClickTransferOwnership() {
 		isValidAddress: (address: string) => {
 			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
 		},
+		onExecuted: () => {
+			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
+		},
+	})
+}
+
+function onClickCancelCurrentRound() {
+	showExecModal({
+		address: factoryAddress.value,
+		name: 'cancelCurrentRound',
+		abi: FundingRoundFactory__factory.abi,
+		isValidAddress: (address: string) => {
+			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
+		},
+		onExecuted: () => {
+			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
+		},
 	})
 }
 </script>
@@ -169,10 +201,15 @@ function onClickTransferOwnership() {
 <template>
 	<div class="flex flex-col justify-center w-full items-center p-5">
 		<div class="max-w-[800px] w-full flex flex-col gap-y-2">
-			<BaseInput
-				v-model="factoryAddress"
-				:class="isAddress(factoryAddress) ? 'border-green-500' : 'border-red-500'"
-				label="Factory"
+			<div class="text-xl flex justify-center mb-2">
+				<p>Factory</p>
+			</div>
+
+			<n-input
+				v-model:value="factoryAddress"
+				type="text"
+				:status="isAddress(factoryAddress) ? '' : 'error'"
+				placeholder="Factory address"
 				:loading="isFactoryLoading"
 			/>
 
@@ -218,7 +255,7 @@ function onClickTransferOwnership() {
 				</div>
 			</div>
 
-			<n-space justify="center">
+			<n-space justify="center" class="my-5">
 				<n-button :disabled="!isFactoryLoaded" @click="onClickSetCoordinator">
 					Set Coordinator
 				</n-button>
@@ -239,6 +276,9 @@ function onClickTransferOwnership() {
 				</n-button>
 				<n-button :disabled="!isFactoryLoaded" @click="onClickTransferOwnership">
 					Transfer Ownership
+				</n-button>
+				<n-button :disabled="!isFactoryLoaded" @click="onClickCancelCurrentRound">
+					Cancel Current Round
 				</n-button>
 			</n-space>
 

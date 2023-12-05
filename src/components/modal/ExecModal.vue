@@ -168,6 +168,8 @@ async function onClickExecTransaction() {
 		receipt.value = await dappStore.client.waitForTransactionReceipt({ hash })
 
 		console.log('Tx Success', receipt.value)
+
+		props.onExecuted && props.onExecuted()
 	} catch (err: any) {
 		error.value = err
 		console.error(err)
@@ -283,7 +285,7 @@ async function onClickExecTransaction() {
 
 						<!-- No input situation -->
 						<div v-if="isNoInput">
-							<n-space>
+							<n-space v-if="current === 2">
 								<n-button @click="onClickExecTransaction" :loading="execLoading">
 									Execute
 								</n-button>

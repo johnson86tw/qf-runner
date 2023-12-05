@@ -19,7 +19,7 @@ export function showEventModal(options: ShowEventModalOption) {
 			onConfirm() {
 				close()
 			},
-			onClose() {
+			onClosed() {
 				close()
 			},
 		},
@@ -39,7 +39,7 @@ export function showContributeModal(options: ContributeModalProps) {
 			onConfirm() {
 				close()
 			},
-			onClose() {
+			onClosed() {
 				close()
 			},
 		},
@@ -52,6 +52,7 @@ export type ExecModalOption = {
 	name: string
 	abi: any
 	isValidAddress?: (address: string) => boolean
+	onExecuted?: () => void
 }
 
 export function showExecModal(options: ExecModalOption) {
@@ -62,7 +63,7 @@ export function showExecModal(options: ExecModalOption) {
 			onConfirm() {
 				close()
 			},
-			onClose() {
+			onClosedd() {
 				close()
 			},
 		},

@@ -135,7 +135,11 @@ function onClickContribute() {
 <template>
 	<div class="flex flex-col justify-center w-full items-center p-5">
 		<div class="max-w-[800px] w-full items-center flex flex-col gap-y-2">
-			<RoundAddressInput />
+			<div class="text-xl flex justify-center mb-2">
+				<p>Round</p>
+			</div>
+
+			<RoundAddressInput no-label />
 
 			<div
 				class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 p-4 my-4 w-full border rounded"
