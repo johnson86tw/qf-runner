@@ -158,7 +158,20 @@ Contract address: ${roundStore.round.fundingRoundFactoryAddress.toLowerCase()}.`
 			const { connector } = storeToRefs(useWalletStore())
 			try {
 				if (connector.value) {
-					await connector.value.switchChain?.(this.chainId)
+					if (this.chainId === 421613) {
+						await connector.value.switchChain?.(421613, {
+							chainId: '0x66eed',
+							chainName: 'Arbitrum Goerli',
+							nativeCurrency: {
+								symbol: 'AGOR',
+								decimals: 18,
+							},
+							rpcUrls: ['https://goerli-rollup.arbitrum.io/rpc'],
+							blockExplorerUrls: ['https://goerli.arbiscan.io/'],
+						})
+					} else {
+						await connector.value.switchChain?.(this.chainId)
+					}
 				}
 			} catch (err: any) {
 				console.error(err)
