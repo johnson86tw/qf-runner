@@ -57,6 +57,11 @@ export type FactoryAddressStorage = {
 
 export const FACTORYS: FactoryAddressStorage[] = [
 	{
+		name: '2023-12-6',
+		network: 'arbitrum-goerli',
+		address: '0x2489E83C384C8E173EEbfb830233C282B15e8E44',
+	},
+	{
 		name: '2023-12-1',
 		network: 'arbitrum-goerli',
 		address: '0x7bD633C3705A42E6eD4a7AC5E3776Ef3568E2601',

@@ -13,7 +13,7 @@ import {
 import { useDappStore } from '@/stores/useDappStore'
 import { useRoundStore } from '@/stores/useRoundStore'
 import { DateTime } from 'luxon'
-import { watchImmediate } from '@vueuse/core'
+import { watchImmediate, whenever } from '@vueuse/core'
 import { useToken } from '@/composables/useToken'
 import { showContributeModal } from '@/utils/modals'
 import { useFactoryStore } from '@/stores/useFactoryStore'
@@ -39,18 +39,16 @@ const { balanceByUnit: factoryBalance, fetchBalance: fetchFactoryBalance } = use
 
 const { users, recipients, fetchUsers, fetchRecipients } = useParticipants()
 
-watchImmediate(
-	() => roundStore.isRoundLoading,
-	async (val, oldVal) => {
-		if (oldVal && roundStore.isRoundLoaded) {
-			fetchRoundBalance(roundStore.round.nativeTokenAddress, roundStore.round.address)
-			fetchFactoryBalance(
-				roundStore.round.nativeTokenAddress,
-				roundStore.round.fundingRoundFactoryAddress,
-			)
-			fetchUsers(roundStore.round.userRegistry)
-			fetchRecipients(roundStore.round.recipientRegistry)
-		}
+whenever(
+	() => roundStore.isRoundLoaded,
+	() => {
+		fetchRoundBalance(roundStore.round.nativeTokenAddress, roundStore.round.address)
+		fetchFactoryBalance(
+			roundStore.round.nativeTokenAddress,
+			roundStore.round.fundingRoundFactoryAddress,
+		)
+		fetchUsers(roundStore.round.userRegistry)
+		fetchRecipients(roundStore.round.recipientRegistry)
 	},
 )
 
@@ -227,13 +225,16 @@ function onClickSelectRecipient(recipient: Recipient) {
 
 			<div
 				class="w-full flex flex-col gap-y-5"
-				v-if="roundStatus === 'contribution' || roundStatus === 'reallocation'"
+				v-if="
+					(roundStatus === 'contribution' || roundStatus === 'reallocation') &&
+					selectedRecipients.size > 0
+				"
 			>
 				<div class="text-xl flex justify-center">
 					<p>Votes</p>
 				</div>
 
-				<div v-if="selectedRecipients.size > 0" class="flex flex-col gap-y-2">
+				<div class="flex flex-col gap-y-2">
 					<div
 						class="w-full grid grid-cols-5 gap-x-2 items-center"
 						v-for="recipient in selectedRecipients"
@@ -275,6 +276,10 @@ function onClickSelectRecipient(recipient: Recipient) {
 			</div>
 
 			<Participants :users="users" />
+
+			<div class="text-xl flex justify-center mb-2">
+				<p>Contracts</p>
+			</div>
 
 			<!-- Raw data -->
 			<ContractUI v-if="fundingRoundProps" v-bind="fundingRoundProps" />

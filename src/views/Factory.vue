@@ -205,7 +205,7 @@ function onClickCancelCurrentRound() {
 </script>
 
 <template>
-	<div class="flex flex-col justify-center w-full items-center p-5">
+	<div class="flex flex-col justify-center w-full items-center">
 		<div class="max-w-[800px] w-full flex flex-col gap-y-2">
 			<div class="text-xl flex justify-center mb-2">
 				<p>Factory</p>
@@ -291,6 +291,10 @@ function onClickCancelCurrentRound() {
 			<Error :err="factoryStore.factoryError" />
 
 			<Participants :users="users" :recipients="recipients" />
+
+			<div class="text-xl flex justify-center mb-2">
+				<p>Contracts</p>
+			</div>
 
 			<ContractUI v-if="fundingRoundFactoryProps" v-bind="fundingRoundFactoryProps" />
 			<ContractUI v-if="maciFactoryProps" v-bind="maciFactoryProps" />

@@ -29,10 +29,10 @@ const link = computed(() => {
 </script>
 
 <template>
-	<div v-if="isAddress(address)" class="flex items-center gap-2">
+	<div v-if="isAddress(address)" class="flex items-center gap-1">
 		<p class="">{{ full ? address : shortenAddress(address) }}</p>
 
-		<div class="flex gap-2">
+		<div class="flex gap-1">
 			<Copy v-if="!noCopy" :content="address" />
 			<RouterLink v-if="internalLink" :to="internalLink">
 				<i-ic-baseline-open-in-new />
