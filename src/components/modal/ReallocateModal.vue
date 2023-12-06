@@ -6,8 +6,6 @@ import { useDappStore } from '@/stores/useDappStore'
 import { watchDeep, watchImmediate } from '@vueuse/core'
 import { ReallocateModalProps } from '@/utils/modals'
 import { Votes, useRoundStore } from '@/stores/useRoundStore'
-import { Keypair } from 'clrfund-maci-utils'
-import invariant from 'tiny-invariant'
 import type { TransactionReceipt } from '@ethersproject/abstract-provider'
 import { Recipient } from '@/composables/useParticipants'
 

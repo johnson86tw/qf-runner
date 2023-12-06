@@ -62,16 +62,14 @@ watchImmediate(isRoundLoading, (newVal, oldVal) => {
 </script>
 
 <template>
-	<div id="app">
-		<n-notification-provider placement="bottom">
-			<AppWeb3Provider>
-				<AdminLayout>
-					<RouterView />
-				</AdminLayout>
-			</AppWeb3Provider>
-		</n-notification-provider>
+	<n-notification-provider placement="bottom">
+		<AppWeb3Provider>
+			<AdminLayout>
+				<RouterView />
+			</AdminLayout>
+		</AppWeb3Provider>
 		<ModalsContainer />
-	</div>
+	</n-notification-provider>
 </template>
 
 <style lang="scss"></style>

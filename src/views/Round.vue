@@ -24,6 +24,8 @@ const { open } = useBoardStore()
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
 
+roundStore.resetRound()
+
 const route = useRoute()
 roundStore.setRoundAddress(route.params.address as string)
 
@@ -64,29 +66,25 @@ whenever(
 	},
 )
 
+const actionDisabled = ref(false)
 const isVerifiedUser = ref(false)
 const isAlreadyContributed = ref(false)
 
 watchEffect(async () => {
 	if (dappStore.user.address && roundStore.isRoundLoaded) {
-		isVerifiedUser.value = await roundStore.isVerifiedUser(dappStore.user.address)
-		isAlreadyContributed.value = await roundStore.isAlreadyContributed(dappStore.user.address)
+		actionDisabled.value = true
+		try {
+			isVerifiedUser.value = await roundStore.isVerifiedUser(dappStore.user.address)
+			isAlreadyContributed.value = await roundStore.isAlreadyContributed(
+				dappStore.user.address,
+			)
+		} catch (err: any) {
+			console.error(err)
+		} finally {
+			actionDisabled.value = false
+		}
 	}
 })
-
-// const { events } = useContract({
-// 	...fundingRound,
-// 	fetch: false,
-// })
-
-// client.value.watchContractEvent({
-// 	...fundingRound,
-// 	eventName: events[0].name,
-// 	onLogs: logs => {
-// 		console.log(logs)
-// 	},
-// })
-// console.log('watching event:', events[0].name)
 
 const fundingRoundProps = computed(() => {
 	if (!roundStore.round.address) return null
@@ -128,9 +126,6 @@ const maciFactoryProps = computed(() => {
 	}
 })
 
-const isSelectable = computed(
-	() => roundStore.roundStatus === 'contribution' || roundStore.roundStatus === 'finalized',
-)
 const selectedRecipients = ref<Set<Recipient>>(new Set())
 
 function onClickSelectRecipient(recipient: Recipient) {
@@ -156,17 +151,27 @@ watchDeep(voteInputs, () => {
 // ===================== Actions =====================
 
 const contributeDisabled = computed(() => {
+	if (actionDisabled.value) return true
 	if (!dappStore.isConnected) return true
-	if (selectedRecipients.value.size === 0) return true
 	if (!isVerifiedUser.value) return true
 	if (isAlreadyContributed.value) return true
 	return roundStatus.value !== 'contribution'
 })
 function onClickContribute() {
-	showContributeModal({ votes: votes.value })
+	showContributeModal({
+		recipients: recipients.value,
+		onClosedCallback: async () => {
+			console.log('onClosedCallback')
+			isVerifiedUser.value = await roundStore.isVerifiedUser(dappStore.user.address)
+			isAlreadyContributed.value = await roundStore.isAlreadyContributed(
+				dappStore.user.address,
+			)
+		},
+	})
 }
 
 const reallocateDisabled = computed(() => {
+	if (actionDisabled.value) return true
 	if (!dappStore.isConnected) return true
 	if (roundStatus.value !== 'contribution' && roundStatus.value !== 'reallocation') return true
 	if (!isVerifiedUser.value) return true
@@ -181,6 +186,7 @@ function onClickReallocate() {
 }
 
 const claimDisabled = computed(() => {
+	if (actionDisabled.value) return true
 	if (!dappStore.isConnected) return true
 	if (selectedRecipients.value.size === 0) return true
 	return roundStatus.value !== 'finalized' || !tallyJson.value
@@ -272,8 +278,10 @@ function onClickClaim() {
 						Switch Network
 					</n-button>
 					<Address :address="dappStore.user.address" />
-					<p>Verified: {{ isVerifiedUser }}</p>
-					<p>Contributed: {{ isAlreadyContributed }}</p>
+					<div v-if="dappStore.isConnected">
+						<p>Verified: {{ isVerifiedUser }}</p>
+						<p>Contributed: {{ isAlreadyContributed }}</p>
+					</div>
 				</div>
 
 				<div class="flex flex-wrap gap-1">
@@ -281,68 +289,14 @@ function onClickClaim() {
 					<n-button :disabled="contributeDisabled" @click="onClickContribute">
 						Contribute
 					</n-button>
-					<n-button :disabled="reallocateDisabled" @click="onClickReallocate"
-						>Reallocate Votes</n-button
-					>
+					<n-button :disabled="reallocateDisabled" @click="onClickReallocate">
+						Send votes
+					</n-button>
 					<n-button @click="onClickClaim" :disabled="claimDisabled"> Claim </n-button>
 				</div>
 			</div>
 
-			<div
-				class="w-full flex flex-col gap-y-5"
-				v-if="
-					(roundStatus === 'contribution' || roundStatus === 'reallocation') &&
-					selectedRecipients.size > 0
-				"
-			>
-				<div class="text-xl flex justify-center">
-					<p>Votes</p>
-				</div>
-
-				<div class="flex flex-col gap-y-2">
-					<div
-						class="w-full grid grid-cols-5 gap-x-2 items-center"
-						v-for="recipient in selectedRecipients"
-						:key="recipient.index"
-					>
-						<p class="col-span-2 truncate">{{ recipient.name }}</p>
-						<div class="col-span-3">
-							<n-input-number
-								v-model:value="voteInputs[recipient.index]"
-								:step="1000"
-								:min="0"
-							/>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Recipient list -->
-			<div v-if="recipients.length">
-				<div class="text-xl flex flex-col items-center mb-2">
-					<p>Recipients</p>
-					<p class="text-sm">(select to enable actions)</p>
-				</div>
-
-				<div class="grid grid-cols-2 md:grid-cols-4 gap-1">
-					<div
-						class="border rounded px-2 py-1 flex gap-x-1"
-						:class="{
-							'cursor-pointer': isSelectable,
-							'border-green-500': isSelectable && selectedRecipients.has(recipient),
-						}"
-						v-for="recipient in recipients"
-						:key="recipient.index"
-						@click="onClickSelectRecipient(recipient)"
-					>
-						<p>{{ recipient.index }}.</p>
-						<p>{{ recipient.name }}</p>
-						<!-- <Address :address="recipient.recipient" /> -->
-					</div>
-				</div>
-			</div>
-
-			<Participants :users="users" />
+			<Participants :users="users" :recipients="recipients" />
 
 			<div v-if="tallyResult.length">
 				<div class="text-xl flex justify-center mb-2">

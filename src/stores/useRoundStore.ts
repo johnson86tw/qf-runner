@@ -1,6 +1,5 @@
 import { BigNumber, Contract, Signer, providers } from 'ethers'
 import { defineStore } from 'pinia'
-import { ROUNDS } from '@/constants'
 import {
 	ERC20__factory,
 	FundingRoundFactory__factory,
@@ -29,7 +28,7 @@ import invariant from 'tiny-invariant'
 import { isAddress } from 'ethers/lib/utils'
 import { useDappStore } from './useDappStore'
 import { DateTime } from 'luxon'
-import { getAddress, type Abi, getAbiItem } from 'viem'
+import { getAddress, type Abi, getAbiItem, parseAbiItem } from 'viem'
 
 export type Contributor = {
 	keypair: Keypair
@@ -276,7 +275,7 @@ export const useRoundStore = defineStore('round', {
 			return await userRegistry.isVerifiedUser(address)
 		},
 		async isAlreadyContributed(address: string) {
-			invariant(this.isRoundLoaded, 'useRoundStore.isAlreadyContributed')
+			invariant(this.isRoundLoaded, 'useRoundStore.isAlreadyContributed.isRoundLoaded')
 			const dappStore = useDappStore()
 			const fundingRound = await FundingRound__factory.connect(
 				this.round.address,
@@ -284,6 +283,22 @@ export const useRoundStore = defineStore('round', {
 			)
 			const contributorStatus = await fundingRound.contributors(address)
 			return contributorStatus.isRegistered
+		},
+		/**
+		 * @dev
+		 */
+		async isVoted(address: string) {
+			const dappStore = useDappStore()
+			const logs = await dappStore.client.getLogs({
+				address: getAddress(this.round.maciAddress),
+				event: getAbiItem({
+					abi: MACI__factory.abi,
+					name: 'PublishMessage',
+				}),
+				fromBlock: 0n,
+				toBlock: BigInt(dappStore.blockNumber),
+			})
+			console.log(logs)
 		},
 		getNativeTokenContract(signer: Signer) {
 			invariant(this.isRoundLoaded, 'useRoundStore.isRoundLoaded')
@@ -344,8 +359,22 @@ export const useRoundStore = defineStore('round', {
 			const signature = (await signer.signMessage(message)) as string
 			return sha256(signature)
 		},
+		async getAllowance(address: string) {
+			invariant(this.isRoundLoaded, 'useRoundStore.getAllowance.isRoundLoaded')
+			const dappStore = useDappStore()
+			const token = ERC20__factory.connect(this.round.nativeTokenAddress, dappStore.provider)
+			const allowance = await token.allowance(address, this.round.address)
+			return allowance.toBigInt()
+		},
+		async getTokenBalance(address: string) {
+			invariant(this.isRoundLoaded, 'useRoundStore.getTokenBalance.isRoundLoaded')
+			const dappStore = useDappStore()
+			const token = ERC20__factory.connect(this.round.nativeTokenAddress, dappStore.provider)
+			const balance = await token.balanceOf(address)
+			return balance.toBigInt()
+		},
 		async approveToken(signer: Signer) {
-			invariant(this.isRoundLoaded, 'useRoundStore.isRoundLoaded')
+			invariant(this.isRoundLoaded, 'useRoundStore.approveToken.isRoundLoaded')
 			const token = this.getNativeTokenContract(signer)
 			const allowance = await token.allowance(
 				await signer.getAddress(), // perf improvement
@@ -357,7 +386,7 @@ export const useRoundStore = defineStore('round', {
 			}
 		},
 		async contribute(encryptionKey: string, signer: Signer) {
-			invariant(this.isRoundLoaded, 'useRoundStore.isRoundLoaded')
+			invariant(this.isRoundLoaded, 'useRoundStore.contribute.isRoundLoaded')
 
 			if (!encryptionKey) {
 				throw new Error('Missing encryption key')

@@ -29,7 +29,6 @@ withDefaults(
 				>
 					<p>{{ recipient.index }}.</p>
 					<p>{{ recipient.name }}</p>
-					<!-- <Address :address="recipient.recipient" /> -->
 				</div>
 			</div>
 		</div>

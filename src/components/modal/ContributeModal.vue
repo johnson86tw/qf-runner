@@ -1,25 +1,27 @@
 <script setup lang="ts">
 import { VueFinalModal } from 'vue-final-modal'
 import type { StepsProps } from 'naive-ui'
-import { useBoardStore } from '@vue-dapp/vd-board'
 import { useDappStore } from '@/stores/useDappStore'
-import { watchImmediate } from '@vueuse/core'
+import { watchDeep } from '@vueuse/core'
 import { ContributeModalProps } from '@/utils/modals'
-import { useRoundStore } from '@/stores/useRoundStore'
+import { Votes, useRoundStore } from '@/stores/useRoundStore'
 import { Keypair } from 'clrfund-maci-utils'
 import invariant from 'tiny-invariant'
 import type { TransactionReceipt } from '@ethersproject/abstract-provider'
+import { Recipient } from '@/composables/useParticipants'
+import { formatUnits } from 'viem'
 
 const props = withDefaults(defineProps<ContributeModalProps>(), {})
+const emit = defineEmits<{
+	(e: 'closed'): void
+}>()
 
 const roundStore = useRoundStore()
 const dappStore = useDappStore()
 
-const { open } = useBoardStore()
-
 const current = ref<number | null>(1)
 const currentStatus = ref<StepsProps['status']>('process')
-const totalSteps = 6
+const totalSteps = 5
 
 function next() {
 	if (current.value === null) current.value = 1
@@ -37,7 +39,6 @@ const step2Error = ref<string | null>(null)
 const step3Error = ref<string | null>(null)
 const step4Error = ref<string | null>(null)
 const step5Error = ref<string | null>(null)
-const step6Error = ref<string | null>(null)
 
 watchEffect(() => {
 	if (
@@ -45,8 +46,7 @@ watchEffect(() => {
 		step2Error.value ||
 		step3Error.value ||
 		step4Error.value ||
-		step5Error.value ||
-		step6Error.value
+		step5Error.value
 	) {
 		currentStatus.value = 'error'
 	} else {
@@ -54,54 +54,130 @@ watchEffect(() => {
 	}
 })
 
-// ====================== step 1 ======================
-
-watchImmediate(
+// wallet changed situation
+watch(
 	() => dappStore.user.address,
 	async () => {
-		if (dappStore.isConnected && !dappStore.isNetworkUnmatched) {
-			currentStatus.value = 'wait'
+		currentStatus.value = 'wait'
+		try {
 			const isVerifiedUser = await roundStore.isVerifiedUser(dappStore.user.address)
+			if (!isVerifiedUser) {
+				emit('closed')
+				return
+			}
+
 			const isAlreadyContributed = await roundStore.isAlreadyContributed(
 				dappStore.user.address,
 			)
-			currentStatus.value = 'process'
-
 			if (isAlreadyContributed) {
-				current.value = 1
-				step1Error.value = "You've contributed. You can go to reallocate votes"
+				emit('closed')
 				return
 			}
+		} catch (err: any) {
+			console.error(err)
+		} finally {
+			currentStatus.value = 'process'
+		}
 
-			if (!isVerifiedUser) {
-				current.value = 1
-				step1Error.value = "Sorry, you're a unverified user."
-				return
-			}
-
-			if (current.value === 1) {
-				next()
-				currentStatus.value = 'process'
-				step1Error.value = null
-			}
+		if (current.value && current.value > 2) {
+			current.value = 2
 		}
 	},
 )
 
-watch(current, () => {
-	// ====================== step 2 ======================
+// ====================== step 1 ======================
+
+const isSelectable = computed(() => {
+	if (current.value !== 1) return false
+	return roundStore.roundStatus === 'contribution' || roundStore.roundStatus === 'finalized'
+})
+const selectedRecipients = ref<Set<Recipient>>(new Set())
+
+const voteInputs = ref<number[]>(Array(500).fill(0))
+
+watchDeep(voteInputs, () => {
+	const votes: Votes = []
+	for (let i = 0; i < voteInputs.value.length; i++) {
+		if (voteInputs.value[i] > 0) {
+			votes.push([i, BigInt(voteInputs.value[i])])
+		}
+	}
+	roundStore.setVotes(votes)
+})
+
+function onClickSelectRecipient(recipient: Recipient) {
+	if (selectedRecipients.value.has(recipient)) {
+		selectedRecipients.value.delete(recipient)
+		voteInputs.value[recipient.index] = 0
+		return
+	}
+	selectedRecipients.value.add(recipient)
+}
+
+function onClickConfirmVotes() {
+	if (!roundStore.votes.length) {
+		step1Error.value = 'No votes'
+		setTimeout(() => {
+			step1Error.value = null
+		}, 1000)
+		return
+	}
+
+	next()
+}
+
+const encryptionKey = ref('')
+const signedAddress = ref('')
+const allowance = ref(0n)
+const tokenBalance = ref(0n)
+
+watch(current, async (val, oldVal) => {
+	step1Error.value = null
+	step2Error.value = null
+	step3Error.value = null
+	step4Error.value = null
+	step5Error.value = null
+	receipt.value = null
+
 	if (current.value === 2) {
-		step2Error.value = null
-		if (!props.votes.length) {
-			currentStatus.value = 'error'
-			step2Error.value = 'No votes'
+		if (encryptionKey.value && oldVal === 1) {
+			// user may change wallet
+			if (signedAddress.value === dappStore.user.address) {
+				next()
+			}
+		}
+	}
+
+	if (current.value === 3) {
+		currentStatus.value = 'wait'
+		try {
+			allowance.value = await roundStore.getAllowance(dappStore.user.address)
+			if (allowance.value >= roundStore.total.toBigInt()) {
+				next()
+			}
+		} catch (err: any) {
+			step3Error.value = err
+		} finally {
+			currentStatus.value = 'process'
+		}
+	}
+
+	if (current.value === 4) {
+		currentStatus.value = 'wait'
+		try {
+			tokenBalance.value = await roundStore.getTokenBalance(dappStore.user.address)
+			if (tokenBalance.value < roundStore.total.toBigInt()) {
+				throw new Error('Insufficient tokens')
+			}
+		} catch (err: any) {
+			step4Error.value = err
+		} finally {
+			currentStatus.value = 'process'
 		}
 	}
 })
 
-// ====================== step 3 ======================
-
-const encryptionKey = ref('')
+// ====================== step 2 ======================
 
 async function onClickSignMessage() {
 	step3Error.value = null
@@ -111,6 +187,7 @@ async function onClickSignMessage() {
 			dappStore.signer,
 			dappStore.signatureMessage,
 		)
+		signedAddress.value = dappStore.user.address
 		next()
 	} catch (err: unknown) {
 		step3Error.value = 'Failed to getEncryptionKey'
@@ -119,13 +196,34 @@ async function onClickSignMessage() {
 	}
 }
 
-// ====================== step 4 ======================
+// ====================== step 3 ======================
 
 async function onClickApproveToken() {
-	step4Error.value = null
+	step3Error.value = null
 	try {
 		currentStatus.value = 'wait'
 		await roundStore.approveToken(dappStore.signer)
+		next()
+	} catch (err: any) {
+		step3Error.value = err
+	} finally {
+		currentStatus.value = 'process'
+	}
+}
+
+// ====================== step 4 ======================
+
+const contributor = ref<{
+	keypair: Keypair
+	stateIndex: any
+} | null>(null)
+
+async function onClickContribute() {
+	step4Error.value = null
+	try {
+		if (!encryptionKey.value) throw new Error('No encryption key')
+		currentStatus.value = 'wait'
+		contributor.value = await roundStore.contribute(encryptionKey.value, dappStore.signer)
 		next()
 	} catch (err: any) {
 		step4Error.value = err
@@ -136,31 +234,10 @@ async function onClickApproveToken() {
 
 // ====================== step 5 ======================
 
-const contributor = ref<{
-	keypair: Keypair
-	stateIndex: any
-} | null>(null)
-
-async function onClickContribute() {
-	step5Error.value = null
-	try {
-		if (!encryptionKey.value) throw new Error('No encryption key')
-		currentStatus.value = 'wait'
-		contributor.value = await roundStore.contribute(encryptionKey.value, dappStore.signer)
-		next()
-	} catch (err: any) {
-		step5Error.value = err
-	} finally {
-		currentStatus.value = 'process'
-	}
-}
-
-// ====================== step 6 ======================
-
 const receipt = ref<TransactionReceipt | null>(null)
 
 async function onClickSendVotes() {
-	step6Error.value = null
+	step5Error.value = null
 
 	try {
 		invariant(contributor.value, 'ContributeModal.onClickSendVotes')
@@ -169,11 +246,15 @@ async function onClickSendVotes() {
 		receipt.value = await roundStore.sendVotes(contributor.value, dappStore.signer)
 		console.log('Transaction success', receipt.value)
 	} catch (err: any) {
-		step6Error.value = err
+		step5Error.value = err
 	} finally {
 		currentStatus.value = 'process'
 	}
 }
+
+onUnmounted(() => {
+	roundStore.resetVotes()
+})
 </script>
 
 <template>
@@ -186,23 +267,43 @@ async function onClickSendVotes() {
 			<n-space vertical>
 				<n-steps vertical :current="(current as number)" :status="currentStatus">
 					<!-- 1 -->
-					<n-step title="Confirm your address">
-						<n-button v-if="current === 1 && !dappStore.isConnected" @click="open">
-							Connect
-						</n-button>
-						<n-button
-							v-if="dappStore.isNetworkUnmatched"
-							@click="dappStore.switchChain"
-						>
-							Switch Network
-						</n-button>
-						<p>{{ dappStore.user.address }}</p>
-						<p class="text-red-500">{{ step1Error }}</p>
-					</n-step>
+					<n-step title="Confirm Votes">
+						<div class="grid grid-cols-2 md:grid-cols-4 gap-1">
+							<div
+								class="border rounded px-2 py-1 flex gap-x-1"
+								:class="{
+									'cursor-pointer': isSelectable,
+									'border-green-500':
+										isSelectable && selectedRecipients.has(recipient),
+								}"
+								v-for="recipient in recipients"
+								:key="recipient.index"
+								@click="onClickSelectRecipient(recipient)"
+							>
+								<p>{{ recipient.index }}.</p>
+								<p>{{ recipient.name }}</p>
+							</div>
+						</div>
 
-					<!-- 2 -->
-					<n-step title="Confirm your votes">
-						<div v-for="vote in votes" :key="vote[0]">
+						<div class="flex flex-col gap-y-1 my-5">
+							<div
+								class="w-full grid grid-cols-5 gap-x-1 items-center"
+								v-for="recipient in selectedRecipients"
+								:key="recipient.index"
+							>
+								<p class="col-span-2 truncate">{{ recipient.name }}</p>
+								<div class="col-span-3">
+									<n-input-number
+										:disabled="current !== 1"
+										v-model:value="voteInputs[recipient.index]"
+										:step="1000"
+										:min="0"
+									/>
+								</div>
+							</div>
+						</div>
+
+						<div v-for="vote in roundStore.votes" :key="vote[0]">
 							<p>
 								<span>Index {{ vote[0] }}</span>
 								<span> - </span>
@@ -211,59 +312,95 @@ async function onClickSendVotes() {
 							</p>
 						</div>
 
-						<div v-if="current === 2" class="mt-2">
-							<p class="text-red-500" v-if="step2Error">{{ step2Error }}</p>
-							<n-button v-else @click="next">Confirm</n-button>
+						<div v-if="current === 1" class="mt-2">
+							<p class="text-red-500" v-if="step1Error">{{ step1Error }}</p>
+							<n-button v-if="roundStore.votes.length" @click="onClickConfirmVotes">
+								Confirm Votes
+							</n-button>
 						</div>
 					</n-step>
 
-					<!-- 3 -->
+					<!-- 2 -->
 					<n-step title="Generate Encryption Key">
-						<n-button
-							v-if="current === 3"
-							:loading="currentStatus === 'wait'"
-							@click="onClickSignMessage"
-						>
-							Sign Message
-						</n-button>
-						<p class="text-red-500">{{ step3Error }}</p>
+						<div v-if="current && current >= 2">
+							<p>Signed Address: {{ signedAddress }}</p>
+						</div>
+
+						<div class="flex gap-1" v-if="current === 2">
+							<n-button :disabled="currentStatus === 'wait'" @click="prev">
+								Back
+							</n-button>
+							<n-button
+								v-if="current === 2"
+								:loading="currentStatus === 'wait'"
+								@click="onClickSignMessage"
+							>
+								Sign Message
+							</n-button>
+						</div>
+
+						<p class="text-red-500">{{ step2Error }}</p>
+					</n-step>
+
+					<!-- 3 -->
+					<n-step title="Approve Token">
+						<div v-if="current && current >= 3">
+							<p>
+								Total contribution:
+								{{ formatUnits(roundStore.total.toBigInt(), 18) }}
+							</p>
+							<p>Existing allowance: {{ formatUnits(allowance, 18) }}</p>
+						</div>
+
+						<div class="flex gap-1" v-if="current === 3">
+							<n-button :disabled="currentStatus === 'wait'" @click="prev">
+								Back
+							</n-button>
+
+							<n-button
+								:loading="currentStatus === 'wait'"
+								@click="onClickApproveToken"
+							>
+								Send Transaction
+							</n-button>
+						</div>
+
+						<p>{{ step3Error }}</p>
 					</n-step>
 
 					<!-- 4 -->
-					<n-step title="Tx: Approve Token">
-						<n-button
-							v-if="current === 4"
-							:loading="currentStatus === 'wait'"
-							@click="onClickApproveToken"
-						>
-							Send a Transaction
-						</n-button>
-						<p>{{ step4Error }}</p>
+					<n-step title="Contribute">
+						<div v-if="current && current >= 4">
+							<p>Token balance: {{ formatUnits(tokenBalance, 18) }}</p>
+						</div>
+
+						<div class="flex gap-1" v-if="current === 4">
+							<n-button :disabled="currentStatus === 'wait'" @click="current = 1">
+								Back
+							</n-button>
+
+							<n-button
+								:loading="currentStatus === 'wait'"
+								@click="onClickContribute"
+							>
+								Send Transaction
+							</n-button>
+						</div>
+
+						<p class="text-red-500">{{ step4Error }}</p>
 					</n-step>
 
 					<!-- 5 -->
-					<n-step title="Tx: Contribute">
+					<n-step title="Send Votes">
 						<n-button
 							v-if="current === 5"
 							:loading="currentStatus === 'wait'"
-							@click="onClickContribute"
-						>
-							Send a Transaction
-						</n-button>
-						<p class="text-red-500">{{ step5Error }}</p>
-					</n-step>
-
-					<!-- 6 -->
-					<n-step title="Tx: Send Votes">
-						<n-button
-							v-if="current === 6"
-							:loading="currentStatus === 'wait'"
 							@click="onClickSendVotes"
 						>
-							Send a Transaction
+							Send Transaction
 						</n-button>
 						<div class="mt-5">
-							<p v-if="step6Error" class="text-red-500">{{ step6Error }}</p>
+							<p v-if="step5Error" class="text-red-500">{{ step5Error }}</p>
 							<div v-else-if="receipt">
 								<p>Transaction Success!</p>
 								<p>{{ receipt }}</p>

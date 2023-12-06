@@ -12,12 +12,12 @@ import { showExecModal } from '@/utils/modals'
 import { useParticipants } from '@/composables/useParticipants'
 
 const dappStore = useDappStore()
+const factoryStore = useFactoryStore()
+factoryStore.resetFactory()
 
 const route = useRoute()
-
 const factoryAddress = ref<string>(route.params.address as string)
 
-const factoryStore = useFactoryStore()
 const { isFactoryLoaded, isFactoryLoading, factory } = storeToRefs(factoryStore)
 
 const { client } = storeToRefs(dappStore)

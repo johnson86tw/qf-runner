@@ -5,15 +5,28 @@ import pkg from '../../package.json'
 
 const dappStore = useDappStore()
 
+const notification = useNotification()
+
 watchImmediate(
 	() => dappStore.network,
 	async () => {
-		dappStore.fetchBlockNumber()
+		try {
+			await dappStore.fetchBlockNumber()
+		} catch (err: any) {
+			console.error(err)
+			notification.error({
+				content: err.message,
+			})
+		}
 	},
 )
 
-setInterval(async () => {
-	dappStore.fetchBlockNumber()
+const interval = setInterval(async () => {
+	try {
+		await dappStore.fetchBlockNumber()
+	} catch (err: any) {
+		clearInterval(interval)
+	}
 }, 4200)
 </script>
 

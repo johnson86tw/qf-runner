@@ -32,7 +32,8 @@ export function showEventModal(options: ShowEventModalOption) {
 }
 
 export type ContributeModalProps = {
-	votes: Vote[]
+	recipients: Recipient[]
+	onClosedCallback?: () => void
 }
 
 export function showContributeModal(options: ContributeModalProps) {
@@ -44,6 +45,7 @@ export function showContributeModal(options: ContributeModalProps) {
 				close()
 			},
 			onClosed() {
+				options.onClosedCallback && options.onClosedCallback()
 				close()
 			},
 		},
@@ -107,7 +109,7 @@ export function showExecModal(options: ExecModalOption) {
 			onConfirm() {
 				close()
 			},
-			onClosedd() {
+			onClosed() {
 				close()
 			},
 		},
