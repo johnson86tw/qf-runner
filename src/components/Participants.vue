@@ -27,8 +27,9 @@ withDefaults(
 					v-for="recipient in recipients"
 					:key="recipient.index"
 				>
+					<p>{{ recipient.index }}</p>
 					<p>{{ recipient.name }}</p>
-					<Address :address="recipient.recipient" />
+					<!-- <Address :address="recipient.recipient" /> -->
 				</div>
 			</div>
 		</div>
