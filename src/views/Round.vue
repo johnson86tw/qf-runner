@@ -138,7 +138,7 @@ watchDeep(voteInputs, () => {
 // ===================== Actions =====================
 
 const contributeDisabled = computed(() => {
-	if (!dappStore.isConnected) return false
+	if (!dappStore.isConnected) return true
 	if(selectedRecipients.value.size === 0) return true
 	return roundStatus.value !== 'contribution'
 })
@@ -147,7 +147,7 @@ function onClickContribute() {
 }
 
 const claimDisabled = computed(() => {
-	if (!dappStore.isConnected) return false
+	if (!dappStore.isConnected) return true
 	if(selectedRecipients.value.size === 0) return true
 	return (
 		roundStatus.value !== 'finalized' || !tallyJson.value 
@@ -250,14 +250,14 @@ function onClickSelectRecipient(recipient: Recipient) {
 					<p><Address :address="dappStore.user.address "/></p>
 				</div>
 
-				<n-button-group class="flex flex-wrap gap-y-1">
+				<div class="flex flex-wrap gap-1">
 					<n-button disabled>Add Matching Funds</n-button>
 					<n-button :disabled="contributeDisabled" @click="onClickContribute">
 						Contribute
 					</n-button>
 					<n-button disabled>Reallocate Votes</n-button>
 					<n-button @click="onClickClaim" :disabled="claimDisabled"> Claim </n-button>
-				</n-button-group>
+				</div>
 			</div>
 
 			<div

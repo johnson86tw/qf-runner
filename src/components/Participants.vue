@@ -23,11 +23,11 @@ withDefaults(
 
 			<div class="grid grid-cols-2 md:grid-cols-4 gap-1">
 				<div
-					class="border rounded px-2 py-1"
+					class="border rounded px-2 py-1 flex gap-x-1"
 					v-for="recipient in recipients"
 					:key="recipient.index"
 				>
-					<p>{{ recipient.index }}</p>
+					<p>{{ recipient.index }}.</p>
 					<p>{{ recipient.name }}</p>
 					<!-- <Address :address="recipient.recipient" /> -->
 				</div>

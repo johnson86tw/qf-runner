@@ -31,7 +31,11 @@ export const ROUNDS: Round[] = [
 		network: 'arbitrum',
 		address: '0x806F08B7DD31fE0267e8c70C4bF8C4BfbBddE760',
 	},
-	// The default arbitrum-goerli round
+	{
+		name: 'Round 12/6, 2023',
+		network: 'arbitrum-goerli',
+		address: '0x98926bc18190892Ac02db38170Db0eC02575B0C4',
+	},
 	{
 		name: 'Infinite Round',
 		network: 'arbitrum-goerli',

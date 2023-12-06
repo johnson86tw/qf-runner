@@ -245,7 +245,7 @@ function onClickCancelCurrentRound() {
 							v-if="factoryRoundsLoading"
 							class="w-4 h-4 text-gray-600 inline"
 						/>
-						<p v-if="!factoryRounds.length">no round</p>
+						<p v-else-if="!factoryRounds.length">no round</p>
 					</div>
 
 					<ul
