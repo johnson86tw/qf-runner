@@ -1,27 +1,24 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { getAddress, getAbiItem, parseAbiItem } from 'viem'
+import { getAddress } from 'viem'
 import ContractUI from '@/components/ContractUI.vue'
 import {
 	FundingRoundFactory__factory,
 	FundingRound__factory,
 	MACIFactory__factory,
 	MACI__factory,
-	SimpleRecipientRegistry__factory,
 } from 'clrfund-contracts/build/typechain'
 
 import { useDappStore } from '@/stores/useDappStore'
-import { useRoundStore } from '@/stores/useRoundStore'
+import { Votes, useRoundStore } from '@/stores/useRoundStore'
 import { DateTime } from 'luxon'
-import { watchImmediate, whenever } from '@vueuse/core'
+import { watchDeep, whenever } from '@vueuse/core'
 import { useToken } from '@/composables/useToken'
 import { showContributeModal } from '@/utils/modals'
-import { useFactoryStore } from '@/stores/useFactoryStore'
 import { Recipient, useParticipants } from '@/composables/useParticipants'
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
-const factoryStore = useFactoryStore()
 
 const route = useRoute()
 roundStore.setRoundAddress(route.params.address as string)
@@ -106,39 +103,24 @@ const maciFactoryProps = computed(() => {
 	}
 })
 
-/**
- * ======================= Votes =======================
- */
+const isSelectable = computed(() => roundStore.roundStatus === 'contribution')
+const selectedRecipients = ref<Set<Recipient>>(new Set())
 
-const votesInput = ref(
-	'[[0, 1000], [1, 2000], [2, 2000], [3, 2000], [4, 2000], [5, 2000], [6, 2000], [7, 2000]]',
-)
-const isVotesError = ref(false)
+const voteInputs = ref<number[]>(Array(500).fill(0))
 
-watchImmediate(votesInput, () => {
-	let votes
-	try {
-		const arr = JSON.parse(votesInput.value)
-		votes = arr.map(vote => {
-			return [vote[0], BigInt(vote[1])]
-		})
-	} catch (err: any) {
-		isVotesError.value = true
-		return
+watchDeep(voteInputs, () => {
+	const votes: Votes = []
+	for (let i = 0; i < voteInputs.value.length; i++) {
+		if (voteInputs.value[i] > 0) {
+			votes.push([i, BigInt(voteInputs.value[i])])
+		}
 	}
-	isVotesError.value = false
-	const roundStore = useRoundStore()
 	roundStore.setVotes(votes)
 })
 
 function onClickContribute() {
 	showContributeModal({ votes: votes.value })
 }
-
-// dev
-const isSelectable = computed(() => true || roundStore.roundStatus === 'contribution')
-const selectedRecipients = ref<Set<Recipient>>(new Set())
-const voteInputs = ref<number[]>(Array(100).fill(0))
 
 function onClickSelectRecipient(recipient: Recipient) {
 	if (selectedRecipients.value.has(recipient)) {
@@ -150,7 +132,7 @@ function onClickSelectRecipient(recipient: Recipient) {
 </script>
 
 <template>
-	<div class="flex flex-col justify-center w-full items-center p-5">
+	<div class="flex flex-col justify-center w-full items-center">
 		<div class="max-w-[800px] w-full items-center flex flex-col gap-y-2">
 			<div class="text-xl flex justify-center mb-2">
 				<p>Round</p>
@@ -258,7 +240,7 @@ function onClickSelectRecipient(recipient: Recipient) {
 					<p>Recipients</p>
 				</div>
 
-				<div class="flex flex-wrap gap-1">
+				<div class="grid grid-cols-2 md:grid-cols-4 gap-1">
 					<div
 						class="border rounded px-2 py-1"
 						:class="{

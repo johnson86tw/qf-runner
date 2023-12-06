@@ -5,6 +5,7 @@ import {
 	ERC20__factory,
 	FundingRoundFactory__factory,
 	FundingRound__factory,
+	IUserRegistry__factory,
 	MACIFactory__factory,
 	MACI__factory,
 } from 'clrfund-contracts/build/typechain'
@@ -153,7 +154,7 @@ export const useRoundStore = defineStore('round', {
 				return total + voiceCredits * factor
 			}, 0n)
 
-			console.log(res)
+			console.log('total tokens: ', res)
 
 			return BigNumber.from(res) // from bigint to BigNumber
 		},
@@ -262,8 +263,27 @@ export const useRoundStore = defineStore('round', {
 		setVotes(votes: Votes) {
 			this.votes = votes
 		},
+		async isVerifiedUser(address: string) {
+			invariant(this.isRoundLoaded, 'useRoundStore.isVerifiedUser')
+			const dappStore = useDappStore()
+			const userRegistry = await IUserRegistry__factory.connect(
+				this.round.userRegistry,
+				dappStore.provider,
+			)
+			return await userRegistry.isVerifiedUser(address)
+		},
+		async isAlreadyContributed(address: string) {
+			invariant(this.isRoundLoaded, 'useRoundStore.isAlreadyContributed')
+			const dappStore = useDappStore()
+			const fundingRound = await FundingRound__factory.connect(
+				this.round.address,
+				dappStore.provider,
+			)
+			const contributorStatus = await fundingRound.contributors(address)
+			return contributorStatus.isRegistered
+		},
 		getNativeTokenContract(signer: Signer) {
-			invariant(this.isRoundLoaded, 'isRoundLoaded')
+			invariant(this.isRoundLoaded, 'useRoundStore.isRoundLoaded')
 			return ERC20__factory.connect(this.round.nativeTokenAddress, signer)
 		},
 		async getContributor(encryptionKey: string) {
@@ -322,7 +342,7 @@ export const useRoundStore = defineStore('round', {
 			return sha256(signature)
 		},
 		async approveToken(signer: Signer) {
-			invariant(this.isRoundLoaded, 'isRoundLoaded')
+			invariant(this.isRoundLoaded, 'useRoundStore.isRoundLoaded')
 			const token = this.getNativeTokenContract(signer)
 			const allowance = await token.allowance(
 				await signer.getAddress(), // perf improvement
@@ -334,7 +354,7 @@ export const useRoundStore = defineStore('round', {
 			}
 		},
 		async contribute(encryptionKey: string, signer: Signer) {
-			invariant(this.isRoundLoaded, 'isRoundLoaded')
+			invariant(this.isRoundLoaded, 'useRoundStore.isRoundLoaded')
 
 			if (!encryptionKey) {
 				throw new Error('Missing encryption key')
@@ -357,7 +377,7 @@ export const useRoundStore = defineStore('round', {
 			return contributor
 		},
 		async sendVotes(contributor: Contributor, signer: Signer) {
-			invariant(this.isRoundLoaded, 'isRoundLoaded')
+			invariant(this.isRoundLoaded, 'useRoundStore.isRoundLoaded')
 
 			const messages: Message[] = []
 			const encPubKeys: PubKey[] = []
@@ -388,7 +408,7 @@ export const useRoundStore = defineStore('round', {
 			)
 		},
 		async claimFunds(recipientIndexes: number[], tally: Tally, signer: Signer) {
-			invariant(this.isRoundLoaded, 'isRoundLoaded')
+			invariant(this.isRoundLoaded, 'useRoundStore.isRoundLoaded')
 
 			const recipientTreeDepth = (await this.round.maciContract!.treeDepths())
 				.voteOptionTreeDepth

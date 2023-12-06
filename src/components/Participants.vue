@@ -21,7 +21,7 @@ withDefaults(
 				<p>Recipients</p>
 			</div>
 
-			<div class="flex flex-wrap gap-1">
+			<div class="grid grid-cols-2 md:grid-cols-4 gap-1">
 				<div
 					class="border rounded px-2 py-1"
 					v-for="recipient in recipients"
@@ -39,7 +39,7 @@ withDefaults(
 				<p>Eligible donors</p>
 			</div>
 
-			<div class="flex flex-wrap gap-1">
+			<div class="grid grid-cols-2 md:grid-cols-4 gap-1">
 				<div class="border rounded px-2 py-1" v-for="user in users" :key="user.address">
 					<Address :address="user.address" />
 				</div>
