@@ -12,9 +12,9 @@ import {
 import { useDappStore } from '@/stores/useDappStore'
 import { Votes, useRoundStore } from '@/stores/useRoundStore'
 import { DateTime } from 'luxon'
-import { watchDeep, whenever } from '@vueuse/core'
+import { watchDeep, watchImmediate, whenever } from '@vueuse/core'
 import { useToken } from '@/composables/useToken'
-import { showClaimFundsModal, showContributeModal, showExecModal } from '@/utils/modals'
+import { showClaimFundsModal, showContributeModal, showReallocateModal } from '@/utils/modals'
 import { Recipient, useParticipants } from '@/composables/useParticipants'
 import { ROUNDS } from '@/constants'
 import { useBoardStore } from '@vue-dapp/vd-board'
@@ -63,6 +63,16 @@ whenever(
 		}
 	},
 )
+
+const isVerifiedUser = ref(false)
+const isAlreadyContributed = ref(false)
+
+watchEffect(async () => {
+	if (dappStore.user.address && roundStore.isRoundLoaded) {
+		isVerifiedUser.value = await roundStore.isVerifiedUser(dappStore.user.address)
+		isAlreadyContributed.value = await roundStore.isAlreadyContributed(dappStore.user.address)
+	}
+})
 
 // const { events } = useContract({
 // 	...fundingRound,
@@ -123,6 +133,14 @@ const isSelectable = computed(
 )
 const selectedRecipients = ref<Set<Recipient>>(new Set())
 
+function onClickSelectRecipient(recipient: Recipient) {
+	if (selectedRecipients.value.has(recipient)) {
+		selectedRecipients.value.delete(recipient)
+		return
+	}
+	selectedRecipients.value.add(recipient)
+}
+
 const voteInputs = ref<number[]>(Array(500).fill(0))
 
 watchDeep(voteInputs, () => {
@@ -139,19 +157,33 @@ watchDeep(voteInputs, () => {
 
 const contributeDisabled = computed(() => {
 	if (!dappStore.isConnected) return true
-	if(selectedRecipients.value.size === 0) return true
+	if (selectedRecipients.value.size === 0) return true
+	if (!isVerifiedUser.value) return true
+	if (isAlreadyContributed.value) return true
 	return roundStatus.value !== 'contribution'
 })
 function onClickContribute() {
 	showContributeModal({ votes: votes.value })
 }
 
+const reallocateDisabled = computed(() => {
+	if (!dappStore.isConnected) return true
+	if (roundStatus.value !== 'contribution' && roundStatus.value !== 'reallocation') return true
+	if (!isVerifiedUser.value) return true
+	if (!isAlreadyContributed.value) return true
+	return false
+})
+
+function onClickReallocate() {
+	showReallocateModal({
+		recipients: [...recipients.value],
+	})
+}
+
 const claimDisabled = computed(() => {
 	if (!dappStore.isConnected) return true
-	if(selectedRecipients.value.size === 0) return true
-	return (
-		roundStatus.value !== 'finalized' || !tallyJson.value 
-	)
+	if (selectedRecipients.value.size === 0) return true
+	return roundStatus.value !== 'finalized' || !tallyJson.value
 })
 function onClickClaim() {
 	if (!tallyJson.value) return
@@ -160,14 +192,6 @@ function onClickClaim() {
 		recipients: [...selectedRecipients.value],
 		tally: tallyJson.value,
 	})
-}
-
-function onClickSelectRecipient(recipient: Recipient) {
-	if (selectedRecipients.value.has(recipient)) {
-		selectedRecipients.value.delete(recipient)
-		return
-	}
-	selectedRecipients.value.add(recipient)
 }
 </script>
 
@@ -242,12 +266,14 @@ function onClickSelectRecipient(recipient: Recipient) {
 					<p>Actions</p>
 				</div>
 
-				<div class="flex justify-center mb-2">
+				<div class="flex flex-col items-center mb-2">
 					<n-button v-if="!dappStore.isConnected" @click="open"> Connect </n-button>
 					<n-button v-if="dappStore.isNetworkUnmatched" @click="dappStore.switchChain">
 						Switch Network
 					</n-button>
-					<p><Address :address="dappStore.user.address "/></p>
+					<Address :address="dappStore.user.address" />
+					<p>Verified: {{ isVerifiedUser }}</p>
+					<p>Contributed: {{ isAlreadyContributed }}</p>
 				</div>
 
 				<div class="flex flex-wrap gap-1">
@@ -255,7 +281,9 @@ function onClickSelectRecipient(recipient: Recipient) {
 					<n-button :disabled="contributeDisabled" @click="onClickContribute">
 						Contribute
 					</n-button>
-					<n-button disabled>Reallocate Votes</n-button>
+					<n-button :disabled="reallocateDisabled" @click="onClickReallocate"
+						>Reallocate Votes</n-button
+					>
 					<n-button @click="onClickClaim" :disabled="claimDisabled"> Claim </n-button>
 				</div>
 			</div>
@@ -344,4 +372,4 @@ function onClickSelectRecipient(recipient: Recipient) {
 	</div>
 </template>
 
-<style scoped></style>
+<style lang="scss" scoped></style>

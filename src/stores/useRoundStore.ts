@@ -263,6 +263,9 @@ export const useRoundStore = defineStore('round', {
 		setVotes(votes: Votes) {
 			this.votes = votes
 		},
+		resetVotes() {
+			this.votes = []
+		},
 		async isVerifiedUser(address: string) {
 			invariant(this.isRoundLoaded, 'useRoundStore.isVerifiedUser')
 			const dappStore = useDappStore()
@@ -399,7 +402,7 @@ export const useRoundStore = defineStore('round', {
 
 			const fundingRound = FundingRound__factory.connect(this.roundAddress, signer)
 
-			await waitForTransaction(
+			return await waitForTransaction(
 				fundingRound.submitMessageBatch(
 					// @ts-ignore
 					messages.reverse().map(msg => msg.asContractParam()),

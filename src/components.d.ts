@@ -53,6 +53,7 @@ declare module '@vue/runtime-core' {
     NTag: typeof import('naive-ui')['NTag']
     NThing: typeof import('naive-ui')['NThing']
     Participants: typeof import('./components/Participants.vue')['default']
+    ReallocateModal: typeof import('./components/modal/ReallocateModal.vue')['default']
     RoundAddressInput: typeof import('./components/RoundAddressInput.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
