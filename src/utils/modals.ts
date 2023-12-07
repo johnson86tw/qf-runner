@@ -98,6 +98,7 @@ export type ExecModalOption = {
 	name: string
 	abi: any
 	isValidAddress?: (address: string) => boolean
+	invalidAddressErrorMsg?: string
 	onExecuted?: () => void
 }
 

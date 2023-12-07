@@ -102,6 +102,7 @@ function onClickSetCoordinator() {
 		isValidAddress: (address: string) => {
 			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
 		},
+		invalidAddressErrorMsg: 'Only owner can set coordinator.',
 		onExecuted: () => {
 			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
 		},
@@ -116,6 +117,7 @@ function onClickSetToken() {
 		isValidAddress: (address: string) => {
 			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
 		},
+		invalidAddressErrorMsg: 'Only owner can set token.',
 	})
 }
 
@@ -127,6 +129,7 @@ function onClickDeployNewRound() {
 		isValidAddress: (address: string) => {
 			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
 		},
+		invalidAddressErrorMsg: 'Only owner can deploy new round.',
 		onExecuted: () => {
 			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
 		},
@@ -141,6 +144,7 @@ function onClickSetMaciParameters() {
 		isValidAddress: (address: string) => {
 			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
 		},
+		invalidAddressErrorMsg: 'Only owner can set maci parameters.',
 		onExecuted: () => {
 			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
 		},
@@ -155,6 +159,7 @@ function onClickSetUserRegistry() {
 		isValidAddress: (address: string) => {
 			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
 		},
+		invalidAddressErrorMsg: 'Only owner can set user registry.',
 		onExecuted: () => {
 			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
 		},
@@ -169,6 +174,7 @@ function onClickSetRecipientRegistry() {
 		isValidAddress: (address: string) => {
 			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
 		},
+		invalidAddressErrorMsg: 'Only owner can set recipient registry.',
 		onExecuted: () => {
 			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
 		},
@@ -183,6 +189,7 @@ function onClickTransferOwnership() {
 		isValidAddress: (address: string) => {
 			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
 		},
+		invalidAddressErrorMsg: 'Only owner can transfer ownership.',
 		onExecuted: () => {
 			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
 		},
@@ -197,6 +204,7 @@ function onClickCancelCurrentRound() {
 		isValidAddress: (address: string) => {
 			return isAddressEqual(getAddress(address), getAddress(factoryStore.factory.owner))
 		},
+		invalidAddressErrorMsg: 'Only owner can cancel current round.',
 		onExecuted: () => {
 			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
 		},

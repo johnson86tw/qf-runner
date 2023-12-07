@@ -33,8 +33,6 @@ const inputs = computed(
 
 const isNoInput = computed(() => !inputs.value.length)
 
-console.log('Inputs', inputs.value)
-
 const current = ref<number | null>(1)
 const currentStatus = ref<StepsProps['status']>('process')
 const totalSteps = 3
@@ -118,7 +116,8 @@ watchImmediate(
 			if (props.isValidAddress && !props.isValidAddress(dappStore.user.address)) {
 				current.value = 1
 				currentStatus.value = 'error'
-				step1Error.value = 'Invalid address to execute the function'
+				step1Error.value =
+					props.invalidAddressErrorMsg || 'Invalid address to execute the function'
 				return
 			}
 
@@ -130,10 +129,6 @@ watchImmediate(
 		}
 	},
 )
-
-watchDeep(inputValues, () => {
-	console.log('inputValues', inputValues.value)
-})
 
 const error = ref<string | null>(null)
 const receipt = ref<TransactionReceipt | null>(null)
@@ -150,8 +145,6 @@ async function onClickExecTransaction() {
 
 		return input.value
 	})
-
-	console.log('args', args)
 
 	try {
 		execLoading.value = true
