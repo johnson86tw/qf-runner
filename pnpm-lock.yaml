@@ -9,11 +9,11 @@ dependencies:
     specifier: ^1.0.2
     version: 1.0.2
   '@vue-dapp/core':
-    specifier: 1.0.0-alpha.8
-    version: 1.0.0-alpha.8(pinia@2.1.7)(vue@3.3.9)
+    specifier: 1.0.0-alpha.9
+    version: 1.0.0-alpha.9(pinia@2.1.7)(vue@3.3.9)
   '@vue-dapp/vd-board':
     specifier: 1.0.0-alpha.5
-    version: 1.0.0-alpha.5(@vue-dapp/core@1.0.0-alpha.8)(pinia@2.1.7)(vue@3.3.9)
+    version: 1.0.0-alpha.5(@vue-dapp/core@1.0.0-alpha.9)(pinia@2.1.7)(vue@3.3.9)
   '@vuelidate/core':
     specifier: ^2.0.0
     version: 2.0.0(vue@3.3.9)
@@ -1852,8 +1852,8 @@ packages:
       path-browserify: 1.0.1
     dev: true
 
-  /@vue-dapp/core@1.0.0-alpha.8(pinia@2.1.7)(vue@3.3.9):
-    resolution: {integrity: sha512-BpxpLnNtqcTIaNdiOoabqPGUJNuOffkMuIjk3Az8xxVxqmsbtJZwAjRxPyw2OLodCmT/l550106M5Ghn/dKSgA==}
+  /@vue-dapp/core@1.0.0-alpha.9(pinia@2.1.7)(vue@3.3.9):
+    resolution: {integrity: sha512-OxX04TkiZtPE9w4aWxq35axRphuIh79GX0iz4IZoO2T98mufK+HS6ae4LLucN74nRNIuHZQQbYuT6pNA4D+iFQ==}
     peerDependencies:
       pinia: ^2.1.7
       vue: ^3.3.7
@@ -1863,14 +1863,14 @@ packages:
       vue: 3.3.9(typescript@5.3.2)
     dev: false
 
-  /@vue-dapp/vd-board@1.0.0-alpha.5(@vue-dapp/core@1.0.0-alpha.8)(pinia@2.1.7)(vue@3.3.9):
+  /@vue-dapp/vd-board@1.0.0-alpha.5(@vue-dapp/core@1.0.0-alpha.9)(pinia@2.1.7)(vue@3.3.9):
     resolution: {integrity: sha512-0kIwGUZ20rpsvE96XsFQvBrvMW/fbNST0mMIKNJ52/P2HeiImsMIBdlQRqENnxnLzzvh7hD17MCf42YAG+A9sQ==}
     peerDependencies:
       '@vue-dapp/core': workspace:^
       pinia: ^2.1.7
       vue: ^3.3.6
     dependencies:
-      '@vue-dapp/core': 1.0.0-alpha.8(pinia@2.1.7)(vue@3.3.9)
+      '@vue-dapp/core': 1.0.0-alpha.9(pinia@2.1.7)(vue@3.3.9)
       pinia: 2.1.7(typescript@5.3.2)(vue@3.3.9)
       vue: 3.3.9(typescript@5.3.2)
     dev: false
@@ -4974,7 +4974,7 @@ packages:
       vanilla-jsoneditor: 0.18.2
       vue: 3.3.9(typescript@5.3.2)
       vue-demi: 0.14.6(vue@3.3.9)
-      vue-global-config: 0.4.2(vue@3.3.9)
+      vue-global-config: 0.5.0(vue@3.3.9)
     dev: false
 
   /json-schema-traverse@0.4.1:
@@ -7573,8 +7573,8 @@ packages:
       vue: 3.3.9(typescript@5.3.2)
     dev: false
 
-  /vue-global-config@0.4.2(vue@3.3.9):
-    resolution: {integrity: sha512-wqnawE5VIS9yhjSUmnb9O7Rb0cgSM+he96hOyZCs8HmtiERFRK+SrpMcS+bDOwSx6WoFF77+dNdibrQFDqiqEw==}
+  /vue-global-config@0.5.0(vue@3.3.9):
+    resolution: {integrity: sha512-SYALXGtzUF/2kaHAVKX7WfiGxpaTE3/PUo2oBu07fTKX447ppQ2xulPZtntmfLJpFHcbGBY8cZ/rq8ytydahcw==}
     requiresBuild: true
     peerDependencies:
       '@vue/composition-api': '>=1'

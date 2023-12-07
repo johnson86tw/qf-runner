@@ -33,7 +33,11 @@ const { roundStatus, startTime, signUpDeadline, votingDeadline, votes } = storeT
 
 const { client } = storeToRefs(dappStore)
 
-const { balanceByUnit: roundBalance, fetchBalance: fetchRoundBalance } = useToken({
+const {
+	addTokenProp,
+	balanceByUnit: roundBalance,
+	fetchBalance: fetchRoundBalance,
+} = useToken({
 	client,
 })
 const { balanceByUnit: factoryBalance, fetchBalance: fetchFactoryBalance } = useToken({
@@ -226,7 +230,11 @@ function onClickClaim() {
 				</p>
 				<div>
 					<p>Token Address:</p>
-					<Address class="text-gray-500" :address="roundStore.round.nativeTokenAddress" />
+					<Address
+						:add-token="addTokenProp"
+						class="text-gray-500"
+						:address="roundStore.round.nativeTokenAddress"
+					/>
 				</div>
 				<p>
 					Start Time:

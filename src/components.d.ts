@@ -28,6 +28,7 @@ declare module '@vue/runtime-core' {
     'IIc:baselineLogout': typeof import('~icons/ic/baseline-logout')['default']
     'IIc:baselineSort': typeof import('~icons/ic/baseline-sort')['default']
     'IIc:baselineSwitchAccessShortcut': typeof import('~icons/ic/baseline-switch-access-shortcut')['default']
+    IIcBaselineAddCircle: typeof import('~icons/ic/baseline-add-circle')['default']
     IIcBaselineContentCopy: typeof import('~icons/ic/baseline-content-copy')['default']
     IIcBaselineKeyboardArrowDown: typeof import('~icons/ic/baseline-keyboard-arrow-down')['default']
     IIcBaselineKeyboardArrowUp: typeof import('~icons/ic/baseline-keyboard-arrow-up')['default']

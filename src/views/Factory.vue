@@ -22,7 +22,7 @@ const { isFactoryLoaded, isFactoryLoading, factory } = storeToRefs(factoryStore)
 
 const { client } = storeToRefs(dappStore)
 
-const { balanceByUnit, fetchBalance } = useToken({
+const { addTokenProp, balanceByUnit, fetchBalance } = useToken({
 	client,
 })
 
@@ -244,7 +244,9 @@ function onClickCancelCurrentRound() {
 				</p>
 				<p class="break-words">
 					Token Address:
-					<span class="text-gray-500"><Address :address="factory.nativeToken" /></span>
+					<span class="text-gray-500">
+						<Address :add-token="addTokenProp" :address="factory.nativeToken" />
+					</span>
 				</p>
 				<div>
 					<div class="break-words flex items-center gap-x-2">
