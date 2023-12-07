@@ -95,6 +95,12 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
 	history: createWebHistory(),
 	routes,
+	scrollBehavior() {
+		// overflow hidden problem: https://medium.com/@andrewmasonmedia/how-to-fix-scroll-to-top-scrollbehaviour-not-working-in-vue-router-b443c0fecf91
+		// hack https://stackoverflow.com/a/57212324/10752354
+		// @ts-ignore
+		document.getElementById('app').scrollIntoView()
+	},
 })
 
 export default router
