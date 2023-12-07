@@ -1,8 +1,8 @@
 # QF Runner
 
-## Contracts
-- clrfund v4.3.1
-- maci v0.10.1
+## Smart Contracts
+- [clr.fund](https://github.com/clrfund/monorepo) v4.3.1
+- [maci](https://github.com/clrfund/maci/tree/v0.10.2) v0.10.2
 
 ## Tech stacks
 - Vue 3 & Vite 4

@@ -35,7 +35,10 @@ const interval = setInterval(async () => {
 		class="px-2 h-[20px] text-xs text-gray-800 bg-gray-200 fixed bottom-0 flex justify-between items-center w-full"
 	>
 		<Transition name="fade" mode="out-in">
-			<div>{{ dappStore.blockNumber }}</div>
+			<!-- Note: must add key to enable transition animation -->
+			<div :key="dappStore.blockNumber">
+				{{ dappStore.blockNumber ? dappStore.blockNumber : '' }}
+			</div>
 		</Transition>
 
 		<div class="flex items-center gap-x-2">
