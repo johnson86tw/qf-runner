@@ -7,6 +7,7 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    AddMatchingFundsModal: typeof import('./components/modal/AddMatchingFundsModal.vue')['default']
     Address: typeof import('./components/Address.vue')['default']
     AdminLayout: typeof import('./components/layout/AdminLayout.vue')['default']
     AppConnectButton: typeof import('./components/AppConnectButton.vue')['default']

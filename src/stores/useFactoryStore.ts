@@ -1,6 +1,7 @@
-import type { Signer, providers } from 'ethers'
+import { BigNumber, type Signer, type providers } from 'ethers'
 import { defineStore } from 'pinia'
 import {
+	ERC20__factory,
 	FundingRoundFactory__factory,
 	MACIFactory__factory,
 } from 'clrfund-contracts/build/typechain'
@@ -8,6 +9,7 @@ import type { FundingRoundFactory, MACIFactory } from 'clrfund-contracts/build/t
 import invariant from 'tiny-invariant'
 import { useDappStore } from './useDappStore'
 import { Abi, getAddress } from 'viem'
+import { waitForTransaction } from '@/utils/contracts'
 
 type FactoryStoreState = {
 	isFactoryLoaded: boolean
@@ -143,6 +145,18 @@ export const useFactoryStore = defineStore('factory', {
 			} catch (err: any) {
 				throw new Error(err)
 			}
+		},
+		getNativeTokenContract(signer: Signer) {
+			invariant(this.isFactoryLoaded, 'useFactoryStore.isFactoryLoaded')
+			return ERC20__factory.connect(this.factory.nativeToken, signer)
+		},
+		async addMatchingFunds(amount: number, signer: Signer) {
+			invariant(this.isFactoryLoaded, 'useFactoryStore.addMatchingFunds.isFactoryLoaded')
+			const token = this.getNativeTokenContract(signer)
+
+			return await waitForTransaction(
+				token.transfer(this.factory.address, BigNumber.from(BigInt(amount) * 10n ** 18n)),
+			)
 		},
 	},
 })

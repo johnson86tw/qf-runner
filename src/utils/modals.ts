@@ -4,6 +4,7 @@ import ErrorModal from '@/components/modal/ErrorModal.vue'
 import ContributeModal from '@/components/modal/ContributeModal.vue'
 import ClaimFundsModal from '@/components/modal/ClaimFundsModal.vue'
 import ReallocateModal from '@/components/modal/ReallocateModal.vue'
+import AddMatchingFundsModal from '@/components/modal/AddMatchingFundsModal.vue'
 
 import { Vote } from '@/stores/useRoundStore'
 import ExecModal from '@/components/modal/ExecModal.vue'
@@ -105,6 +106,26 @@ export type ExecModalOption = {
 export function showExecModal(options: ExecModalOption) {
 	const { open, close } = useModal({
 		component: ExecModal,
+		attrs: {
+			...options,
+			onConfirm() {
+				close()
+			},
+			onClosed() {
+				close()
+			},
+		},
+	})
+	open()
+}
+
+export type AddMatchingFundsModalProps = {
+	target: 'round' | 'factory'
+}
+
+export function showAddMatchingFundsModal(options: AddMatchingFundsModalProps) {
+	const { open, close } = useModal({
+		component: AddMatchingFundsModal,
 		attrs: {
 			...options,
 			onConfirm() {

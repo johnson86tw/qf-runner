@@ -10,6 +10,7 @@ import { watchImmediate } from '@vueuse/core'
 import { useToken } from '@/composables/useToken'
 import { showExecModal } from '@/utils/modals'
 import { useParticipants } from '@/composables/useParticipants'
+import { showAddMatchingFundsModal } from '@/utils/modals'
 
 const dappStore = useDappStore()
 const factoryStore = useFactoryStore()
@@ -210,6 +211,20 @@ function onClickCancelCurrentRound() {
 		},
 	})
 }
+
+const actionDisabled = ref(false)
+
+const addMatchingFundsDisabled = computed(() => {
+	if (actionDisabled.value) return true
+	if (!dappStore.isConnected) return true
+	return false
+})
+
+function onClickAddMatchingFunds() {
+	showAddMatchingFundsModal({
+		target: 'factory',
+	})
+}
 </script>
 
 <template>
@@ -271,7 +286,15 @@ function onClickCancelCurrentRound() {
 				</div>
 			</div>
 
+			<div class="text-xl flex justify-center mb-2">
+				<p>Actions</p>
+			</div>
+
 			<n-space justify="center" class="my-5">
+				<n-button :disabled="addMatchingFundsDisabled" @click="onClickAddMatchingFunds">
+					Add Matching Funds
+				</n-button>
+
 				<n-button :disabled="!isFactoryLoaded" @click="onClickSetCoordinator">
 					Set Coordinator
 				</n-button>

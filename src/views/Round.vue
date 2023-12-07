@@ -12,9 +12,14 @@ import {
 import { useDappStore } from '@/stores/useDappStore'
 import { Votes, useRoundStore } from '@/stores/useRoundStore'
 import { DateTime } from 'luxon'
-import { watchDeep, watchImmediate, whenever } from '@vueuse/core'
+import { watchDeep, whenever } from '@vueuse/core'
 import { useToken } from '@/composables/useToken'
-import { showClaimFundsModal, showContributeModal, showReallocateModal } from '@/utils/modals'
+import {
+	showAddMatchingFundsModal,
+	showClaimFundsModal,
+	showContributeModal,
+	showReallocateModal,
+} from '@/utils/modals'
 import { Recipient, useParticipants } from '@/composables/useParticipants'
 import { ROUNDS } from '@/constants'
 import { useBoardStore } from '@vue-dapp/vd-board'
@@ -203,6 +208,19 @@ function onClickClaim() {
 		tally: tallyJson.value,
 	})
 }
+
+const addMatchingFundsDisabled = computed(() => {
+	if (actionDisabled.value) return true
+	if (!dappStore.isConnected) return true
+	if (roundStatus.value !== 'contribution') return true
+	return false
+})
+
+function onClickAddMatchingFunds() {
+	showAddMatchingFundsModal({
+		target: 'round',
+	})
+}
 </script>
 
 <template>
@@ -293,7 +311,9 @@ function onClickClaim() {
 				</div>
 
 				<div class="flex flex-wrap gap-1">
-					<n-button disabled>Add Matching Funds</n-button>
+					<n-button :disabled="addMatchingFundsDisabled" @click="onClickAddMatchingFunds">
+						Add Matching Funds
+					</n-button>
 					<n-button :disabled="contributeDisabled" @click="onClickContribute">
 						Contribute
 					</n-button>

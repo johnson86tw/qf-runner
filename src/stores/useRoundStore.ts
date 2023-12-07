@@ -409,7 +409,7 @@ export const useRoundStore = defineStore('round', {
 			return contributor
 		},
 		async sendVotes(contributor: Contributor, signer: Signer) {
-			invariant(this.isRoundLoaded, 'useRoundStore.isRoundLoaded')
+			invariant(this.isRoundLoaded, 'useRoundStore.sendVotes.isRoundLoaded')
 
 			const messages: Message[] = []
 			const encPubKeys: PubKey[] = []
@@ -436,6 +436,17 @@ export const useRoundStore = defineStore('round', {
 					// @ts-ignore
 					messages.reverse().map(msg => msg.asContractParam()),
 					encPubKeys.reverse().map(key => key.asContractParam()),
+				),
+			)
+		},
+		async addMatchingFunds(amount: number, signer: Signer) {
+			invariant(this.isRoundLoaded, 'useRoundStore.addMatchingFunds.isRoundLoaded')
+			const token = this.getNativeTokenContract(signer)
+
+			return await waitForTransaction(
+				token.transfer(
+					this.round.fundingRoundFactoryAddress,
+					BigNumber.from(BigInt(amount) * 10n ** 18n),
 				),
 			)
 		},
