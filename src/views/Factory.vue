@@ -11,6 +11,7 @@ import { useToken } from '@/composables/useToken'
 import { showExecModal } from '@/utils/modals'
 import { useParticipants } from '@/composables/useParticipants'
 import { showAddMatchingFundsModal } from '@/utils/modals'
+import { formatDuration } from '@/utils/dates'
 
 const dappStore = useDappStore()
 const factoryStore = useFactoryStore()
@@ -261,6 +262,18 @@ function onClickAddMatchingFunds() {
 					Token Address:
 					<span class="text-gray-500">
 						<Address :add-token="addTokenProp" :address="factory.nativeToken" />
+					</span>
+				</p>
+				<p class="break-words">
+					Signup Duration (d:h:m:s):
+					<span class="text-gray-500">
+						{{ formatDuration(factory.signUpDuration) }}
+					</span>
+				</p>
+				<p class="break-words">
+					Voting Duration (d:h:m:s):
+					<span class="text-gray-500">
+						{{ formatDuration(factory.votingDuration) }}
 					</span>
 				</p>
 				<div>

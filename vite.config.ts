@@ -27,6 +27,7 @@ export default defineConfig({
 				{
 					'naive-ui': ['useDialog', 'useMessage', 'useNotification', 'useLoadingBar'],
 				},
+				'vitest',
 			],
 			eslintrc: {
 				enabled: true,

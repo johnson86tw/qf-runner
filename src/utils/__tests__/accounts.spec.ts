@@ -1,4 +1,3 @@
-import { expect } from 'vitest'
 import { isSameAddress } from '@/utils/addresses'
 import { ethers } from 'ethers'
 

@@ -10,6 +10,7 @@ import invariant from 'tiny-invariant'
 import { useDappStore } from './useDappStore'
 import { Abi, getAddress } from 'viem'
 import { waitForTransaction } from '@/utils/contracts'
+import { DateTime } from 'luxon'
 
 type FactoryStoreState = {
 	isFactoryLoaded: boolean
@@ -26,6 +27,8 @@ type FactoryStoreState = {
 		coordinator: string
 		userRegistry: string
 		recipientRegistry: string
+		signUpDuration: bigint
+		votingDuration: bigint
 	}
 	factoryError: any
 }
@@ -43,6 +46,8 @@ const getDefaultFactory = (): FactoryStoreState['factory'] => {
 		coordinator: '',
 		userRegistry: '',
 		recipientRegistry: '',
+		signUpDuration: 0n,
+		votingDuration: 0n,
 	}
 }
 
@@ -53,7 +58,14 @@ export const useFactoryStore = defineStore('factory', {
 		factory: getDefaultFactory(),
 		factoryError: null,
 	}),
-	getters: {},
+	getters: {
+		signUpDuration(state) {
+			return DateTime.fromSeconds(Number(state.factory.signUpDuration))
+		},
+		votingDuration(state) {
+			return DateTime.fromSeconds(Number(state.factory.votingDuration))
+		},
+	},
 	actions: {
 		resetFactory() {
 			this.factoryError = null
@@ -103,6 +115,20 @@ export const useFactoryStore = defineStore('factory', {
 					newFactory.maciFactoryAddress,
 					provider,
 				)
+
+				const maciFactoryRes = await dappStore.client.multicall({
+					contracts: [
+						...['signUpDuration', 'votingDuration'].map(fnName => ({
+							address: getAddress(newFactory.maciFactoryAddress),
+							abi: MACIFactory__factory.abi as Abi,
+							functionName: fnName,
+						})),
+					],
+					multicallAddress: dappStore.multicallAddress,
+				})
+
+				newFactory.signUpDuration = maciFactoryRes[0].result as bigint
+				newFactory.votingDuration = maciFactoryRes[1].result as bigint
 
 				this.factory = newFactory
 				this.isFactoryLoaded = true

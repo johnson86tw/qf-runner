@@ -1,5 +1,12 @@
-import { DateTime } from 'luxon'
-import type { TimeLeft } from '@/api/round'
+import { DateTime, Duration } from 'luxon'
+
+/**
+ * luxon issue: https://github.com/moment/luxon/issues/1134
+ */
+export function formatDuration(seconds) {
+	const duration = Duration.fromObject({ seconds })
+	return duration.toFormat('dd:hh:mm:ss')
+}
 
 export function formatDate(date?: DateTime): string {
 	if (!date) {
@@ -20,7 +27,7 @@ export function getSecondsFromNow(date: DateTime): number {
 	return getMillisecondsFromNow(date) / 1000
 }
 
-export function getTimeLeft(date: DateTime): TimeLeft {
+export function getTimeLeft(date: DateTime) {
 	const now = DateTime.local()
 	if (now >= date) {
 		return { days: 0, hours: 0, minutes: 0, seconds: 0 }
