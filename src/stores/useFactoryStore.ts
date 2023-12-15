@@ -1,16 +1,17 @@
-import { BigNumber, type Signer, type providers } from 'ethers'
+import { BigNumber, Contract, type Signer, type providers } from 'ethers'
 import { defineStore } from 'pinia'
 import {
 	ERC20__factory,
 	FundingRoundFactory__factory,
 	MACIFactory__factory,
 } from 'clrfund-contracts/build/typechain'
-import type { FundingRoundFactory, MACIFactory } from 'clrfund-contracts/build/typechain'
+import { FundingRoundFactory, MACIFactory } from 'clrfund-contracts/build/typechain'
 import invariant from 'tiny-invariant'
 import { useDappStore } from './useDappStore'
 import { Abi, getAddress } from 'viem'
 import { waitForTransaction } from '@/utils/contracts'
 import { DateTime } from 'luxon'
+import { MaciParameters } from '@/utils/maci'
 
 type FactoryStoreState = {
 	isFactoryLoaded: boolean
@@ -78,12 +79,11 @@ export const useFactoryStore = defineStore('factory', {
 
 			try {
 				const newFactory = getDefaultFactory()
-				newFactory.address = factoryAddress
 
-				newFactory.fundingRoundFactoryContract = FundingRoundFactory__factory.connect(
-					factoryAddress,
-					provider,
-				)
+				newFactory.address = factoryAddress
+				newFactory.fundingRoundFactoryAddress = newFactory.address
+				newFactory.contract = FundingRoundFactory__factory.connect(factoryAddress, provider)
+				newFactory.fundingRoundFactoryContract = newFactory.contract
 
 				const dappStore = useDappStore()
 
@@ -157,20 +157,44 @@ export const useFactoryStore = defineStore('factory', {
 
 			return rounds
 		},
+		async setDurations(signUpDuration: number, votingDuration: number, signer: Signer) {
+			invariant(this.isFactoryLoaded, 'useFactoryStore.setDurations.isFactoryLoaded')
+
+			// @ts-ignore
+			const maciParameters = await MaciParameters.read(this.factory.maciFactoryContract)
+			maciParameters.update({
+				signUpDuration,
+				votingDuration,
+			})
+
+			const fundingRoundFactory = FundingRoundFactory__factory.connect(
+				this.factory.address,
+				signer,
+			)
+
+			return await waitForTransaction(
+				// @ts-ignore
+				fundingRoundFactory.setMaciParameters(...maciParameters.values()),
+			)
+		},
 		async setCoordinator(
 			coordinatorAddr: string,
 			macipk: {
 				x: bigint
 				y: bigint
 			},
+			signer: Signer,
 		) {
-			invariant(this.factory.contract, 'useFactoryStore.setCoordinator.factory.contract')
+			invariant(this.isFactoryLoaded, 'useFactoryStore.setDurations.isFactoryLoaded')
 
-			try {
-				await this.factory.contract.setCoordinator(coordinatorAddr, macipk)
-			} catch (err: any) {
-				throw new Error(err)
-			}
+			const fundingRoundFactory = FundingRoundFactory__factory.connect(
+				this.factory.address,
+				signer,
+			)
+
+			return await waitForTransaction(
+				fundingRoundFactory.setCoordinator(coordinatorAddr, macipk),
+			)
 		},
 		getNativeTokenContract(signer: Signer) {
 			invariant(this.isFactoryLoaded, 'useFactoryStore.isFactoryLoaded')

@@ -8,7 +8,7 @@ import {
 } from 'clrfund-contracts/build/typechain'
 import { watchImmediate } from '@vueuse/core'
 import { useToken } from '@/composables/useToken'
-import { showExecModal } from '@/utils/modals'
+import { showExecModal, showSetDurations } from '@/utils/modals'
 import { useParticipants } from '@/composables/useParticipants'
 import { showAddMatchingFundsModal } from '@/utils/modals'
 import { formatDuration } from '@/utils/dates'
@@ -95,6 +95,14 @@ const maciFactoryProps = computed(() => {
 	}
 	return null
 })
+
+function onClickSetDurations() {
+	showSetDurations({
+		onExecuted: () => {
+			factoryStore.updateFactory(dappStore.provider, factoryAddress.value)
+		},
+	})
+}
 
 function onClickSetCoordinator() {
 	showExecModal({
@@ -306,6 +314,10 @@ function onClickAddMatchingFunds() {
 			<n-space justify="center" class="my-5">
 				<n-button :disabled="addMatchingFundsDisabled" @click="onClickAddMatchingFunds">
 					Add Matching Funds
+				</n-button>
+
+				<n-button :disabled="!isFactoryLoaded" @click="onClickSetDurations">
+					Set Durations
 				</n-button>
 
 				<n-button :disabled="!isFactoryLoaded" @click="onClickSetCoordinator">

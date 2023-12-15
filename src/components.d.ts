@@ -59,6 +59,7 @@ declare module '@vue/runtime-core' {
     RoundAddressInput: typeof import('./components/RoundAddressInput.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SetDurationsModal: typeof import('./components/modal/SetDurationsModal.vue')['default']
     TheFooter: typeof import('./components/TheFooter.vue')['default']
     TheHeader: typeof import('./components/TheHeader.vue')['default']
     TxButton: typeof import('./components/button/TxButton.vue')['default']

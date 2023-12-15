@@ -1,85 +1,59 @@
-import type { BigNumber, BigNumberish } from 'ethers'
-import { genRandomSalt, IncrementalQuinTree } from 'maci-crypto'
-import { Keypair, PubKey, Command, Message } from 'maci-domainobjs'
+import type { Contract } from 'ethers'
 
-function bnSqrt(a: BigNumber): BigNumber {
-	// Take square root from a big number
-	// https://stackoverflow.com/a/52468569/1868395
-	if (a.isZero()) {
-		return a
-	}
-	let x
-	let x1 = a.div(2)
-	do {
-		x = x1
-		x1 = x.add(a.div(x)).div(2)
-	} while (!x.eq(x1))
-	return x
-}
+export class MaciParameters {
+	stateTreeDepth = 32
+	messageTreeDepth = 32
+	voteOptionTreeDepth = 3
+	tallyBatchSize = 8
+	messageBatchSize = 8
+	batchUstVerifier!: string
+	qvtVerifier!: string
+	signUpDuration = 7 * 86400
+	votingDuration = 7 * 86400
 
-export function createMessage(
-	userStateIndex: number,
-	userKeypair: Keypair,
-	newUserKeypair: Keypair | null,
-	coordinatorPubKey: PubKey,
-	voteOptionIndex: number | null,
-	voiceCredits: BigNumber | null,
-	nonce: number,
-	salt?: bigint,
-): [Message, PubKey] {
-	const encKeypair = new Keypair()
-	if (!salt) {
-		salt = genRandomSalt() as bigint
+	constructor(parameters: { [name: string]: any } = {}) {
+		this.update(parameters)
 	}
-	const quadraticVoteWeight = voiceCredits ? bnSqrt(voiceCredits) : 0
-	const command = new Command(
-		BigInt(userStateIndex),
-		newUserKeypair ? newUserKeypair.pubKey : userKeypair.pubKey,
-		BigInt(voteOptionIndex || 0),
-		BigInt(quadraticVoteWeight.toString()),
-		BigInt(nonce),
-		BigInt(salt),
-	)
-	const signature = command.sign(userKeypair.privKey)
-	const message = command.encrypt(signature, Keypair.genEcdhSharedKey(encKeypair.privKey, coordinatorPubKey))
-	return [message, encKeypair.pubKey]
-}
 
-export interface Tally {
-	provider: string
-	maci: string
-	results: {
-		commitment: string
-		tally: string[]
-		salt: string
+	update(parameters: { [name: string]: any }) {
+		for (const [name, value] of Object.entries(parameters)) {
+			;(this as any)[name] = value
+		}
 	}
-	totalVoiceCredits: {
-		spent: string
-		commitment: string
-		salt: string
-	}
-	totalVoiceCreditsPerVoteOption: {
-		commitment: string
-		tally: string[]
-		salt: string
-	}
-}
 
-export type RecipientClaimData = [BigNumberish, BigNumberish, BigNumberish[][], BigNumberish]
-
-export function getRecipientClaimData(
-	recipientIndex: number,
-	recipientTreeDepth: number,
-	tally: Tally,
-): RecipientClaimData {
-	// Create proof for total amount of spent voice credits
-	const spent = tally.totalVoiceCreditsPerVoteOption.tally[recipientIndex]
-	const spentSalt = tally.totalVoiceCreditsPerVoteOption.salt
-	const spentTree = new IncrementalQuinTree(recipientTreeDepth, BigInt(0))
-	for (const leaf of tally.totalVoiceCreditsPerVoteOption.tally) {
-		spentTree.insert(BigInt(leaf))
+	values(): any[] {
+		// To be passed to setMaciParameters()
+		return [
+			this.stateTreeDepth,
+			this.messageTreeDepth,
+			this.voteOptionTreeDepth,
+			this.tallyBatchSize,
+			this.messageBatchSize,
+			this.batchUstVerifier,
+			this.qvtVerifier,
+			this.signUpDuration,
+			this.votingDuration,
+		]
 	}
-	const spentProof = spentTree.genMerklePath(recipientIndex)
 
-	return [recipientIndex, spent, spentProof.pathElements.map(x => x.map(y => y.toString())), spentSalt]
+	static async read(maciFactory: Contract): Promise<MaciParameters> {
+		const { stateTreeDepth, messageTreeDepth, voteOptionTreeDepth } =
+			await maciFactory.treeDepths()
+		const { tallyBatchSize, messageBatchSize } = await maciFactory.batchSizes()
+		const batchUstVerifier = await maciFactory.batchUstVerifier()
+		const qvtVerifier = await maciFactory.qvtVerifier()
+		const signUpDuration = (await maciFactory.signUpDuration()).toNumber()
+		const votingDuration = (await maciFactory.votingDuration()).toNumber()
+		return new MaciParameters({
+			stateTreeDepth,
+			messageTreeDepth,
+			voteOptionTreeDepth,
+			tallyBatchSize,
+			messageBatchSize,
+			batchUstVerifier,
+			qvtVerifier,
+			signUpDuration,
+			votingDuration,
+		})
+	}
 }
