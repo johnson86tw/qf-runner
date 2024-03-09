@@ -43,7 +43,7 @@ onDeactivated(() => {
 
 const connectors = [
 	new MetaMaskConnector({
-		appUrl: 'qf-runner.vercel.app',
+		appUrl: 'https://qf-runner.vercel.app/',
 	}),
 ]
 

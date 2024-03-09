@@ -21,7 +21,6 @@ import {
 } from '@/constants'
 import { useRoundStore } from './useRoundStore'
 import { useWalletStore } from '@vue-dapp/core'
-import { numeric } from '@vuelidate/validators'
 
 export type DappState = {
 	user: User
