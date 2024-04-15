@@ -22,9 +22,6 @@ import {
 } from '@/utils/modals'
 import { Recipient, useParticipants } from '@/composables/useParticipants'
 import { ROUNDS } from '@/constants'
-import { useBoardStore } from '@vue-dapp/vd-board'
-
-const { open } = useBoardStore()
 
 const dappStore = useDappStore()
 const roundStore = useRoundStore()
@@ -299,7 +296,9 @@ function onClickAddMatchingFunds() {
 				</div>
 
 				<div class="flex flex-col items-center mb-2">
-					<n-button v-if="!dappStore.isConnected" @click="open"> Connect </n-button>
+					<n-button v-if="!dappStore.isConnected" @click="dappStore.open()">
+						Connect
+					</n-button>
 					<n-button v-if="dappStore.isNetworkUnmatched" @click="dappStore.switchChain">
 						Switch Network
 					</n-button>

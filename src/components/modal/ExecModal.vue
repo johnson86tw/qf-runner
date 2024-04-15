@@ -3,7 +3,6 @@ import { useDappStore } from '@/stores/useDappStore'
 import { TransactionReceipt, getAbiItem, getAddress, stringify } from 'viem'
 import { VueFinalModal } from 'vue-final-modal'
 import { StepsProps } from 'naive-ui'
-import { useBoardStore } from '@vue-dapp/vd-board'
 import { watchDeep, watchImmediate, whenever } from '@vueuse/core'
 import { PubKey } from 'clrfund-maci-utils'
 import { ExecModalOption } from '@/utils/modals'
@@ -47,8 +46,6 @@ function prev() {
 	else if (current.value === null) current.value = totalSteps
 	else current.value--
 }
-
-const { open } = useBoardStore()
 
 type InputValue = {
 	name: string
@@ -187,7 +184,10 @@ async function onClickExecTransaction() {
 				<n-steps vertical :current="(current as number)" :status="currentStatus">
 					<!-- 1 -->
 					<n-step title="Connect to your wallet" description="">
-						<n-button v-if="current === 1 && !dappStore.isConnected" @click="open">
+						<n-button
+							v-if="current === 1 && !dappStore.isConnected"
+							@click="dappStore.open"
+						>
 							Connect
 						</n-button>
 						<n-button

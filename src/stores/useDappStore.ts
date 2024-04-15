@@ -20,9 +20,10 @@ import {
 	MULTICALL3_ADDRESS,
 } from '@/constants'
 import { useRoundStore } from './useRoundStore'
-import { useWalletStore } from '@vue-dapp/core'
+import { useVueDapp } from '@vue-dapp/core'
 
 export type DappState = {
+	isModalOpen: boolean
 	user: User
 	network: AppNetwork
 	blockNumber: number
@@ -47,6 +48,7 @@ export const networkOptions = [...networkMap.keys()]
 
 export const useDappStore = defineStore('dapp', {
 	state: (): DappState => ({
+		isModalOpen: false,
 		user: {
 			address: '',
 			signer: null,
@@ -99,7 +101,7 @@ export const useDappStore = defineStore('dapp', {
 			})
 		},
 		walletClient(): WalletClient {
-			const { provider } = storeToRefs(useWalletStore())
+			const { provider } = useVueDapp()
 			return createWalletClient({
 				chain: this.chain,
 				// @ts-ignore
@@ -125,6 +127,9 @@ Contract address: ${roundStore.round.fundingRoundFactoryAddress.toLowerCase()}.`
 		},
 	},
 	actions: {
+		open() {
+			this.isModalOpen = true
+		},
 		setUser(user: User) {
 			this.user = user
 		},
@@ -154,7 +159,7 @@ Contract address: ${roundStore.round.fundingRoundFactoryAddress.toLowerCase()}.`
 			})
 		},
 		async switchChain() {
-			const { connector } = storeToRefs(useWalletStore())
+			const { connector } = useVueDapp()
 			try {
 				if (connector.value) {
 					if (this.chainId === 421613) {
