@@ -4,8 +4,61 @@ import { useDappStore } from './stores/useDappStore'
 import { useRoundStore } from './stores/useRoundStore'
 import { watchImmediate } from '@vueuse/core'
 import { isAddress } from 'viem'
+import { ethers } from 'ethers'
+// vue-dapp
+import {
+	useVueDapp,
+	BrowserWalletConnector,
+	VueDappProvider,
+	type ConnWallet,
+} from '@vue-dapp/core'
+import { VueDappModal } from '@vue-dapp/modal'
+import '@vue-dapp/modal/dist/style.css'
 
 const dappStore = useDappStore()
+
+// ------------------------------------ vue-dapp start ------------------------------------
+const { addConnector, onConnected, onAccountOrChainIdChanged, onDisconnected } = useVueDapp()
+
+onMounted(() => {
+	addConnector(new BrowserWalletConnector())
+})
+
+onConnected(async ({ provider, address, chainId }) => {
+	const ethersProvider = new ethers.providers.Web3Provider(provider)
+	const signer = await ethersProvider.getSigner()
+
+	dappStore.setUser({
+		address,
+		signer: markRaw(signer),
+		chainId,
+	})
+})
+
+onAccountOrChainIdChanged(async ({ provider, address, chainId }) => {
+	const ethersProvider = new ethers.providers.Web3Provider(provider)
+	const signer = await ethersProvider.getSigner()
+
+	dappStore.setUser({
+		address,
+		signer: markRaw(signer),
+		chainId,
+	})
+})
+
+onDisconnected(() => {
+	dappStore.resetUser()
+})
+
+function handleConnect(wallet: ConnWallet) {
+	console.log('handleConnect', wallet)
+}
+
+function handleDisconnect() {
+	console.log('handleDisconnect')
+}
+
+// ------------------------------------ vue-dapp end ------------------------------------
 
 const roundStore = useRoundStore()
 const { isRoundLoading } = storeToRefs(roundStore)
@@ -63,12 +116,14 @@ watchImmediate(isRoundLoading, (newVal, oldVal) => {
 
 <template>
 	<n-notification-provider placement="bottom">
-		<AppWeb3Provider>
+		<VueDappProvider @connect="handleConnect" @disconnect="handleDisconnect">
 			<AdminLayout>
 				<RouterView />
 			</AdminLayout>
-		</AppWeb3Provider>
-		<ModalsContainer />
+
+			<ModalsContainer />
+			<VueDappModal v-model="dappStore.isModalOpen" />
+		</VueDappProvider>
 	</n-notification-provider>
 </template>
 

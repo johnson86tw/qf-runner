@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import copy from 'copy-to-clipboard'
 import { useDappStore } from '@/stores/useDappStore'
-import { useBoardStore } from '@vue-dapp/vd-board'
-import { shortenAddress, useWalletStore } from '@vue-dapp/core'
+import { shortenAddress, useVueDapp } from '@vue-dapp/core'
 
-const { open } = useBoardStore()
-
-const { disconnect } = useWalletStore()
-const { status, isConnected } = storeToRefs(useWalletStore())
+const { disconnect, status, isConnected } = useVueDapp()
 
 const dappStore = useDappStore()
 const { isNetworkUnmatched, user } = storeToRefs(dappStore)
+
+function onClickConnect() {
+	dappStore.open()
+}
 </script>
 
 <template>
@@ -42,7 +42,7 @@ const { isNetworkUnmatched, user } = storeToRefs(dappStore)
 		<BaseButton
 			class="rounded-3xl w-auto"
 			v-else
-			@click="open()"
+			@click="onClickConnect"
 			:disabled="status === 'connecting'"
 		>
 			{{ status === 'connecting' ? 'Connecting...' : '' }}

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { VueFinalModal } from 'vue-final-modal'
 import type { StepsProps } from 'naive-ui'
-import { useBoardStore } from '@vue-dapp/vd-board'
 import { useDappStore } from '@/stores/useDappStore'
 import { AddMatchingFundsModalProps } from '@/utils/modals'
 import { useRoundStore } from '@/stores/useRoundStore'
@@ -12,8 +11,6 @@ const props = withDefaults(defineProps<AddMatchingFundsModalProps>(), {})
 
 const roundStore = useRoundStore()
 const dappStore = useDappStore()
-
-const { open } = useBoardStore()
 
 const current = ref<number | null>(1)
 const currentStatus = ref<StepsProps['status']>('process')

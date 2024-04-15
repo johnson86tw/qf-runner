@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { shortenAddress } from '@vue-dapp/core'
+import { BrowserWalletConnector, shortenAddress } from '@vue-dapp/core'
 import { useDappStore } from '@/stores/useDappStore'
 import { isAddress } from 'viem'
-import { useWalletStore, MetaMaskConnector, AddERC20TokenOptions } from '@vue-dapp/core'
+import { useVueDapp, AddERC20TokenOptions } from '@vue-dapp/core'
 
 const props = withDefaults(
 	defineProps<{
@@ -29,15 +29,15 @@ const link = computed(() => {
 	return dappStore.explorerUrl + '/address/' + props.address
 })
 
-const walletStore = useWalletStore()
+const { isConnected, connector } = useVueDapp()
 
 function onClickAddERC20Token() {
 	if (!props.addToken) return
-	if (walletStore.isConnected && !walletStore.connector) {
+	if (isConnected.value && !connector.value) {
 		console.error('Wallet not connected')
 		return
 	}
-	;(walletStore.connector as MetaMaskConnector).addERC20Token({
+	;(connector.value as BrowserWalletConnector).addERC20Token({
 		address: props.addToken?.address,
 		symbol: props.addToken?.symbol,
 		decimals: props.addToken?.decimals,
@@ -58,7 +58,7 @@ function onClickAddERC20Token() {
 				<i-ic-baseline-open-in-new />
 			</a>
 			<div
-				v-if="addToken && walletStore.isConnected"
+				v-if="addToken && isConnected"
 				@click="onClickAddERC20Token"
 				class="cursor-pointer hover:text-gray-400"
 			>
