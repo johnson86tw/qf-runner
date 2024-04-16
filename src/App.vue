@@ -18,13 +18,11 @@ import '@vue-dapp/modal/dist/style.css'
 const dappStore = useDappStore()
 
 // ------------------------------------ vue-dapp start ------------------------------------
-const { addConnector, onConnected, onAccountOrChainIdChanged, onDisconnected } = useVueDapp()
+const { addConnector } = useVueDapp()
 
-onMounted(() => {
-	addConnector(new BrowserWalletConnector())
-})
+addConnector(new BrowserWalletConnector())
 
-onConnected(async ({ provider, address, chainId }) => {
+async function handleConnect({ provider, address, chainId }: ConnWallet) {
 	const ethersProvider = new ethers.providers.Web3Provider(provider)
 	const signer = await ethersProvider.getSigner()
 
@@ -33,29 +31,10 @@ onConnected(async ({ provider, address, chainId }) => {
 		signer: markRaw(signer),
 		chainId,
 	})
-})
-
-onAccountOrChainIdChanged(async ({ provider, address, chainId }) => {
-	const ethersProvider = new ethers.providers.Web3Provider(provider)
-	const signer = await ethersProvider.getSigner()
-
-	dappStore.setUser({
-		address,
-		signer: markRaw(signer),
-		chainId,
-	})
-})
-
-onDisconnected(() => {
-	dappStore.resetUser()
-})
-
-function handleConnect(wallet: ConnWallet) {
-	console.log('handleConnect', wallet)
 }
 
 function handleDisconnect() {
-	console.log('handleDisconnect')
+	dappStore.resetUser()
 }
 
 // ------------------------------------ vue-dapp end ------------------------------------
